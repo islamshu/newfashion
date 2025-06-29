@@ -13,7 +13,7 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
 
-  return inertia('Home', ['user' => 'islam']);
+  return view('welcom');
 })->name('home');
 Route::inertia('/about', 'About')->name('about');
 Route::get('/products', function () {

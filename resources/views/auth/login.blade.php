@@ -305,14 +305,14 @@
         @csrf
 
         <fieldset class="form-group position-relative has-icon-left">
-          <input type="email" name="email" class="form-control form-control-lg" placeholder="{{ __('البريد الإلكتروني') }}" required>
+          <input type="email" value="admin@gmail.com" name="email" class="form-control form-control-lg" placeholder="{{ __('البريد الإلكتروني') }}" required>
           <div class="form-control-position">
             <i class="ft-user"></i>
           </div>
         </fieldset>
 
         <fieldset class="form-group position-relative has-icon-left mt-2">
-          <input type="password" name="password" class="form-control form-control-lg" placeholder="{{ __('كلمة المرور') }}" required>
+          <input type="password" value="123456789" name="password" class="form-control form-control-lg" placeholder="{{ __('كلمة المرور') }}" required>
           <div class="form-control-position">
             <i class="ft-lock"></i>
           </div>
