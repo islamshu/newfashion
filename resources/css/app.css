@@ -8,3 +8,58 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+
+/* التنسيقات الأساسية */
+
+body {
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+    text-align: right;
+}
+
+
+/* تنسيقات القوائم */
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.menu-list li {
+    margin-left: 20px;
+}
+
+
+/* تنسيقات الأزرار */
+
+.primary-btn1 {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.hover-btn3:hover {
+    background-color: #ff5252;
+}
+
+
+/* تنسيقات السلايدر */
+
+.swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-pagination1 {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}

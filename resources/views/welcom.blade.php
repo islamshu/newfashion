@@ -194,7 +194,8 @@
         </div>
         
         <a href="{{route('dashboard')}}" class="btn">الانتقال إلى لوحة التحكم</a>
-        
+                <a href="{{route('home')}}" class="btn">الانتقال إلى الوجهة الرئيسية </a>
+
         <div class="rocket">🚀</div>
     </div>
     
