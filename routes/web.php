@@ -6,6 +6,7 @@ use App\Http\Controllers\DashbaordController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\ProductAttributeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SliderController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
@@ -38,7 +39,13 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
   Route::get('/coupons/ajax', [CouponController::class, 'ajaxIndex'])->name('coupons.ajax');
   Route::resource('product_attributes', ProductAttributeController::class)->except(['show']);
   Route::resource('sliders', SliderController::class)->except(['show']);
+  Route::resource('features', ServiceController::class)->only(['index','edit','update']);
+  Route::post('/features/update-order', [ServiceController::class, 'updateOrder'])->name('features.updateOrder');
+  Route::post('/sliders/update-order', [SliderController::class, 'updateOrder'])->name('sliders.updateOrder');
   Route::get('update_status_slider', [SliderController::class, 'update_status_slider'])->name('update_status_slider');
+  Route::get('update_status_category', [CategoryController::class, 'update_status_category'])->name('update_status_category');
+
+  
   Route::resource('coupons', CouponController::class)->except(['show']);
   Route::get('language_translate/{local}', [DashbaordController::class, 'show_translate'])->name('show_translate');
   Route::post('/languages/key_value_store', [DashbaordController::class, 'key_value_store'])->name('languages.key_value_store');

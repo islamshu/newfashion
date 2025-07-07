@@ -137,6 +137,50 @@
             border-color: #e53e3e;
         }
 
+        /* Image styling */
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .image-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: #e53e3e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .remove-btn:hover {
+            opacity: 1;
+        }
+
         .variation-row {
             background-color: white;
             padding: 15px;
@@ -154,29 +198,6 @@
         .switch-container label {
             margin-right: 10px;
             margin-bottom: 0;
-        }
-
-        .image-preview-container {
-            margin-top: 10px;
-        }
-
-        .current-image {
-            max-width: 150px;
-            max-height: 150px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            padding: 5px;
-            margin-bottom: 10px;
-        }
-
-        .image-preview {
-            max-width: 150px;
-            max-height: 150px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            padding: 5px;
-            margin-top: 10px;
-            /* display: none; */
         }
 
         .required-field::after {
@@ -214,6 +235,8 @@
                                     <h4 class="card-title"><i class="ft-edit-2"></i> {{ __('تعديل بيانات المنتج') }}</h4>
                                 </div>
                                 <div class="card-content collapse show">
+
+                                    @include('dashboard.inc.alerts')
                                     <div class="card-body">
                                         <form action="{{ route('products.update', $product->id) }}" method="POST"
                                             enctype="multipart/form-data">
@@ -261,21 +284,42 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label for="image">{{ __('صورة المنتج') }}</label>
-                                                        <div class="d-flex flex-column">
+                                            </div>
 
-                                                            <input type="file" id="image" name="image"
-                                                                class="form-control">
-                                                            <div class="image-preview-container">
-                                                                <img id="image-preview" class="image-preview"
-                                                                    src="{{ asset('storage/' . $product->image) }}"
-                                                                    alt="Preview">
+                                            <!-- صور المصغرات -->
+                                            <div class="form-group mb-4">
+                                                <label>{{ __('صور المصغرات') }}</label>
+                                                <input type="file" name="thumbnails[]" class="form-control" multiple>
+                                                <div class="image-container" id="thumbnails-container">
+                                                    @foreach ($product->thumbnails as $thumb)
+                                                        <div class="image-wrapper" data-id="{{ $thumb->id }}">
+                                                            <img src="{{ asset('storage/' . $thumb->image) }}"
+                                                                alt="صورة مصغرة">
+                                                            <div class="remove-btn remove-thumbnail">
+                                                                <i class="ft-trash"></i>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    @endforeach
                                                 </div>
+                                                <div class="image-container" id="new-thumbnails-preview"></div>
+                                            </div>
+
+                                            <!-- صور المنتج الإضافية -->
+                                            <div class="form-group mb-4">
+                                                <label>{{ __('صور إضافية') }}</label>
+                                                <input type="file" name="images[]" class="form-control" multiple>
+                                                <div class="image-container" id="images-container">
+                                                    @foreach ($product->images as $image)
+                                                        <div class="image-wrapper" data-id="{{ $image->id }}">
+                                                            <img src="{{ asset('storage/' . $image->image) }}"
+                                                                alt="صورة إضافية">
+                                                            <div class="remove-btn remove-image">
+                                                                <i class="ft-trash"></i>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                                <div class="image-container" id="new-images-preview"></div>
                                             </div>
 
                                             <!-- السعر والخصم -->
@@ -297,11 +341,7 @@
                                                             placeholder="SKU12345">
                                                     </div>
                                                 </div>
-
                                             </div>
-
-                                            <!-- SKU والماركة -->
-
 
                                             <!-- الوصف القصير -->
                                             <div class="row">
@@ -464,37 +504,37 @@
             let variationIndex = {{ count(old('variations', $product->variations)) }};
 
             // إضافة متغير جديد
-            $(document).on('click', '#add-variation', function() {
+            $('#add-variation').click(function() {
                 let html = `
-            <div class="variation-row row align-items-center mt-2">
-                <div class="col-md-4">
-                    <label class="d-block text-sm">{{ __('اللون') }}</label>
-                    <select name="variations[${variationIndex}][color_id]" class="form-control">
-                        <option value="">{{ __('-- اختر اللون --') }}</option>
-                        @foreach ($colors as $color)
-                            <option value="{{ $color->id }}">{{ $color->getTranslation('value', app()->getLocale()) }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="d-block text-sm">{{ __('المقاس') }}</label>
-                    <select name="variations[${variationIndex}][size_id]" class="form-control">
-                        <option value="">{{ __('-- اختر المقاس --') }}</option>
-                        @foreach ($sizes as $size)
-                            <option value="{{ $size->id }}">{{ $size->getTranslation('value', app()->getLocale()) }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="d-block text-sm">{{ __('الكمية') }}</label>
-                    <input type="number" name="variations[${variationIndex}][stock]" class="form-control" value="0" min="0">
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-danger remove-variation" title="{{ __('حذف المتغير') }}">
-                        <i class="ft-trash"></i>
-                    </button>
-                </div>
-            </div>`;
+                <div class="variation-row row align-items-center mt-2">
+                    <div class="col-md-4">
+                        <label class="d-block text-sm">{{ __('اللون') }}</label>
+                        <select name="variations[${variationIndex}][color_id]" class="form-control">
+                            <option value="">{{ __('-- اختر اللون --') }}</option>
+                            @foreach ($colors as $color)
+                                <option value="{{ $color->id }}">{{ $color->getTranslation('value', app()->getLocale()) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="d-block text-sm">{{ __('المقاس') }}</label>
+                        <select name="variations[${variationIndex}][size_id]" class="form-control">
+                            <option value="">{{ __('-- اختر المقاس --') }}</option>
+                            @foreach ($sizes as $size)
+                                <option value="{{ $size->id }}">{{ $size->getTranslation('value', app()->getLocale()) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="d-block text-sm">{{ __('الكمية') }}</label>
+                        <input type="number" name="variations[${variationIndex}][stock]" class="form-control" value="0" min="0">
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger remove-variation" title="{{ __('حذف المتغير') }}">
+                            <i class="ft-trash"></i>
+                        </button>
+                    </div>
+                </div>`;
                 $('#variations-container').append(html);
                 variationIndex++;
             });
@@ -508,31 +548,106 @@
                 }
             });
 
-            // معاينة الصورة
-            $('#image').change(function(e) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#image-preview').attr('src', e.target.result).show();
+            // معاينة الصور المصغرات الجديدة عند الرفع
+            $('input[name="thumbnails[]"]').change(function(e) {
+                if (this.files && this.files.length > 0) {
+                    Array.from(this.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const randomId = 'thumb-' + Math.random().toString(36).substr(2, 9);
+                            $('#new-thumbnails-preview').append(`
+                                <div class="image-wrapper" id="${randomId}">
+                                    <img src="${e.target.result}" alt="صورة مصغرة جديدة">
+                                    <div class="remove-btn remove-new-thumbnail" data-target="${randomId}">
+                                        <i class="ft-trash"></i>
+                                    </div>
+                                </div>
+                            `);
+                        }
+                        reader.readAsDataURL(file);
+                    });
                 }
-                reader.readAsDataURL(e.target.files[0]);
+            });
+
+            // معاينة الصور الإضافية الجديدة عند الرفع
+            $('input[name="images[]"]').change(function(e) {
+                if (this.files && this.files.length > 0) {
+                    Array.from(this.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const randomId = 'img-' + Math.random().toString(36).substr(2, 9);
+                            $('#new-images-preview').append(`
+                                <div class="image-wrapper" id="${randomId}">
+                                    <img src="${e.target.result}" alt="صورة إضافية جديدة">
+                                    <div class="remove-btn remove-new-image" data-target="${randomId}">
+                                        <i class="ft-trash"></i>
+                                    </div>
+                                </div>
+                            `);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                }
+            });
+
+            // حذف الصور المصغرات القديمة
+            $(document).on('click', '.remove-thumbnail', function() {
+                const wrapper = $(this).closest('.image-wrapper');
+                const thumbId = wrapper.data('id');
+
+                // إضافة حقل مخفي للإشارة إلى الصور المحذوفة
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'deleted_thumbnails[]',
+                    value: thumbId
+                }).appendTo('form');
+
+                wrapper.remove();
+            });
+
+            // حذف الصور الإضافية القديمة
+            $(document).on('click', '.remove-image', function() {
+                const wrapper = $(this).closest('.image-wrapper');
+                const imgId = wrapper.data('id');
+
+                // إضافة حقل مخفي للإشارة إلى الصور المحذوفة
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'deleted_images[]',
+                    value: imgId
+                }).appendTo('form');
+
+                wrapper.remove();
+            });
+
+            // حذف الصور المصغرات الجديدة قبل الرفع
+            $(document).on('click', '.remove-new-thumbnail', function() {
+                const targetId = $(this).data('target');
+                $('#' + targetId).remove();
+            });
+
+            // حذف الصور الإضافية الجديدة قبل الرفع
+            $(document).on('click', '.remove-new-image', function() {
+                const targetId = $(this).data('target');
+                $('#' + targetId).remove();
             });
 
             // تغيير حالة السويتش
             $('input[type="checkbox"][name="status"], input[type="checkbox"][name="is_featured"]').change(
-        function() {
-                const statusSpan = $(this).closest('.switch-container').find('span');
-                if ($(this).is(':checked')) {
-                    statusSpan.removeClass('text-secondary').addClass($(this).attr('name') === 'status' ?
-                        'text-success' : 'text-primary');
-                    statusSpan.text($(this).attr('name') === 'status' ? '{{ __('نشط') }}' :
-                        '{{ __('مميز') }}');
-                } else {
-                    statusSpan.removeClass($(this).attr('name') === 'status' ? 'text-success' :
-                        'text-primary').addClass('text-secondary');
-                    statusSpan.text($(this).attr('name') === 'status' ? '{{ __('غير نشط') }}' :
-                        '{{ __('عادي') }}');
-                }
-            });
+                function() {
+                    const statusSpan = $(this).closest('.switch-container').find('span');
+                    if ($(this).is(':checked')) {
+                        statusSpan.removeClass('text-secondary').addClass($(this).attr('name') === 'status' ?
+                            'text-success' : 'text-primary');
+                        statusSpan.text($(this).attr('name') === 'status' ? '{{ __('نشط') }}' :
+                            '{{ __('مميز') }}');
+                    } else {
+                        statusSpan.removeClass($(this).attr('name') === 'status' ? 'text-success' :
+                            'text-primary').addClass('text-secondary');
+                        statusSpan.text($(this).attr('name') === 'status' ? '{{ __('غير نشط') }}' :
+                            '{{ __('عادي') }}');
+                    }
+                });
         });
     </script>
 @endsection

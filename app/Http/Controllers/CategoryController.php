@@ -18,6 +18,14 @@ class CategoryController extends Controller
         $categories = Category::main()->paginate(10);
         return view('dashboard.categories.index', compact('categories'));
     }
+    public function update_status_category(Request $request)
+    {
+        $slider = Category::findOrFail($request->category_id);
+        $slider->is_featured = $request->is_featcher; // Toggle status
+        $slider->save();
+
+        return response()->json(['success' => true, 'status' => $slider->is_featcher]);
+    }
 
      public function ajaxIndex(Request $request)
     {
@@ -72,7 +80,7 @@ class CategoryController extends Controller
         }
 
         // إنشاء slug من الاسم العربي
-        $data['slug'] = Str::slug($request->name['ar']);
+        $data['slug'] = Str::slug($request->name['ar']). '-' . Str::random(5);
 
         Category::create($data);
 
@@ -83,6 +91,7 @@ class CategoryController extends Controller
     public function edit(Category $category)
     {
         $categories = Category::whereNull('parent_id')->where('id', '!=', $category->id)->get();
+        dd(getColor($category));
         return view('dashboard.categories.edit', compact('category', 'categories'));
     }
 
@@ -126,6 +135,8 @@ class CategoryController extends Controller
         if ($category->image) {
             Storage::disk('public')->delete($category->image);
         }
+        
+        $category->products()->delete();
 
         $category->delete();
 

@@ -25,6 +25,7 @@ class ProductAttributeController extends Controller
         ProductAttribute::create([
             'type' => $request->type,
             'value' => $request->value,
+            'code' => $request->code, // Assuming 'code' is a new field you want to add
         ]);
 
         return response()->json(['success' => 'تم إضافة الخاصية بنجاح']);
@@ -41,6 +42,8 @@ class ProductAttributeController extends Controller
         $productAttribute->update([
             'type' => $request->type,
             'value' => $request->value,
+            'code' => $request->code, // Assuming 'code' is a new field you want to add
+
         ]);
 
         return response()->json(['success' => 'تم تحديث الخاصية بنجاح']);

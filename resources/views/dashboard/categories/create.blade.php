@@ -75,11 +75,11 @@
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="form-group">
-                                                            <label>{{ __('اسم التصنيف بالعربية') }} <span
+                                                            <label>{{ __('اسم التصنيف بالعبرية') }} <span
                                                                     class="text-danger">*</span></label>
                                                             <input type="text" value="{{ old('name.he') }}" required
                                                                 class="form-control" name="name[he]"
-                                                                placeholder="اسم التصنيف بالعربية">
+                                                                placeholder="اسم التصنيف بالعبرية">
                                                         </div>
                                                     </div>
 

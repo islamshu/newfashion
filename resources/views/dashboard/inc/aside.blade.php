@@ -110,6 +110,27 @@
                     </li>
                 </ul>
             </li>
+            <li class="dropdown nav-item {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') ? 'active' : '' }}"
+                data-menu="dropdown">
+                <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
+                    <i class="la la-image"></i>
+                    <span>{{ __('الواجهة الأمامية') }}</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('sliders.index') ? 'active' : '' }}"
+                            href="{{ route('sliders.index') }}">
+                            <i class="la la-list"></i> {{ __('السلايدرز') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('features.index') ? 'active' : '' }}"
+                            href="{{ route('features.index') }}">
+                            <i class="la la-star"></i> {{ __('المميزات') }}
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
         </ul>
     </div>

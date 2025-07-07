@@ -10,56 +10,58 @@
 }
 
 
-/* التنسيقات الأساسية */
+/* استيراد الأنماط الأساسية */
 
-body {
-    font-family: 'Tajawal', sans-serif;
-    direction: rtl;
-    text-align: right;
-}
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
+@import '@fancyapps/ui/dist/fancybox/fancybox.css';
 
-
-/* تنسيقات القوائم */
-
-.menu-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-}
-
-.menu-list li {
-    margin-left: 20px;
-}
+/* أنماط مخصصة */
 
 
-/* تنسيقات الأزرار */
-
-.primary-btn1 {
-    background-color: #ff6b6b;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.hover-btn3:hover {
-    background-color: #ff5252;
-}
+/* المكتبات الأساسية */
 
 
-/* تنسيقات السلايدر */
+/* Bootstrap RTL */
 
-.swiper {
-    width: 100%;
-    height: 100%;
-}
+@import './front/css/bootstrap.rtl.min.css';
 
-.swiper-pagination1 {
-    position: absolute;
-    bottom: 20px;
-    left: 0;
-    width: 100%;
-    text-align: center;
-}
+/* Bootstrap Icons */
+
+@import './front/css/bootstrap-icons.css';
+
+/* Font Awesome */
+
+@import './front/css/all.min.css';
+@import './front/css/fontawesome.min.css';
+
+/* Box Icons */
+
+@import './front/css/boxicons.min.css';
+
+/* Nice Select */
+
+@import './front/css/nice-select.css';
+
+/* Animate.css */
+
+@import './front/css/animate.min.css';
+
+/* Fancybox */
+
+@import './front/css/jquery.fancybox.min.css';
+
+/* Swiper */
+
+@import './front/css/swiper-bundle.min.css';
+
+/* Slick Slider */
+
+@import './front/css/slick.css';
+@import './front/css/slick-theme.css';
+
+/* ملفات التنسيق الخاصة بالمشروع */
+
+@import './front/css/style.css';
+@import './front/css/style-rtl.css';

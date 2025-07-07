@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title',  __('السلايدرات') )
+@section('title', __('السلايدرات'))
 
 @section('content')
     <div class="app-content content">
@@ -22,27 +22,27 @@
                             <table class="table" id="storestable">
                                 <thead>
                                     <tr>
+                                        <td style="width: 40px;">{{__('ترتيب العرض')}}</td> <!-- Drag handle -->
                                         <td>#</td>
-                                        <th>{{ __('الصورة') }}</th>
-                                        <th>{{ __('العنوان') }}</th>
+                                        <th>{{ __('الصورة بالعربية') }}</th>
+                                        <th>{{ __('الصورة بالعبرية') }}</th>
                                         <th>{{ __('الحالة') }}</th>
                                         <th>{{ __('الإجراءات') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($sliders as $key => $slider)
-                                        <tr>
+                                <tbody id="sortable">
+                                    @foreach ($sliders->sortBy('order') as $key => $slider)
+                                        <tr data-id="{{ $slider->id }}">
+
+                                            <td class="drag-handle" style="cursor: move;">&#x2630;</td> <!-- ☰ icon -->
                                             <td>{{ $key + 1 }}</td>
-                                            <td><img src="{{ asset('storage/' . $slider->image) }}" width="120"
+                                            <td><img src="{{ asset('storage/' . $slider->image_ar) }}" width="120"
                                                     height="80" alt=""></td>
-                                            <td>{{ $slider->getTranslation('title', app()->getLocale()) }}</td>
-
-
+                                            <td><img src="{{ asset('storage/' . $slider->image_he) }}" width="120"
+                                                    height="80" alt=""></td>
                                             <td>
-
                                                 <input type="checkbox" data-id="{{ $slider->id }}" name="status"
                                                     class="js-switch allssee" {{ $slider->status == 1 ? 'checked' : '' }}>
-
                                             </td>
                                             <td>
                                                 <a href="{{ route('sliders.edit', $slider->id) }}"
@@ -59,6 +59,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </section>
@@ -67,7 +68,30 @@
     </div>
 @endsection
 @section('script')
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script>
+        $("#sortable").sortable({
+            update: function(event, ui) {
+                let order = [];
+                $('#sortable tr').each(function() {
+                    order.push($(this).data('id'));
+                });
+
+                $.ajax({
+                    url: '{{ route('sliders.updateOrder') }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        order: order
+                    },
+                    success: function(data) {
+                        toastr.success("تم تحديث الترتيب بنجاح");
+                    }
+                });
+            }
+        });
+
+        // existing status toggle logic
         $("#storestable").on("change", ".js-switch", function() {
             let status = $(this).prop('checked') === true ? 1 : 0;
             let slider_id = $(this).data('id');

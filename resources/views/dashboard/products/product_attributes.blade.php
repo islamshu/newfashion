@@ -42,12 +42,27 @@
                                         @foreach ($attributes as $attribute)
                                             <tr data-id="{{ $attribute->id }}">
                                                 <td>{{ ucfirst($attribute->type) }}</td>
-                                                <td>{{ $attribute->getTranslation('value', 'ar') }}</td>
+                                                <td>{{ $attribute->getTranslation('value', 'ar') }}
+                                                    @if ($attribute->type == 'color' && $attribute->code)
+                                                        <span
+                                                            style="
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-right: 8px;
+            background-color: {{ $attribute->code }};
+        "
+                                                            title="{{ $attribute->code }}"></span>
+                                                    @endif
+                                                </td>
                                                 <td class="">{{ $attribute->getTranslation('value', 'he') }}</td>
                                                 <td class="text-center">
                                                     <button class="btn btn-sm btn-info edit-attribute-btn"
                                                         data-id="{{ $attribute->id }}" data-type="{{ $attribute->type }}"
                                                         data-value-ar="{{ $attribute->getTranslation('value', 'ar') }}"
+                                                        data-code="{{ $attribute->code }}"
                                                         data-value-he="{{ $attribute->getTranslation('value', 'he') }}">
                                                         <i class="ft-edit"></i> {{ __('تعديل') }}
                                                     </button>
@@ -61,7 +76,7 @@
                                     </tbody>
                                 </table>
 
-                                
+
                             </div>
                         </div>
                     </div>
@@ -86,7 +101,8 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>{{ __('النوع') }}</label>
-                            <select name="type" class="form-control" required>
+                            <select name="type" id="create_type" class="form-control" required>
+                                <option value="" selected disabled>{{ __('اختر النوع') }}</option>
                                 <option value="color">{{ __('لون') }}</option>
                                 <option value="size">{{ __('حجم') }}</option>
                             </select>
@@ -99,6 +115,11 @@
                             <label>{{ __('القيمة (عبري)') }}</label>
                             <input type="text" name="value[he]" class="form-control text-right" dir="rtl">
                         </div>
+                        <div class="form-group color-picker-group" id="create_color_group" style="display: none;">
+                            <label>{{ __('كود اللون') }}</label>
+                            <input type="color" name="code" class="form-control" value="#000000">
+                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">{{ __('حفظ') }}</button>
@@ -141,6 +162,12 @@
                             <input type="text" name="value[he]" id="edit_value_he" class="form-control text-right"
                                 dir="rtl">
                         </div>
+                        <div class="form-group color-picker-group" style="display: none;">
+                            <label>{{ __('كود اللون') }}</label>
+                            <input type="color" name="code" id="edit_color_code" class="form-control"
+                                value="#000000">
+                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">{{ __('تحديث') }}</button>
@@ -181,11 +208,18 @@
                 var type = $(this).data('type');
                 var valueAr = $(this).data('value-ar');
                 var valueHe = $(this).data('value-he');
+                var code = $(this).data('code');
 
                 $('#edit_attribute_id').val(id);
                 $('#edit_type').val(type);
                 $('#edit_value_ar').val(valueAr);
                 $('#edit_value_he').val(valueHe);
+                if(type === 'color') {
+                    $('#edit_color_code').closest('.color-picker-group').show();
+                } else {
+                    $('#edit_color_code').closest('.color-picker-group').hide();
+                }
+                $('#edit_color_code').val(code);
 
                 $('#editAttributeModal').modal('show');
             });
@@ -215,13 +249,30 @@
                         })
                     },
                     error: function() {
-                            swal({
-                            title:__('حدث خطأ، تحقق من البيانات وحاول مجددًا.'),
+                        swal({
+                            title: __('حدث خطأ، تحقق من البيانات وحاول مجددًا.'),
                             icon: "danger",
                         });
                     }
                 });
             });
+            // إظهار/إخفاء كود اللون عند تغيير النوع - مودال الإضافة
+            $('#create_type').on('change', function() {
+                if ($(this).val() === 'color') {
+                    $('#create_color_group').show();
+                } else {
+                    $('#create_color_group').hide();
+                }
+            }).trigger('change');
+
+            // إظهار/إخفاء كود اللون عند تغيير النوع - مودال التعديل
+            $('#edit_type').on('change', function() {
+                if ($(this).val() === 'color') {
+                    $('#edit_color_code').closest('.color-picker-group').show();
+                } else {
+                    $('#edit_color_code').closest('.color-picker-group').hide();
+                }
+            }).trigger('change');
 
 
             // حذف الخاصية
@@ -249,8 +300,8 @@
                         })
                     },
                     error: function() {
-                            swal({
-                            title:__('حدث خطأ، تحقق من البيانات وحاول مجددًا.'),
+                        swal({
+                            title: __('حدث خطأ، تحقق من البيانات وحاول مجددًا.'),
                             icon: "danger",
                         });
                     }

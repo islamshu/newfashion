@@ -10,7 +10,7 @@ class ProductAttribute extends Model
 {
     use HasTranslations;
 
-    protected $fillable = ['type', 'value'];
+    protected $fillable = ['type', 'value','code'];
 
     public $translatable = ['value'];
 }

@@ -1,28 +1,18 @@
 <?php
 
-namespace App\Models\Front;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
 
 class Slider extends Model
 {
-    use HasTranslations;
     protected $fillable = [
-        'title',
-        'subtitle',
-        'image',
-        'button_text',
-        'button_link',
+        'image_ar',
+        'image_he',
+        'link',
         'status',
         'order',
     ];
-    public $translatable = [
-        'title',
-        'subtitle',
-        'button_text',
-    ];
-
     public function scopeActive($query)
     {
         return $query->where('status', true)->orderBy('order', 'asc');
@@ -31,5 +21,4 @@ class Slider extends Model
     {
         return $query->orderBy('order', 'asc');
     }
-
 }

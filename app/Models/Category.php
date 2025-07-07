@@ -18,7 +18,8 @@ class Category extends Model
         'slug',
         'image',
         'status',
-        'parent_id'
+        'parent_id',
+        'is_featured',
     ];
     
     /**
@@ -59,6 +60,11 @@ class Category extends Model
     {
         return $query->where('status', true);
     }
+
+    public function scopeFeatcher($query)
+    {
+        return $query->where('is_featured', true);
+    }
     
     /**
      * الوصول إلى صورة التصنيف مع مسار كامل
@@ -81,6 +87,15 @@ class Category extends Model
                 $model->slug = \Illuminate\Support\Str::slug($model->getTranslation('name', 'ar'));
             }
         });
+    }
+    /**
+     * Get all of the comments for the Category
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class);
     }
     
     /**

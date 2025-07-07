@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Front\Slider;
+use App\Models\Slider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -39,36 +39,20 @@ class SliderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|array',
-            'title.*' => 'required|string|max:255',
-            'subtitle' => 'nullable|array',
-            'subtitle.*' => 'nullable|string|max:255',
-            'button_text' => 'nullable|array',
-            'button_text.*' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'button_link' => 'nullable|string',
+            'image_ar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image_he' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $data = $request->except('image');
+        $data = $request->except(['image_ar', 'image_he']);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('sliders', 'public');
+        if ($request->hasFile('image_ar')) {
+            $data['image_ar'] = $request->file('image_ar')->store('sliders', 'public');
+        }
+        if ($request->hasFile('image_he')) {
+            $data['image_he'] = $request->file('image_he')->store('sliders', 'public');
         }
 
-        $slider = new Slider();
-
-        // ترجمة الحقول
-        $slider->setTranslations('title', $data['title']);
-        $slider->setTranslations('subtitle', $data['subtitle'] ?? []);
-        $slider->setTranslations('button_text', $data['button_text'] ?? []);
-
-        // الحقول العادية
-        $slider->button_link = $data['button_link'] ?? null;
-
-        $slider->image = $data['image'] ?? null;
-
-        $slider->save();
-
+        $slider = Slider::create($data);
         return redirect()->route('sliders.index')->with('success', __('تم إنشاء السلايدر بنجاح'));
     }
 
@@ -87,42 +71,42 @@ class SliderController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Slider $slider)
-{
-    $request->validate([
-        'title' => 'required|array',
-        'title.*' => 'required|string|max:255',
-        'subtitle' => 'nullable|array',
-        'subtitle.*' => 'nullable|string|max:255',
-        'button_text' => 'nullable|array',
-        'button_text.*' => 'nullable|string|max:255',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'button_link' => 'nullable|string',
-      
-    ]);
+    {
+        $request->validate([
+            'image_ar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image_he' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-    $data = $request->except('image');
+        $data = $request->except(['image_ar','image_he']);
 
-    if ($request->hasFile('image')) {
-        // حذف الصورة القديمة إذا كانت موجودة
-        if ($slider->image && Storage::disk('public')->exists($slider->image)) {
-            Storage::disk('public')->delete($slider->image);
+        if ($request->hasFile('image_ar')) {
+            // حذف الصورة القديمة إذا كانت موجودة
+            if ($slider->image_ar && Storage::disk('public')->exists($slider->image_ar)) {
+                Storage::disk('public')->delete($slider->image_ar);
+            }
+            $data['image_ar'] = $request->file('image_ar')->store('sliders', 'public');
+            $slider->image_ar = $data['image_ar'];
         }
-        $data['image'] = $request->file('image')->store('sliders', 'public');
-        $slider->image = $data['image'];
+        if ($request->hasFile('image_he')) {
+            // حذف الصورة القديمة إذا كانت موجودة
+            if ($slider->image_he && Storage::disk('public')->exists($slider->image_he)) {
+                Storage::disk('public')->delete($slider->image_he);
+            }
+            $data['image_he'] = $request->file('image_he')->store('sliders', 'public');
+            $slider->image_he = $data['image_he'];
+        }
+        
+        $slider->update($data);
+
+        return redirect()->route('sliders.index')->with('success', __('تم تحديث السلايدر بنجاح'));
+    }
+    public function updateOrder(Request $request)
+{
+    foreach ($request->order as $index => $id) {
+        Slider::where('id', $id)->update(['order' => $index]);
     }
 
-    // تحديث الترجمات
-    $slider->setTranslations('title', $data['title']);
-    $slider->setTranslations('subtitle', $data['subtitle'] ?? []);
-    $slider->setTranslations('button_text', $data['button_text'] ?? []);
-
-    // الحقول العادية
-    $slider->button_link = $data['button_link'] ?? null;
-
-
-    $slider->save();
-
-    return redirect()->route('sliders.index')->with('success', __('تم تحديث السلايدر بنجاح'));
+    return response()->json(['success' => true]);
 }
 
 
