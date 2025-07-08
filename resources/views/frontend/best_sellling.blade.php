@@ -43,14 +43,9 @@
                                 @endif
                             </a>
 
-                            @if (!$product->isOutOfStock())
-                                <div class="overlay">
-                                    <div class="cart-area">
-                                        <a href="#" class="hover-btn3 add-cart-btn"><i
-                                                class="bi bi-bag-check"></i> {{__('أضف إلى المفضلة')}}</a>
-                                    </div>
-                                </div>
-                            @else
+                            @if ($product->isOutOfStock())
+                                
+                          
                                 <div class="out-of-stock">
                                     <span>{{__('نفذ من المخزون')}}</span>
                                 </div>

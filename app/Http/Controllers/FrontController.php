@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Client;
 use App\Models\Slider;
 use App\Models\Product;
+use App\Models\ProductVariation;
 use App\Models\Service;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -19,13 +20,13 @@ class FrontController extends Controller
     {
         $products = Product::with('category')->take(8)->get();
         $bestProduct = Product::Active()->Featured()->take(9)->get();
-        $categories = Category::get();
+        $main_cats = Category::active()->main()->get();
         $featchersCategories = Category::Featcher()->get();
         $sliders = Slider::active()->ordered()->get();
         $features = Service::ordered()->get();
         return view('layouts.frontend', [
             'products' => $products,
-            'categories' => $categories,
+            'main_cats' => $main_cats,
             'sliders' => $sliders,
             'features' => $features,
             'featchersCategories' => $featchersCategories,
@@ -33,9 +34,46 @@ class FrontController extends Controller
 
         ]);
     }
-    public function dashboard(){
+    public function dashboard()
+    {
         dd('login');
     }
+    public function getSizes(Request $request)
+    {
+        $query = ProductVariation::where('product_id', $request->product_id);
+
+        if ($request->has('color_id')) {
+            $query->where('color_id', $request->color_id);
+        }
+
+        $sizes = $query->whereNotNull('size_id')
+            ->with('sizeAttribute')
+            ->get()
+            ->unique('size_id')
+            ->map(function ($variation) {
+                return [
+                    'id' => $variation->size_id,
+                    'value' => $variation->sizeAttribute->value ?? 'بدون اسم'
+                ];
+            });
+
+        return response()->json($sizes);
+    }
+
+    public function getStock(Request $request)
+    {
+        $query = ProductVariation::where('product_id', $request->product_id);
+
+        $query->when($request->filled('color_id'), fn($q) => $q->where('color_id', $request->color_id));
+        $query->when($request->filled('size_id'), fn($q) => $q->where('size_id', $request->size_id));
+
+        $variation = $query->first();
+
+        return response()->json(['stock' => $variation?->stock ?? 0]);
+    }
+
+
+
     public function modal($id)
     {
         $product = Product::findOrFail($id);
@@ -51,10 +89,10 @@ class FrontController extends Controller
         $exists = $user->wishlist()->where('product_id', $productId)->exists();
 
         if ($exists) {
-        $user->wishlist()->detach($productId);
+            $user->wishlist()->detach($productId);
             return response()->json([
                 'success' => false,
-                'message' =>__('تم حذف المنتج من المفضلة .')
+                'message' => __('تم حذف المنتج من المفضلة .')
             ]);
         }
 
@@ -63,7 +101,7 @@ class FrontController extends Controller
 
         return response()->json([
             'success' => true,
-                'message' =>__('تم إضافة المنتج إلى المفضلة .')
+            'message' => __('تم إضافة المنتج إلى المفضلة .')
         ]);
     }
     public function ajaxRegister(Request $request)
@@ -191,46 +229,46 @@ class FrontController extends Controller
         ]);
     }
     public function ajaxLogin(Request $request)
-{
-    $request->validate([
-        'login' => 'required|digits:10',
-        'password' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'login' => 'required|digits:10',
+            'password' => 'required|string',
+        ]);
 
-    $client = Client::where('phone_number', $request->login)->first();
+        $client = Client::where('phone_number', $request->login)->first();
 
-    if (!$client) {
+        if (!$client) {
+            return response()->json([
+                'success' => false,
+                'message' => __('رقم الهاتف غير مسجل.'),
+            ]);
+        }
+
+        // التصحيح هنا: تغيير ترتيب البارامترات
+        if (!Hash::check($request->password, $client->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('كلمة المرور غير صحيحة.'),
+            ]);
+        }
+
+        if (!empty($client->otp)) {
+            session(['pending_client_id' => $client->id]);
+            return response()->json([
+                'success' => false,
+                'requires_otp' => true,
+                'message' => __('حسابك غير مفعل، يرجى إدخال رمز التحقق.'),
+            ]);
+        }
+
+        Auth::guard('client')->login($client);
+
         return response()->json([
-            'success' => false,
-            'message' => __('رقم الهاتف غير مسجل.'),
+            'success' => true,
+            'message' => __('تم تسجيل الدخول بنجاح.'),
+            'redirect_to' => route('client.dashboard'),
         ]);
     }
-
-    // التصحيح هنا: تغيير ترتيب البارامترات
-    if (!Hash::check($request->password, $client->password)) {
-        return response()->json([
-            'success' => false,
-            'message' => __('كلمة المرور غير صحيحة.'),
-        ]);
-    }
-
-    if (!empty($client->otp)) {
-        session(['pending_client_id' => $client->id]);
-        return response()->json([
-            'success' => false,
-            'requires_otp' => true,
-            'message' => __('حسابك غير مفعل، يرجى إدخال رمز التحقق.'),
-        ]);
-    }
-
-    Auth::guard('client')->login($client);
-
-    return response()->json([
-        'success' => true,
-        'message' => __('تم تسجيل الدخول بنجاح.'),
-        'redirect_to' => route('client.dashboard'),
-    ]);
-}
 
 
 

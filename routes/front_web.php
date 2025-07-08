@@ -13,6 +13,8 @@ Route::post('/register/verify-otp', [FrontController::class, 'verifyOtp'])->name
 Route::post('/resend-otp', [FrontController::class, 'resendOtp'])->name('resend.otp');
 Route::post('/login/ajax', [FrontController::class, 'ajaxLogin'])->name('login.ajax');
 Route::post('/login/otp-verify', [FrontController::class, 'verifyOtp'])->name('otp.verify');
+Route::get('/get-sizes', [FrontController::class, 'getSizes']);
+Route::get('/get-stock', [FrontController::class, 'getStock']);
 
 Route::group(['middleware' => 'auth:client'], function () {
     Route::get('/client/dashboard', [FrontController::class, 'dashboard'])->name('client.dashboard');

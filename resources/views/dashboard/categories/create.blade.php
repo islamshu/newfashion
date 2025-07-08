@@ -54,9 +54,25 @@
                                                             </select>
                                                         </div>
                                                     </div>
-
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="parent_id">{{ __('التصنيف الأب') }}</label>
+                                                            <select name="parent_id" id="parent_id"
+                                                                class="form-control select2">
+                                                                <option value="">{{ __('بدون تصنيف أب') }}</option>
+                                                                @foreach ($categories as $cat)
+                                                                    <option value="{{ $cat->id }}"
+                                                                        {{ old('parent_id') == $cat->id ? 'selected' : '' }}>
+                                                                        {{ $cat->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
+
+
 
                                             <!-- اللغة العربية -->
                                             <div class="form-section mb-4">
@@ -117,6 +133,8 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+
 
                                             <!-- أزرار التحكم -->
                                             <div class="form-actions text-center mt-4">

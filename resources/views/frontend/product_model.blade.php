@@ -60,8 +60,10 @@
                     <div class="price-area">
                         <p class="price">{{ $product->price }} ₪</p>
                     </div>
+                    <p class="stock-available text-success mt-2" data-stock-label="{{ __('الكمية المتوفرة') }}"></p>
 
                     <div class="quantity-color-area">
+
                         <div class="quantity-color">
                             <h6 class="widget-title">{{ __('الكمية') }}</h6>
                             <div class="quantity-counter">
@@ -69,6 +71,7 @@
                                 <input name="quantity" type="number" min="1" class="quantity__input"
                                     value="1">
                                 <a type="button" class="quantity__plus"><i class='bx bx-plus'></i></a>
+                                <input type="hidden" id="product_id" value="{{ $product->id }}">
 
                             </div>
                         </div>
@@ -81,7 +84,7 @@
                                     @foreach ($colors as $color)
                                         @if ($variations->where('color_id', $color->id)->count() > 0)
                                             <li>
-                                                <input type="radio" name="color" id="color-{{ $color->id }}"
+                                                <input type="radio" name="color_id" id="color-{{ $color->id }}"
                                                     value="{{ $color->id }}" class="color-radio" hidden
                                                     @if (!$firstColorChecked) checked @php $firstColorChecked = true; @endphp @endif>
                                                 <label for="color-{{ $color->id }}"
@@ -103,7 +106,7 @@
                                     @foreach ($sizes as $size)
                                         @if ($variations->where('size_id', $size->id)->count() > 0)
                                             <li>
-                                                <input type="radio" name="size" id="size-{{ $size->id }}"
+                                                <input type="radio" name="size_id" id="size-{{ $size->id }}"
                                                     value="{{ $size->id }}" class="size-radio" hidden
                                                     @if (!$firstSizeChecked) checked @php $firstSizeChecked = true; @endphp @endif>
                                                 <label for="size-{{ $size->id }}"
@@ -192,10 +195,11 @@
                     <div class="compare-wishlist-area">
                         <ul>
                             <li>
-                               <button  class="add-to-wishlist btn  view-product-btn {{ $product->isInWishlist() ? 'active' : '' }}" data-product-id="{{ $product->id }}"
-                                            title="{{__('أضف إلى المفضلة')}}">
-                                            <i class="fa fa-heart"></i>
-                                            <span class="wishlist-text">{{__('أضف إلى المفضلة')}}</span>
+                                <button
+                                    class="add-to-wishlist btn  view-product-btn {{ $product->isInWishlist() ? 'active' : '' }}"
+                                    data-product-id="{{ $product->id }}" title="{{ __('أضف إلى المفضلة') }}">
+                                    <i class="fa fa-heart"></i>
+                                    <span class="wishlist-text">{{ __('أضف إلى المفضلة') }}</span>
                                 </button>
                             </li>
                         </ul>
@@ -204,4 +208,10 @@
             </div>
         </div>
     </div>
+</div>
+<div class="d-flex align-items-center gap-2">
+    <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <span>{{ __('جاري تحميل الكمية...') }}</span>
 </div>

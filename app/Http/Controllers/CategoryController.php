@@ -14,10 +14,12 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-      
-        $categories = Category::main()->paginate(10);
+        // جلب التصنيفات الرئيسية فقط
+        $categories = Category::with('children')->main()->get();
+
         return view('dashboard.categories.index', compact('categories'));
     }
+
     public function update_status_category(Request $request)
     {
         $slider = Category::findOrFail($request->category_id);
@@ -27,32 +29,51 @@ class CategoryController extends Controller
         return response()->json(['success' => true, 'status' => $slider->is_featcher]);
     }
 
-     public function ajaxIndex(Request $request)
-    {
-        $query = Category::query();
+    public function ajaxIndex(Request $request)
+{
+    $isSearch = $request->filled('name') || $request->filled('status') || $request->filled('created_at');
 
-        if ($request->filled('name')) {
-            $locale = app()->getLocale();
+    $locale = app()->getLocale();
 
-            $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
-        }
-        
+    // نحضّر استعلام الفلترة الأساسي
+    $filteredCategories = Category::query();
 
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('created_at')) {
-            $query->whereDate('created_at', $request->created_at);
-        }
-
-        $categories = $query->latest()->paginate(10);
-
-        return response()->json([
-            'html' => view('dashboard.categories._table', compact('categories'))->render(),
-        ]);
+    if ($request->filled('name')) {
+        $filteredCategories->where("name->{$locale}", 'like', '%' . $request->name . '%');
     }
+
+    if ($request->filled('status')) {
+        $filteredCategories->where('status', $request->status);
+    }
+
+    if ($request->filled('created_at')) {
+        $filteredCategories->whereDate('created_at', $request->created_at);
+    }
+
+    // جلب كل النتائج (رئيسية وفرعية)
+    $filtered = $filteredCategories->get();
+
+    // استخرج المعرفات للفئات الرئيسية والفروع
+    $matchedCategoryIds = $filtered->pluck('id')->toArray();
+    $matchedParentIds = $filtered->pluck('parent_id')->filter()->unique()->toArray();
+
+    // الآن نجلب الفئات الرئيسية فقط (التي تطابق أو لها فروع تطابق)
+    $query = Category::with(['children' => function ($q) use ($matchedCategoryIds) {
+        $q->whereIn('id', $matchedCategoryIds); // فقط الفروع المطابقة
+    }])->whereNull('parent_id')
+      ->where(function ($q) use ($matchedCategoryIds, $matchedParentIds) {
+          $q->whereIn('id', $matchedCategoryIds)
+            ->orWhereIn('id', $matchedParentIds);
+      });
+
+    $categories = $query->latest()->paginate(10);
+
+    return response()->json([
+        'html' => view('dashboard.categories._table', compact('categories', 'isSearch'))->render(),
+    ]);
+}
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -80,7 +101,7 @@ class CategoryController extends Controller
         }
 
         // إنشاء slug من الاسم العربي
-        $data['slug'] = Str::slug($request->name['ar']). '-' . Str::random(5);
+        $data['slug'] = Str::slug($request->name['ar']) . '-' . Str::random(5);
 
         Category::create($data);
 
@@ -91,7 +112,6 @@ class CategoryController extends Controller
     public function edit(Category $category)
     {
         $categories = Category::whereNull('parent_id')->where('id', '!=', $category->id)->get();
-        dd(getColor($category));
         return view('dashboard.categories.edit', compact('category', 'categories'));
     }
 
@@ -135,7 +155,7 @@ class CategoryController extends Controller
         if ($category->image) {
             Storage::disk('public')->delete($category->image);
         }
-        
+
         $category->products()->delete();
 
         $category->delete();

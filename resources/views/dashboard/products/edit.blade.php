@@ -432,7 +432,7 @@
                                                                 <label class="d-block text-sm">{{ __('اللون') }}</label>
                                                                 <select name="variations[{{ $index }}][color_id]"
                                                                     class="form-control">
-                                                                    <option value="">{{ __('-- اختر اللون --') }}
+                                                                    <option value="">{{ __('-- بلا لون --') }}
                                                                     </option>
                                                                     @foreach ($colors as $color)
                                                                         <option value="{{ $color->id }}"
@@ -446,7 +446,7 @@
                                                                 <label class="d-block text-sm">{{ __('المقاس') }}</label>
                                                                 <select name="variations[{{ $index }}][size_id]"
                                                                     class="form-control">
-                                                                    <option value="">{{ __('-- اختر المقاس --') }}
+                                                                    <option value="">{{ __('-- بلا مقاس --') }}
                                                                     </option>
                                                                     @foreach ($sizes as $size)
                                                                         <option value="{{ $size->id }}"
@@ -510,7 +510,7 @@
                     <div class="col-md-4">
                         <label class="d-block text-sm">{{ __('اللون') }}</label>
                         <select name="variations[${variationIndex}][color_id]" class="form-control">
-                            <option value="">{{ __('-- اختر اللون --') }}</option>
+                            <option value="">{{ __('-- بلا لون --') }}</option>
                             @foreach ($colors as $color)
                                 <option value="{{ $color->id }}">{{ $color->getTranslation('value', app()->getLocale()) }}</option>
                             @endforeach
@@ -519,7 +519,7 @@
                     <div class="col-md-4">
                         <label class="d-block text-sm">{{ __('المقاس') }}</label>
                         <select name="variations[${variationIndex}][size_id]" class="form-control">
-                            <option value="">{{ __('-- اختر المقاس --') }}</option>
+                            <option value="">{{ __('-- بلا مقاس --') }}</option>
                             @foreach ($sizes as $size)
                                 <option value="{{ $size->id }}">{{ $size->getTranslation('value', app()->getLocale()) }}</option>
                             @endforeach

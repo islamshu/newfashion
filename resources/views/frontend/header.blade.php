@@ -7,46 +7,49 @@
         <div class="category-dropdown">
             <div class="category-button">
                 <img src="{{ asset('front/assets/img/home1/icon/category-icon.svg') }}" alt="">
-                <span>Category</span>
+                <span>{{__('التصنيفات')}}</span>
             </div>
             <div class="category-menu">
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="our-brand.html">Our Brands</a></li>
-                    <li><a href="shop-list.html">Skin Care</a></li>
-                    <li class="category-has-child">
-                        <a href="shop-list.html">Personal Care </a>
-                        <i class='bx bx-chevron-right'></i>
-                        <ul class="sub-menu">
-                            <li><a href="shop-list.html">Body Treatments</a></li>
-                            <li><a href="shop-list.html">Face Care
-                                    <i class='bx bx-chevron-right'></i>
+    <ul>
+        @foreach ($main_cats as $main)
+            <li class="{{ $main->children->count() ? 'category-has-child' : '' }}">
+                <a href="">
+                    {{ $main->getTranslation('name', app()->getLocale()) }}
+                </a>
+                @if ($main->children->count())
+                    <i class='bx bx-chevron-right'></i>
+                    <ul class="sub-menu">
+                        @foreach ($main->children as $child)
+                            <li>
+                                <a href="">
+                                    {{ $child->getTranslation('name', app()->getLocale()) }}
+
+                                    @if ($child->children->count())
+                                        <i class='bx bx-chevron-right'></i>
+                                    @endif
                                 </a>
-                                <ul class="sub-menu">
-                                    <li><a href="shop-list.html">Face Oil</a></li>
-                                    <li><a href="shop-list.html">Sunscreen</a></li>
-                                    <li><a href="shop-list.html">Face Mask</a></li>
-                                </ul>
+
+                                {{-- المستوى الثالث --}}
+                                @if ($child->children->count())
+                                    <ul class="sub-menu">
+                                        @foreach ($child->children as $subchild)
+                                            <li>
+                                                <a href="">
+                                                    {{ $subchild->getTranslation('name', app()->getLocale()) }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
                             </li>
-                        </ul>
-                    </li>
-                    <li><a href="shop-list.html">Makeup</a></li>
-                    <li><a href="shop-list.html">Fragrance</a></li>
-                    <li class="category-has-child">
-                        <a href="shop-list.html">Mens Collections</a>
-                        <i class='bx bx-chevron-right'></i>
-                        <ul class="sub-menu">
-                            <li><a href="shop-list.html">Hair Gel</a></li>
-                            <li><a href="shop-list.html">Face Wash</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="shop-list.html">Summer Product</a></li>
-                    <li><a href="shop-list.html">Kids & Baby</a></li>
-                    <li class="category-has-child">
-                        <a href="shop-list.html">Maternity Care</a>
-                    </li>
-                </ul>
-            </div>
+                        @endforeach
+                    </ul>
+                @endif
+            </li>
+        @endforeach
+    </ul>
+</div>
+
         </div>
         <div class="main-menu">
             <div class="mobile-logo-area d-lg-none d-flex justify-content-between align-items-center">

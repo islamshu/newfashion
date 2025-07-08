@@ -199,7 +199,7 @@ public function update(Request $request, Product $product)
     $product->variations()->delete(); // حذف القديمة
     foreach ($request->variations as $variation) {
         // التحقق من وجود اللون والمقاس قبل الإضافة
-        if (!empty($variation['color_id']) || !empty($variation['size_id'])) {
+        if (empty($variation['color_id']) || empty($variation['size_id'])) {
             $product->variations()->create([
                 'color_id' => $variation['color_id'] ?? null,
                 'size_id' => $variation['size_id'] ?? null,

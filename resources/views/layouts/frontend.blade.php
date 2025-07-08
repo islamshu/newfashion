@@ -108,6 +108,8 @@
                             // استبدال المحتوى بالنتيجة من السيرفر
                             document.querySelector('#product-view-modal .modal-content')
                                 .innerHTML = html;
+                            initializeProductModalScripts();
+
                         })
                         .catch(err => {
                             alert("حدث خطأ أثناء تحميل تفاصيل المنتج.");
@@ -122,65 +124,64 @@
         var isLoggedIn = @json(Auth::guard('client')->check());
     </script>
     <script>
-      $(document).ready(function() {
-    // استخدام event delegation
-    $(document).on('click', '.add-to-wishlist', function(e) {
-        e.preventDefault();
+        $(document).ready(function() {
+            // استخدام event delegation
+            $(document).on('click', '.add-to-wishlist', function(e) {
+                e.preventDefault();
 
-        var productId = $(this).data('product-id');
-        var button = $(this);
+                var productId = $(this).data('product-id');
+                var button = $(this);
 
-        if (!isLoggedIn) {
-            const swalTitle = "{{ __('يجب تسجيل الدخول') }}";
-            const swalText = "{{ __('يرجى تسجيل الدخول أولاً لإضافة المنتج إلى المفضلة.') }}";
-            const swalConfirm = "{{ __('حسناً') }}";
+                if (!isLoggedIn) {
+                    const swalTitle = "{{ __('يجب تسجيل الدخول') }}";
+                    const swalText = "{{ __('يرجى تسجيل الدخول أولاً لإضافة المنتج إلى المفضلة.') }}";
+                    const swalConfirm = "{{ __('حسناً') }}";
 
-            Swal.fire({
-                icon: 'warning',
-                title: swalTitle,
-                text: swalText,
-                confirmButtonText: swalConfirm
-            });
-            return;
-        }
-
-        $.ajax({
-            url: '/wishlist/add',
-            method: 'POST',
-            data: {
-                product_id: productId,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-                    button.addClass('active');
                     Swal.fire({
-                        icon: 'success',
-                        title: "{{ __('تم الاضافة الى المفضلة') }}",
-                        text: response.message,
-                        timer: 1500,
-                        showConfirmButton: false
+                        icon: 'warning',
+                        title: swalTitle,
+                        text: swalText,
+                        confirmButtonText: swalConfirm
                     });
-                } else {
-                    button.removeClass('active');
-                    Swal.fire({
-                        icon: 'info',
-                        title: "{{ __('تم الحذف من المفضلة') }}",
-                        text: response.message
-                    });
+                    return;
                 }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: "{{ __('خطأ') }}",
-                    text: "{{ __('حدث خطأ أثناء إضافة المنتج إلى المفضلة.') }}",
-                });
-            }
-        });
-    });
-});
 
+                $.ajax({
+                    url: '/wishlist/add',
+                    method: 'POST',
+                    data: {
+                        product_id: productId,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            button.addClass('active');
+                            Swal.fire({
+                                icon: 'success',
+                                title: "{{ __('تم الاضافة الى المفضلة') }}",
+                                text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            button.removeClass('active');
+                            Swal.fire({
+                                icon: 'info',
+                                title: "{{ __('تم الحذف من المفضلة') }}",
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: "{{ __('خطأ') }}",
+                            text: "{{ __('حدث خطأ أثناء إضافة المنتج إلى المفضلة.') }}",
+                        });
+                    }
+                });
+            });
+        });
     </script>
     <script>
         // لمنع إدخال أي شيء غير الأرقام في حقول الهاتف
@@ -449,21 +450,132 @@
 
         });
     </script>
+ 
     <script>
-        $(document).on('click', '.quantity__plus', function() {
-            var input = $(this).siblings('.quantity__input');
-            var currentVal = parseInt(input.val()) || 1;
-            input.val(currentVal + 1);
-        });
+        function initializeProductModalScripts() {
 
-        $(document).on('click', '.quantity__minus', function() {
-            var input = $(this).siblings('.quantity__input');
-            var currentVal = parseInt(input.val()) || 1;
-            if (currentVal > 1) {
-                input.val(currentVal - 1);
+            const productId = $('#product_id').val();
+            let currentStock = 1;
+
+            const $colorInputs = $('input[name="color_id"]');
+            const $sizeContainer = $('.size-list');
+            const $stockLabel = $('.stock-available');
+            const $quantityInput = $('.quantity__input');
+
+            function fetchSizes(colorId = null) {
+                // عرض لودر داخل حاوية الأحجام
+                $sizeContainer.html(`
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">جارٍ التحميل...</span>
+                                    </div> {{ __('جاري التحميل ...') }}
+                                `);
+
+                $.get('/get-sizes', {
+                    product_id: productId,
+                    color_id: colorId
+                }, function(sizes) {
+                    let html = '';
+                    sizes.forEach(size => {
+                        html += `
+                <li>
+                    <input type="radio" name="size_id" id="size-${size.id}" value="${size.id}" class="size-radio" hidden>
+                    <label for="size-${size.id}" class="size-option">${size.value}</label>
+                </li>
+            `;
+                    });
+
+                    // استبدال اللودر بقائمة الأحجام
+                    $sizeContainer.html(html);
+                });
             }
-        });
+
+
+            function fetchStock(productId, colorId = null, sizeId = null) {
+                // 🌀 عرض لودر
+                $stockLabel.html(`
+                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                    <span class="visually-hidden">جارٍ التحميل...</span>
+                                </div> {{ __('جاري التحميل ...') }}
+                                `);
+
+                $.get('/get-stock', {
+                    product_id: productId,
+                    color_id: colorId,
+                    size_id: sizeId
+                }, function(response) {
+                    currentStock = response.stock || 1;
+
+                    let label = $stockLabel.data('stock-label');
+                    $stockLabel.text(label + ': ' + currentStock);
+                    $quantityInput.data('max-stock', currentStock);
+                });
+            }
+
+
+            // عرض الأحجام إذا لم توجد ألوان
+            if ($colorInputs.length === 0) {
+                fetchSizes();
+            } else {
+                // عرض الأحجام حسب أول لون محدد افتراضيًا
+                const defaultColorId = $('input[name="color_id"]:checked').val();
+                fetchSizes(defaultColorId);
+            }
+
+            // عند اختيار لون، تحديث المقاسات
+            $(document).on('change', 'input[name="color_id"]', function() {
+                const colorId = $(this).val();
+                fetchSizes(colorId);
+            });
+
+            // عند اختيار مقاس أو لون
+            $(document).on('change', 'input[name="size_id"], input[name="color_id"]', function() {
+                const colorId = $('input[name="color_id"]:checked').val() || null;
+                const sizeId = $('input[name="size_id"]:checked').val() || null;
+
+                fetchStock(productId, colorId, sizeId);
+            });
+
+            // التحكم في الكمية
+            $(document).on('click', '.quantity__plus', function() {
+                // العنصر input الخاص بالكمية قريب من زر الزيادة (مثلاً الأخ أو ضمن نفس الحاوية)
+                // يمكنك التعديل حسب هيكلة الـ HTML لديك
+                let $input = $(this).siblings('.quantity__input');
+                if ($input.length === 0) {
+                    // لو لم تجد input بالـ siblings جرب البحث بشكل مختلف حسب هيكل الصفحة
+                    $input = $('.quantity__input');
+                }
+
+                let val = parseInt($input.val()) || 1;
+                let max = $input.data('max-stock') || 1;
+
+                if (val < max) {
+                    $input.val(val +1);
+                }
+            });
+
+            $(document).on('click', '.quantity__minus', function() {
+                let $input = $(this).siblings('.quantity__input');
+                if ($input.length === 0) {
+                    $input = $('.quantity__input');
+                }
+
+                let val = parseInt($input.val()) || 1;
+
+                if (val > 1) {
+                    $input.val(val -1 );
+                }
+            });
+
+
+            // trigger initial stock load
+            setTimeout(function() {
+                const colorId = $('input[name="color_id"]:checked').val() || null;
+                const sizeId = $('input[name="size_id"]:checked').val() || null;
+                fetchStock(productId, colorId, sizeId);
+            }, 300);
+        };
     </script>
+
 
 
 
