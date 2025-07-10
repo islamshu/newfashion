@@ -3,10 +3,10 @@
             <div class="row">
                 <div class="col-lg-12 d-flex align-items-center justify-content-between gap-3">
                     <div class="top-bar-left">
-                        <p>*New Winter Product 2023 <a href="our-brand.html">Shop Now*</a></p>
                     </div>
                     <div class="company-logo">
-                        <a href="index.html"><img src="{{asset('front/assets/img/logo.svg')}}" alt=""></a>
+                        <a href="/">
+                            <img src="{{Storage::url(get_general_value('website_logo'))}}" height="100" width="100" alt="{{get_general_value('website_name_' . app()->getLocale())}}"></a>
                     </div>
                     <div class="search-area">
                         <form>

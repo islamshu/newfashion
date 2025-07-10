@@ -20,13 +20,11 @@ class FrontController extends Controller
     {
         $products = Product::with('category')->take(8)->get();
         $bestProduct = Product::Active()->Featured()->take(9)->get();
-        $main_cats = Category::active()->main()->get();
         $featchersCategories = Category::Featcher()->get();
         $sliders = Slider::active()->ordered()->get();
         $features = Service::ordered()->get();
-        return view('layouts.frontend', [
+        return view('frontend.index', [
             'products' => $products,
-            'main_cats' => $main_cats,
             'sliders' => $sliders,
             'features' => $features,
             'featchersCategories' => $featchersCategories,
@@ -70,6 +68,12 @@ class FrontController extends Controller
         $variation = $query->first();
 
         return response()->json(['stock' => $variation?->stock ?? 0]);
+    }
+    public function products()
+    {
+        $categories = Category::withCount('products')->active()->orderBy('id', 'desc')->get();
+        $products = Product::with(['category', 'images'])->active()->latest()->take(30)->get();
+        return view('frontend.products', compact('categories', 'products'));
     }
 
 

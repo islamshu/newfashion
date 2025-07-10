@@ -11,7 +11,7 @@
             </div>
             <div class="category-menu">
     <ul>
-        @foreach ($main_cats as $main)
+        @foreach (App\Models\Category::active()->main()->get() as $main)
             <li class="{{ $main->children->count() ? 'category-has-child' : '' }}">
                 <a href="">
                     {{ $main->getTranslation('name', app()->getLocale()) }}

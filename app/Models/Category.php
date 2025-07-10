@@ -52,7 +52,10 @@ class Category extends Model
     {
         return $query->whereNull('parent_id');
     }
-    
+    public function scopeChiled($query)
+    {
+        return $query->whereNotNull('parent_id');
+    }
     /**
      * سكوب للتصنيفات المفعلة
      */

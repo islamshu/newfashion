@@ -126,7 +126,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $categories = Category::all();
+        $categories = Category::active()->get();
         $colors = ProductAttribute::where('type', 'color')->get();
         $sizes = ProductAttribute::where('type', 'size')->get();
 
@@ -199,6 +199,13 @@ public function update(Request $request, Product $product)
     $product->variations()->delete(); // حذف القديمة
     foreach ($request->variations as $variation) {
         // التحقق من وجود اللون والمقاس قبل الإضافة
+        if (!empty($variation['color_id']) || !empty($variation['size_id'])) {
+            $product->variations()->create([
+                'color_id' => $variation['color_id'] ?? null,
+                'size_id' => $variation['size_id'] ?? null,
+                'stock' => $variation['stock']
+            ]);
+        }
         if (empty($variation['color_id']) || empty($variation['size_id'])) {
             $product->variations()->create([
                 'color_id' => $variation['color_id'] ?? null,

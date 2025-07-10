@@ -44,7 +44,7 @@
             <div class="col-lg-6">
                 <div class="shop-details-content">
                     <h1>{{ $product->name }}</h1>
-                    <div class="rating-review">
+                    {{-- <div class="rating-review">
                         <div class="rating">
                             <div class="star">
                                 <i class="bi bi-star-fill"></i>
@@ -55,7 +55,7 @@
                             </div>
                             <p>(50 customer review)</p>
                         </div>
-                    </div>
+                    </div> --}}
                     <p>{!! $product->short_description !!}</p>
                     <div class="price-area">
                         <p class="price">{{ $product->price }} ₪</p>

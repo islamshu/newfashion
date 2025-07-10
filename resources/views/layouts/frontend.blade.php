@@ -38,19 +38,7 @@
     @include('frontend.top_bar')
     @include('frontend.login_register_model')
     @include('frontend.header')
-    @include('frontend.sliders')
-    @include('frontend.featchers')
-    @include('frontend.categorires')
-    @include('frontend.best_sellling')
-    {{-- @include('frontend.product_with_category') --}}
-    @include('frontend.banners')
-    {{-- @include('frontend.new_products') --}}
-    {{-- @include('frontend.exclosive') --}}
-    {{-- @include('frontend.offers') --}}
-    {{-- @include('frontend.best_brands') --}}
-    @include('frontend.say_about')
-    {{-- @include('frontend.blogs') --}}
-    @include('frontend.newsletter')
+    @yield('content')
     {{-- @include('frontend.instegram') --}}
     @include('frontend.footer')
     <div class="modal product-view-modal"id="product-view-modal" tabindex="-1" aria-hidden="true">
