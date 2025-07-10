@@ -15,7 +15,7 @@ Route::post('/login/ajax', [FrontController::class, 'ajaxLogin'])->name('login.a
 Route::post('/login/otp-verify', [FrontController::class, 'verifyOtp'])->name('otp.verify');
 Route::get('/get-sizes', [FrontController::class, 'getSizes']);
 Route::get('/get-stock', [FrontController::class, 'getStock']);
-Route::get('/products', [FrontController::class, 'products']);
+Route::get('/products', [FrontController::class, 'products'])->name('products.all');
 Route::get('/product/{id}', [FrontController::class, 'product'])->name('product.show');
 
 Route::group(['middleware' => 'auth:client'], function () {
