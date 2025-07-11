@@ -46,7 +46,7 @@
                     </button>
                 </li>
                 <li>
-                    <button class="btn  view-product-btn" data-id="{{ $product->id }}" data-bs-toggle="modal"
+                    <button class="btn  view-product-btn"  data-id="{{ $product->id }}" data-bs-toggle="modal"
                         data-bs-target="#product-view-modal">
                         <i class="bi bi-eye"></i>
                     </button>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\FrontController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,6 +18,8 @@ Route::get('/get-sizes', [FrontController::class, 'getSizes']);
 Route::get('/get-stock', [FrontController::class, 'getStock']);
 Route::get('/products', [FrontController::class, 'products'])->name('products.all');
 Route::get('/product/{id}', [FrontController::class, 'product'])->name('product.show');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::get('/cart/mini', [CartController::class, 'mini']);
 
 Route::group(['middleware' => 'auth:client'], function () {
     Route::get('/client/dashboard', [FrontController::class, 'dashboard'])->name('client.dashboard');

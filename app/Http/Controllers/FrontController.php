@@ -69,12 +69,38 @@ class FrontController extends Controller
 
         return response()->json(['stock' => $variation?->stock ?? 0]);
     }
-    public function products()
-    {
-        $categories = Category::withCount('products')->active()->orderBy('id', 'desc')->get();
-        $products = Product::with(['category', 'images'])->active()->latest()->take(30)->get();
-        return view('frontend.products', compact('categories', 'products'));
+    public function products(Request $request)
+{
+    $categories = Category::withCount('products')->active()->orderBy('id', 'desc')->get();
+
+    $query = Product::with(['category', 'images'])->active();
+
+    if ($request->filled('name')) {
+        $query->where('name->ar', 'like', '%' . $request->name . '%');
     }
+
+    if ($request->filled('price_min')) {
+        $query->where('price', '>=', $request->price_min);
+    }
+
+    if ($request->filled('price_max')) {
+        $query->where('price', '<=', $request->price_max);
+    }
+
+    if ($request->filled('category_id')) {
+        $query->where('category_id', $request->category_id);
+    }
+
+    $products = $query->latest()->paginate(9);
+
+    // استجابة مختلفة لو كان الطلب AJAX (لـ Scroll Pagination)
+    if ($request->ajax()) {
+        return view('frontend.partials.product-list', compact('products'))->render();
+    }
+
+    return view('frontend.products', compact('categories', 'products'));
+}
+
 
 
 

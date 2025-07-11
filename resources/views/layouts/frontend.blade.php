@@ -113,62 +113,66 @@
     </script>
     <script>
         $(document).ready(function() {
-            // استخدام event delegation
-            $(document).on('click', '.add-to-wishlist', function(e) {
-                e.preventDefault();
+        $.get('/cart/mini', function(html) {
+            $('.cart-menu').html(html);
+        });
 
-                var productId = $(this).data('product-id');
-                var button = $(this);
+        // استخدام event delegation
+        $(document).on('click', '.add-to-wishlist', function(e) {
+            e.preventDefault();
 
-                if (!isLoggedIn) {
-                    const swalTitle = "{{ __('يجب تسجيل الدخول') }}";
-                    const swalText = "{{ __('يرجى تسجيل الدخول أولاً لإضافة المنتج إلى المفضلة.') }}";
-                    const swalConfirm = "{{ __('حسناً') }}";
+            var productId = $(this).data('product-id');
+            var button = $(this);
 
-                    Swal.fire({
-                        icon: 'warning',
-                        title: swalTitle,
-                        text: swalText,
-                        confirmButtonText: swalConfirm
-                    });
-                    return;
-                }
+            if (!isLoggedIn) {
+                const swalTitle = "{{ __('يجب تسجيل الدخول') }}";
+                const swalText = "{{ __('يرجى تسجيل الدخول أولاً لإضافة المنتج إلى المفضلة.') }}";
+                const swalConfirm = "{{ __('حسناً') }}";
 
-                $.ajax({
-                    url: '/wishlist/add',
-                    method: 'POST',
-                    data: {
-                        product_id: productId,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            button.addClass('active');
-                            Swal.fire({
-                                icon: 'success',
-                                title: "{{ __('تم الاضافة الى المفضلة') }}",
-                                text: response.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            button.removeClass('active');
-                            Swal.fire({
-                                icon: 'info',
-                                title: "{{ __('تم الحذف من المفضلة') }}",
-                                text: response.message
-                            });
-                        }
-                    },
-                    error: function(xhr) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: swalTitle,
+                    text: swalText,
+                    confirmButtonText: swalConfirm
+                });
+                return;
+            }
+
+            $.ajax({
+                url: '/wishlist/add',
+                method: 'POST',
+                data: {
+                    product_id: productId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        button.addClass('active');
                         Swal.fire({
-                            icon: 'error',
-                            title: "{{ __('خطأ') }}",
-                            text: "{{ __('حدث خطأ أثناء إضافة المنتج إلى المفضلة.') }}",
+                            icon: 'success',
+                            title: "{{ __('تم الاضافة الى المفضلة') }}",
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        button.removeClass('active');
+                        Swal.fire({
+                            icon: 'info',
+                            title: "{{ __('تم الحذف من المفضلة') }}",
+                            text: response.message
                         });
                     }
-                });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "{{ __('خطأ') }}",
+                        text: "{{ __('حدث خطأ أثناء إضافة المنتج إلى المفضلة.') }}",
+                    });
+                }
             });
+        });
         });
     </script>
     <script>
@@ -438,7 +442,7 @@
 
         });
     </script>
- 
+
     <script>
         function initializeProductModalScripts() {
 
@@ -449,31 +453,36 @@
             const $sizeContainer = $('.size-list');
             const $stockLabel = $('.stock-available');
             const $quantityInput = $('.quantity__input');
+            $quantityInput.val('1')
 
             function fetchSizes(colorId = null) {
-                // عرض لودر داخل حاوية الأحجام
                 $sizeContainer.html(`
-                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                        <span class="visually-hidden">جارٍ التحميل...</span>
-                                    </div> {{ __('جاري التحميل ...') }}
-                                `);
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">جارٍ التحميل...</span>
+        </div> {{ __('جاري التحميل ...') }}
+    `);
 
                 $.get('/get-sizes', {
                     product_id: productId,
                     color_id: colorId
                 }, function(sizes) {
                     let html = '';
-                    sizes.forEach(size => {
+                    sizes.forEach((size, index) => {
+                        const isChecked = index === 0 ? 'checked' : '';
                         html += `
                 <li>
-                    <input type="radio" name="size_id" id="size-${size.id}" value="${size.id}" class="size-radio" hidden>
+                    <input type="radio" name="size_id" id="size-${size.id}" value="${size.id}" class="size-radio" hidden ${isChecked}>
                     <label for="size-${size.id}" class="size-option">${size.value}</label>
                 </li>
             `;
                     });
 
-                    // استبدال اللودر بقائمة الأحجام
                     $sizeContainer.html(html);
+
+                    // بعد تحميل الأحجام وتحديد أول واحدة، احضر المخزون تلقائيًا
+                    const selectedSizeId = sizes.length > 0 ? sizes[0].id : null;
+                    const selectedColorId = $('input[name="color_id"]:checked').val() || null;
+                    fetchStock(productId, selectedColorId, selectedSizeId);
                 });
             }
 
@@ -524,12 +533,9 @@
             });
 
             // التحكم في الكمية
-            $(document).on('click', '.quantity__plus', function() {
-                // العنصر input الخاص بالكمية قريب من زر الزيادة (مثلاً الأخ أو ضمن نفس الحاوية)
-                // يمكنك التعديل حسب هيكلة الـ HTML لديك
+            $(document).off('click', '.quantity__plus').on('click', '.quantity__plus', function() {
                 let $input = $(this).siblings('.quantity__input');
                 if ($input.length === 0) {
-                    // لو لم تجد input بالـ siblings جرب البحث بشكل مختلف حسب هيكل الصفحة
                     $input = $('.quantity__input');
                 }
 
@@ -537,11 +543,11 @@
                 let max = $input.data('max-stock') || 1;
 
                 if (val < max) {
-                    $input.val(val +1);
+                    $input.val(val + 1);
                 }
             });
 
-            $(document).on('click', '.quantity__minus', function() {
+            $(document).off('click', '.quantity__minus').on('click', '.quantity__minus', function() {
                 let $input = $(this).siblings('.quantity__input');
                 if ($input.length === 0) {
                     $input = $('.quantity__input');
@@ -550,9 +556,10 @@
                 let val = parseInt($input.val()) || 1;
 
                 if (val > 1) {
-                    $input.val(val -1 );
+                    $input.val(val - 1);
                 }
             });
+
 
 
             // trigger initial stock load
@@ -563,6 +570,66 @@
             }, 300);
         };
     </script>
+    <script>
+        $(document).on('click', '#add-to-cart-btn', function(e) {
+            e.preventDefault();
+
+            // البحث داخل المودال فقط
+            const $modal = $(this).closest('.modal');
+
+            const productId = $modal.find('#product_id').val();
+            const quantity = $modal.find('.quantity__input').val();
+            const colorId = $modal.find('input[name="color_id"]:checked').val();
+            const sizeId = $modal.find('input[name="size_id"]:checked').val();
+
+            $.ajax({
+                url: '{{ route('cart.add') }}', // تأكد أن هذا route موجود في Laravel
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    product_id: productId,
+                    quantity: quantity,
+                    color_id: colorId,
+                    size_id: sizeId,
+                },
+                beforeSend: function() {
+                    $('#add-to-cart-btn').html(
+                        '<span class="spinner-border spinner-border-sm"></span> {{ __('جاري الإضافة...') }}'
+                    ).prop('disabled', true);
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تمت الإضافة',
+                        text: response.message || 'تم إضافة المنتج إلى السلة بنجاح!',
+                    });
+
+                    // إعادة الزر لحالته الطبيعية
+                    if (response.cart_count !== undefined) {
+                        $('#cart-count').text(response.cart_count);
+                    }
+                    $.get('/cart/mini', function(html) {
+                        $('.cart-menu').html(html);
+                    });
+
+                    $('#add-to-cart-btn').html('{{ __('أضف إلى السلة') }}').prop('disabled', false);
+                    // يمكنك أيضًا تحديث عدد السلة في الهيدر
+                    // updateCartCount(response.cart_count);
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ',
+                        text: xhr.responseJSON?.message || 'فشل في إضافة المنتج إلى السلة!',
+                    });
+
+                    $('#add-to-cart-btn').html('{{ __('أضف إلى السلة') }}').prop('disabled', false);
+                }
+            });
+        });
+    </script>
+
+    @yield('scripts')
 
 
 
