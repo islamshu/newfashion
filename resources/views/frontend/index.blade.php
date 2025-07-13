@@ -1,5 +1,9 @@
 @extends('layouts.frontend')
+@section('title',__('الرئيسية'))
+
 @section('content')
+    @include('frontend.model_when_open')
+
     @include('frontend.sliders')
     @include('frontend.featchers')
     @include('frontend.categorires')

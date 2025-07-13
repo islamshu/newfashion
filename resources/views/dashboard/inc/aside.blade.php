@@ -110,7 +110,8 @@
                     </li>
                 </ul>
             </li>
-            <li class="dropdown nav-item {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') ? 'active' : '' }}"
+            <li class="dropdown nav-item 
+    {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') || request()->routeIs('banners.index') || request()->routeIs('popup_model') ? 'active' : '' }}"
                 data-menu="dropdown">
                 <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
                     <i class="la la-image"></i>
@@ -118,9 +119,15 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li>
+                        <a class="dropdown-item {{ request()->routeIs('popup_model') ? 'active' : '' }}"
+                            href="{{ route('popup_model') }}">
+                            <i class="la la-bullhorn"></i> {{ __('الإعلان المنبثق') }}
+                        </a>
+                    </li>
+                    <li>
                         <a class="dropdown-item {{ request()->routeIs('sliders.index') ? 'active' : '' }}"
                             href="{{ route('sliders.index') }}">
-                            <i class="la la-list"></i> {{ __('السلايدرز') }}
+                            <i class="la la-sliders"></i> {{ __('السلايدرز') }}
                         </a>
                     </li>
                     <li>
@@ -129,8 +136,15 @@
                             <i class="la la-star"></i> {{ __('المميزات') }}
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('banners.index') ? 'active' : '' }}"
+                            href="{{ route('banners.index') }}">
+                            <i class="la la-image"></i> {{ __('البنرات') }}
+                        </a>
+                    </li>
                 </ul>
             </li>
+
 
         </ul>
     </div>

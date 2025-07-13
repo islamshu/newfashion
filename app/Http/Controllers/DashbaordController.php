@@ -15,24 +15,24 @@ class DashbaordController extends Controller
 {
 
 
-   public function dashboard()
-{
-    $productsCount = Product::count();
-    $categoriesCount = Category::count();
-    $usersCount =User::count();
+    public function dashboard()
+    {
+        $productsCount = Product::count();
+        $categoriesCount = Category::count();
+        $usersCount = User::count();
 
-    // جلب أحدث منتج أُضيف اليوم
-    $latestProductToday = Product::whereDate('created_at', Carbon::today())
-        ->latest()
-        ->first();
+        // جلب أحدث منتج أُضيف اليوم
+        $latestProductToday = Product::whereDate('created_at', Carbon::today())
+            ->latest()
+            ->first();
 
-    return view('dashboard.index', compact(
-        'productsCount',
-        'categoriesCount',
-        'usersCount',
-        'latestProductToday'
-    ));
-}
+        return view('dashboard.index', compact(
+            'productsCount',
+            'categoriesCount',
+            'usersCount',
+            'latestProductToday'
+        ));
+    }
 
     public function setting()
     {
@@ -149,5 +149,8 @@ class DashbaordController extends Controller
         }
         saveJSONFile($request->id, $data);
         return back();
+    }
+    public function popup_model(){
+        return view('dashboard.popup_model');
     }
 }

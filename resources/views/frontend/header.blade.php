@@ -7,48 +7,48 @@
         <div class="category-dropdown">
             <div class="category-button">
                 <img src="{{ asset('front/assets/img/home1/icon/category-icon.svg') }}" alt="">
-                <span>{{__('التصنيفات')}}</span>
+                <span>{{ __('التصنيفات') }}</span>
             </div>
             <div class="category-menu">
-    <ul>
-        @foreach (App\Models\Category::active()->main()->get() as $main)
-            <li class="{{ $main->children->count() ? 'category-has-child' : '' }}">
-                <a href="">
-                    {{ $main->getTranslation('name', app()->getLocale()) }}
-                </a>
-                @if ($main->children->count())
-                    <i class='bx bx-chevron-right'></i>
-                    <ul class="sub-menu">
-                        @foreach ($main->children as $child)
-                            <li>
-                                <a href="">
-                                    {{ $child->getTranslation('name', app()->getLocale()) }}
+                <ul>
+                    @foreach (App\Models\Category::active()->main()->get() as $main)
+                        <li class="{{ $main->children->count() ? 'category-has-child' : '' }}">
+                            <a href="">
+                                {{ $main->getTranslation('name', app()->getLocale()) }}
+                            </a>
+                            @if ($main->children->count())
+                                <i class='bx bx-chevron-right'></i>
+                                <ul class="sub-menu">
+                                    @foreach ($main->children as $child)
+                                        <li>
+                                            <a href="{{ route('products.all', ['category_id' => $child->id]) }}">
+                                                {{ $child->getTranslation('name', app()->getLocale()) }}
 
-                                    @if ($child->children->count())
-                                        <i class='bx bx-chevron-right'></i>
-                                    @endif
-                                </a>
+                                                @if ($child->children->count())
+                                                    <i class='bx bx-chevron-right'></i>
+                                                @endif
+                                            </a>
 
-                                {{-- المستوى الثالث --}}
-                                @if ($child->children->count())
-                                    <ul class="sub-menu">
-                                        @foreach ($child->children as $subchild)
-                                            <li>
-                                                <a href="">
-                                                    {{ $subchild->getTranslation('name', app()->getLocale()) }}
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
-            </li>
-        @endforeach
-    </ul>
-</div>
+                                            {{-- المستوى الثالث --}}
+                                            @if ($child->children->count())
+                                                <ul class="sub-menu">
+                                                    @foreach ($child->children as $subchild)
+                                                        <li>
+                                                            <a href="{{ route('products.all', ['category_id' => $subchild->id]) }}">
+                                                                {{ $subchild->getTranslation('name', app()->getLocale()) }}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
 
         </div>
         <div class="main-menu">
@@ -959,7 +959,7 @@
                                                         <a href="order-tracking.html">Order Tracking</a>
                                                     </li>
                                                     <li>
-                                                        <a href="whistlist.html">Wishlist</a>
+                                                        <a href="{{route('client.wishlist')}}">Wishlist</a>
                                                     </li>
                                                 </ul>
                                             </li>
@@ -1170,18 +1170,20 @@
             <!-- Button trigger modal -->
             <div class="dropdown">
                 <button type="button" class="modal-btn header-cart-btn position-relative">
-    🛒 <!-- أيقونة رمزية بسيطة أو استخدم font icon -->
-    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-        0
-    </span>
-</button>
+                    🛒 <!-- أيقونة رمزية بسيطة أو استخدم font icon -->
+                    <span id="cart-count"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ count(Session::get('cart') ?? []) }}
+                        <!-- عرض عدد العناصر في السلة -->
+                    </span>
+                </button>
 
                 <div class="cart-menu">
-                    
+
                 </div>
             </div>
             <div class="save-btn">
-                <a href="whistlist.html">
+                <a href="{{route('client.wishlist')}}">
                     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/.svg')}}">
                         <g clip-path="url(#clip0_68_10)">
                             <path

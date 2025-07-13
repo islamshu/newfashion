@@ -20,7 +20,6 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
 
         $key = $request->product_id . '-' . $request->color_id . '-' . $request->size_id;
-
         if (isset($cart[$key])) {
             $cart[$key]['quantity'] += $request->quantity;
         } else {
@@ -31,7 +30,6 @@ class CartController extends Controller
                 'quantity'   => $request->quantity,
             ];
         }
-
         session()->put('cart', $cart);
 
         return response()->json([
@@ -51,9 +49,36 @@ class CartController extends Controller
             $subTotal += $product->price * $item['quantity'];
         }
 
-        $discount = $subTotal * 0.2; // خصم 20% مثال
-        $total = $subTotal - $discount;
+        // $discount = $subTotal * 0.2; // خصم 20% مثال
 
-        return view('frontend.partials.cart-mini', compact('cart', 'subTotal', 'discount', 'total'));
+
+        return view('frontend.partials.cart-mini', compact('cart',   'subTotal'));
     }
+    public function remove(Request $request)
+{
+    $cart = session()->get('cart', []);
+
+    $index = $request->product_id;
+
+    if (isset($cart[$index])) {
+        unset($cart[$index]);
+        $cart = array_values($cart); // إعادة ترتيب الفهارس
+        session()->put('cart', $cart);
+    }
+
+    // حساب الإجمالي من جديد
+    $subTotal = 0;
+    foreach ($cart as $item) {
+        $product = Product::find($item['product_id']);
+        $subTotal += $product->price * $item['quantity'];
+    }
+
+    $cartHtml = view('frontend.partials.cart-mini', compact('cart', 'subTotal'))->render();
+
+    return response()->json([
+        'cart_html' => $cartHtml,
+        'cart_count' => count($cart),
+    ]);
+}
+
 }
