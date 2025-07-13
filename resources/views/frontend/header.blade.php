@@ -2,7 +2,7 @@
     <div
         class="container-xxl container-fluid position-relative  d-flex flex-nowrap align-items-center justify-content-between">
         <div class="header-logo d-lg-none d-flex">
-            <a href="index.html"><img alt="image" class="img-fluid" src="{{ asset('front/assets/img/logo.svg') }}"></a>
+            <a href="/"><img alt="image" class="img-fluid" src="{{ asset('storage/' . get_general_value('website_logo')) }}"></a>
         </div>
         <div class="category-dropdown">
             <div class="category-button">
