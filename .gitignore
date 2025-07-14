@@ -1,49 +1,23 @@
-# Laravel
-/vendor
+/.phpunit.cache
 /node_modules
-/public/hot
 /public/build
+/public/hot
 /public/storage
-
-# Allow storage/app/public files (uploaded images, etc.)
-/storage/*
-!/storage/app
-!/storage/app/public
-# Allow common image types
-/storage/app/public/*.jpg
-/storage/app/public/*.jpeg
-/storage/app/public/*.png
-/storage/app/public/*.webp
-/storage/app/public/*.gif
-/storage/app/public/*.svg
-/storage/app/public/*.pdf
-# Keep folder if empty
-!/storage/app/public/.gitkeep
-
-# Ignore sensitive and cache files
+/storage/*.key
+/storage/pail
+/vendor
 .env
 .env.backup
 .env.production
-/storage/*.key
-/storage/pail
-.phpunit.result.cache
-/.phpunit.cache
 .phpactor.json
-
-# Laravel Homestead
-Homestead.yaml
+.phpunit.result.cache
 Homestead.json
-
-# PHPStorm, VSCode, Nova, etc.
-/.idea
-/.vscode
-/.nova
-/.fleet
-/.zed
-
-# npm & yarn logs
+Homestead.yaml
 npm-debug.log
 yarn-error.log
-
-# Composer auth file
 /auth.json
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
