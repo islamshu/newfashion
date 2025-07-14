@@ -1,19 +1,19 @@
 @extends('layouts.master')
-@section('title', __('تعديل خدمة'))
+@section('title', __('تعديل ميزة'))
 
 @section('content')
     <div class="app-content content">
         <div class="content-wrapper">
             <div class="content-header row">
                 <div class="content-header-left col-md-6 col-12 mb-2">
-                    <h3 class="content-header-title">{{ __('تعديل خدمة') }}</h3>
+                    <h3 class="content-header-title">{{ __('تعديل ميزة') }}</h3>
                     <div class="row breadcrumbs-top">
                         <div class="breadcrumb-wrapper col-12">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('الرئيسية') }}</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('services.index') }}">{{ __('الخدمات') }}</a>
+                                <li class="breadcrumb-item"><a href="{{ route('features.index') }}">{{ __('المميزات') }}</a>
                                 </li>
-                                <li class="breadcrumb-item active">{{ __('تعديل خدمة') }}</li>
+                                <li class="breadcrumb-item active">{{ __('تعديل ميزة') }}</li>
                             </ol>
                         </div>
                     </div>
@@ -26,7 +26,7 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title">{{ __('بيانات الخدمة') }}</h4>
+                                    <h4 class="card-title">{{ __('بيانات الميزة') }}</h4>
                                     <a class="heading-elements-toggle"><i class="la la-ellipsis-v font-medium-3"></i></a>
                                 </div>
 
@@ -45,25 +45,25 @@
                                             <!-- اللغة العربية -->
                                             <div class="form-section mb-4">
                                                 <h5 class="form-section-title">
-                                                    <i class="ft-flag"></i> {{ __('اسم الخدمة') }}
+                                                    <i class="ft-flag"></i> {{ __('اسم الميزة') }}
                                                 </h5>
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group">
-                                                            <label>{{ __('اسم الخدمة بالعربية') }} <span
+                                                            <label>{{ __('اسم الميزة بالعربية') }} <span
                                                                     class="text-danger">*</span></label>
                                                             <input type="text" value="{{ old('title.ar',$service->getTranslation('title', 'ar')) }}" required
                                                                 class="form-control" name="title[ar]"
-                                                                placeholder="اسم الخدمة بالعربية">
+                                                                placeholder="اسم الميزة بالعربية">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="form-group">
-                                                            <label>{{ __('اسم الخدمة بالعبرية') }} <span
+                                                            <label>{{ __('اسم الميزة بالعبرية') }} <span
                                                                     class="text-danger">*</span></label>
                                                             <input type="text" value="{{ old('title.he',$service->getTranslation('title', 'ar')) }} " required
                                                                 class="form-control" name="title[he]"
-                                                                placeholder="اسم الخدمة بالعبرية">
+                                                                placeholder="اسم الميزة بالعبرية">
                                                         </div>
                                                     </div>
 
@@ -71,21 +71,21 @@
                                             </div>
                                             <div class="form-section mb-4">
                                                 <h5 class="form-section-title">
-                                                    <i class="ft-flag"></i> {{ __('وصف الخدمة') }}
+                                                    <i class="ft-flag"></i> {{ __('وصف الميزة') }}
                                                 </h5>
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group">
-                                                            <label>{{ __('وصف الخدمة بالعربية') }} <span
+                                                            <label>{{ __('وصف الميزة بالعربية') }} <span
                                                                     class="text-danger">*</span></label>
-                                                            <textarea required class="form-control" name="description[ar]" rows="4" placeholder="وصف الخدمة بالعربية">{{ old('description.ar',$service->getTranslation('description', 'ar')) }} </textarea>
+                                                            <textarea required class="form-control" name="description[ar]" rows="4" placeholder="وصف الميزة بالعربية">{{ old('description.ar',$service->getTranslation('description', 'ar')) }} </textarea>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="form-group">
-                                                            <label>{{ __('وصف الخدمة بالعبرية') }} <span
+                                                            <label>{{ __('وصف الميزة بالعبرية') }} <span
                                                                     class="text-danger">*</span></label>
-                                                            <textarea required class="form-control" name="description[he]" rows="4" placeholder="وصف الخدمة بالعبرية">{{ old('description.he',$service->getTranslation('description', 'ar')) }} </textarea>
+                                                            <textarea required class="form-control" name="description[he]" rows="4" placeholder="وصف الميزة بالعبرية">{{ old('description.he',$service->getTranslation('description', 'ar')) }} </textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -98,7 +98,7 @@
                                             <!-- الأيقونة -->
                                             <div class="form-section mb-4">
                                                 <h5 class="form-section-title">
-                                                    <i class="ft-image"></i> {{ __('أيقونة الخدمة') }}
+                                                    <i class="ft-image"></i> {{ __('أيقونة الميزة') }}
                                                 </h5>
                                                 <div class="row">
                                                     <div class="col-md-6">

@@ -1,18 +1,16 @@
 @extends('layouts.master')
-@section('title', __('الخدمات'))
-
-@section('title', __('الخدمات'))
+@section('title', __('المميزات'))
 @section('content')
     <div class="app-content content">
         <div class="content-wrapper">
             <div class="content-header row">
                 <div class="content-header-left col-md-6 col-12 mb-2">
-                    <h3 class="content-header-title">{{ __('الخدمات') }}</h3>
+                    <h3 class="content-header-title">{{ __('المميزات') }}</h3>
                     <div class="row breadcrumbs-top">
                         <div class="breadcrumb-wrapper col-12">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('الرئيسية') }}</a></li>
-                                <li class="breadcrumb-item active">{{ __('الخدمات') }}</li>
+                                <li class="breadcrumb-item active">{{ __('المميزات') }}</li>
                             </ol>
                         </div>
                     </div>
@@ -22,14 +20,14 @@
             <div class="content-body">
                 <section class="card">
                     <div class="card-header">
-                        <h4 class="card-title">{{ __('جميع الخدمات') }}</h4>
+                        <h4 class="card-title">{{ __('جميع المميزات') }}</h4>
                       
                     </div>
                     <div class="card-content collapse show">
                         <div class="card-body">
                             <!-- صندوق الفلتر المحسن -->
 
-                            <!-- جدول الخدمات -->
+                            <!-- جدول المميزات -->
                             @include('dashboard.inc.alerts')
 
                              <table class="table" id="storestable">
