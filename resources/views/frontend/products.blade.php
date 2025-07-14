@@ -89,177 +89,179 @@
 @endsection
 
 @section('scripts')
-    <script>
-        const priceMin = document.getElementById('priceMin');
-        const priceMax = document.getElementById('priceMax');
-        const priceRangeLabel = document.getElementById('priceRangeLabel');
-        const filterForm = document.getElementById('filterForm');
-        const productContainer = document.getElementById('productContainer');
+<script>
+    const priceMin = document.getElementById('priceMin');
+    const priceMax = document.getElementById('priceMax');
+    const priceRangeLabel = document.getElementById('priceRangeLabel');
+    const filterForm = document.getElementById('filterForm');
+    const productContainer = document.getElementById('productContainer');
+    const preloadLoader = document.getElementById('preload-loading');
+    const loadingIndicator = document.getElementById('loading');
 
-        function updatePriceLabel() {
-            let min = parseInt(priceMin.value);
-            let max = parseInt(priceMax.value);
-            if (min > max)[min, max] = [max, min];
-            priceRangeLabel.textContent = min + ' - ' + max;
-            priceMin.value = min;
-            priceMax.value = max;
-        }
+    // تحديث نص نطاق السعر المعروض
+    function updatePriceLabel() {
+        let min = parseInt(priceMin.value);
+        let max = parseInt(priceMax.value);
+        if (min > max) [min, max] = [max, min];
+        priceRangeLabel.textContent = min + ' - ' + max;
+        priceMin.value = min;
+        priceMax.value = max;
+    }
 
-        updatePriceLabel();
-        priceMin.addEventListener('input', updatePriceLabel);
-        priceMax.addEventListener('input', updatePriceLabel);
-        const preloadLoader = document.getElementById('preload-loading');
+    updatePriceLabel();
+    priceMin.addEventListener('input', updatePriceLabel);
+    priceMax.addEventListener('input', updatePriceLabel);
+
+    // إرسال الفورم بالفلترة عبر AJAX
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        currentPage = 1;
+        hasMore = true;
+
+        const formData = new FormData(this);
+        const params = new URLSearchParams(formData);
+
         preloadLoader.style.display = 'block';
         productContainer.style.display = 'none';
-        filterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+
+        fetch(`{{ route('products.all') }}?${params}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.text())
+        .then(html => {
+            productContainer.innerHTML = html;
+        })
+        .finally(() => {
+            preloadLoader.style.display = 'none';
+            productContainer.style.display = 'block';
+        });
+    });
+
+    // التبديل بين تبويبات الفئات مع جلب المنتجات عبر AJAX
+    document.querySelectorAll('.category-tab').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.category-tab').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const categoryId = this.dataset.categoryId;
             currentPage = 1;
             hasMore = true;
 
-            const formData = new FormData(this);
+            const formData = new FormData(filterForm);
+            if (categoryId) {
+                formData.set('category_id', categoryId);
+            } else {
+                formData.delete('category_id');
+            }
+
             const params = new URLSearchParams(formData);
 
-            // ✅ إظهار اللودر وإخفاء المنتجات
-            const preloadLoader = document.getElementById('preload-loading');
             preloadLoader.style.display = 'block';
             productContainer.style.display = 'none';
 
             fetch(`{{ route('products.all') }}?${params}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(res => res.text())
-                .then(html => {
-                    productContainer.innerHTML = html;
-                })
-                .finally(() => {
-                    preloadLoader.style.display = 'none';
-                    productContainer.style.display = 'block';
-                });
-        });
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                productContainer.innerHTML = html;
 
-
-        document.querySelectorAll('.category-tab').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.category-tab').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                const categoryId = this.dataset.categoryId;
-                currentPage = 1;
-                hasMore = true;
-
-                const formData = new FormData(filterForm);
+                // تحديث حقل category_id المخفي داخل الفورم
+                let catInput = filterForm.querySelector('input[name="category_id"]');
                 if (categoryId) {
-                    formData.set('category_id', categoryId);
+                    if (!catInput) {
+                        catInput = document.createElement('input');
+                        catInput.type = 'hidden';
+                        catInput.name = 'category_id';
+                        filterForm.appendChild(catInput);
+                    }
+                    catInput.value = categoryId;
                 } else {
-                    formData.delete('category_id');
+                    catInput?.remove();
                 }
-
-                const params = new URLSearchParams(formData);
-
-                // ✅ إظهار اللودر وإخفاء المنتجات
-                const preloadLoader = document.getElementById('preload-loading');
-                preloadLoader.style.display = 'block';
-                productContainer.style.display = 'none';
-
-                fetch(`{{ route('products.all') }}?${params}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(res => res.text())
-                    .then(html => {
-                        productContainer.innerHTML = html;
-
-                        // تحديث hidden input
-                        let catInput = filterForm.querySelector('input[name="category_id"]');
-                        if (categoryId) {
-                            if (!catInput) {
-                                catInput = document.createElement('input');
-                                catInput.type = 'hidden';
-                                catInput.name = 'category_id';
-                                filterForm.appendChild(catInput);
-                            }
-                            catInput.value = categoryId;
-                        } else {
-                            catInput?.remove();
-                        }
-                    })
-                    .finally(() => {
-                        preloadLoader.style.display = 'none';
-                        productContainer.style.display = 'block';
-                    });
+            })
+            .finally(() => {
+                preloadLoader.style.display = 'none';
+                productContainer.style.display = 'block';
             });
         });
+    });
 
+    // تحميل المزيد عند التمرير إلى الأسفل
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = true;
 
-        // Scroll to load more
-        let currentPage = 1;
-        let isLoading = false;
-        let hasMore = true;
+    window.addEventListener('scroll', function() {
+        if (isLoading || !hasMore) return;
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
+            loadMoreProducts();
+        }
+    });
 
-        window.addEventListener('scroll', function() {
-            if (isLoading || !hasMore) return;
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
-                loadMoreProducts();
+    function loadMoreProducts() {
+        isLoading = true;
+        currentPage++;
+
+        const formData = new FormData(filterForm);
+        formData.append('page', currentPage);
+        const params = new URLSearchParams(formData);
+
+        loadingIndicator.style.display = 'block';
+
+        fetch(`{{ route('products.all') }}?${params}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.text())
+        .then(html => {
+            if (html.trim() === '') {
+                hasMore = false;
+            } else {
+                productContainer.insertAdjacentHTML('beforeend', html);
             }
+        })
+        .finally(() => {
+            isLoading = false;
+            loadingIndicator.style.display = 'none';
         });
+    }
 
-        function loadMoreProducts() {
-            isLoading = true;
-            currentPage++;
+    // تحميل تلقائي عند فتح الصفحة بناءً على category_id في الرابط أو بدون فلترة
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryId = urlParams.get('category_id');
 
-            const formData = new FormData(filterForm);
-            formData.append('page', currentPage);
-            const params = new URLSearchParams(formData);
-
-            const loadingIndicator = document.getElementById('loading');
-            loadingIndicator.style.display = 'block';
-
-            fetch(`{{ route('products.all') }}?${params}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(res => res.text())
-                .then(html => {
-                    if (html.trim() === '') {
-                        hasMore = false;
-                    } else {
-                        productContainer.insertAdjacentHTML('beforeend', html);
-                    }
-                })
-                .finally(() => {
-                    isLoading = false;
-                    loadingIndicator.style.display = 'none';
-                });
+        if (categoryId !== null) {
+            const targetBtn = document.querySelector(`.category-tab[data-category-id="${categoryId}"]`);
+            if (targetBtn) {
+                setTimeout(() => targetBtn.click(), 100);
+            } else {
+                // إذا لم يجد الزر المطلوب، جلب كل المنتجات
+                fetchAllProducts();
+            }
+        } else {
+            fetchAllProducts();
         }
 
-        // تحميل تلقائي حسب category_id في URL
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const categoryId = urlParams.get('category_id');
-            if (categoryId !== null) {
-                const targetBtn = document.querySelector(`.category-tab[data-category-id="${categoryId}"]`);
-                if (targetBtn) {
-                    setTimeout(() => targetBtn.click(), 100);
-                }
-            } else {
-                // جلب كل المنتجات في أول مرة
-                const formData = new FormData(filterForm);
-                const params = new URLSearchParams(formData);
+        function fetchAllProducts() {
+            preloadLoader.style.display = 'block';
+            productContainer.style.display = 'none';
 
-                fetch(`{{ route('products.all') }}?${params}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(res => res.text())
-                    .then(html => {
-                        productContainer.innerHTML = html;
-                    });
-            }
-        });
-    </script>
+            const formData = new FormData(filterForm);
+            const params = new URLSearchParams(formData);
+
+            fetch(`{{ route('products.all') }}?${params}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                productContainer.innerHTML = html;
+            })
+            .finally(() => {
+                preloadLoader.style.display = 'none';
+                productContainer.style.display = 'block';
+            });
+        }
+    });
+</script>
 @endsection

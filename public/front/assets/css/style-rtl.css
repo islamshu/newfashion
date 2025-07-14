@@ -281,6 +281,18 @@
     /* قيمه عاليه تكفي لتكون فوق كل العناصر */
 }
 
+.menu-list li a {
+    font-size: 17px !important;
+    /* تكبير الخط */
+    padding: 8px 12px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.menu-list li.active a {
+    font-weight: bold;
+}
+
 
 /* عناصر النتائج */
 

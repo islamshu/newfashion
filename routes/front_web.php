@@ -22,12 +22,14 @@ Route::get('/products', [FrontController::class, 'products'])->name('products.al
 Route::get('/categories', [FrontController::class, 'categories'])->name('categories.all');
 Route::get('/contactUs', [FrontController::class, 'contactUs'])->name('contactUs');
 Route::post('/contact/send', [FrontController::class, 'sendContactUs'])->name('contact.send');
+Route::get('/about', [FrontController::class, 'about'])->name('about');
 
 Route::get('/product/{id}', [FrontController::class, 'product'])->name('product.show');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::get('/cart/mini', [CartController::class, 'mini']);
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/quick-search', [FrontController::class, 'quickSearch'])->name('products.quickSearch');
+Route::get('/search-products', [FrontController::class, 'quickSearch'])->name('search.products');
 
 Route::group(['middleware' => 'auth:client'], function () {
     Route::get('/client/dashboard', [FrontController::class, 'dashboard'])->name('client.dashboard');

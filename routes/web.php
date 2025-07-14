@@ -44,7 +44,7 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
   Route::resource('banners', BannerController::class)->except(['show']);
   Route::get('update_status_banner', [BannerController::class, 'update_status_banner'])->name('update_status_banner');
   Route::post('/banner/update-order', [BannerController::class, 'updateOrder'])->name('banners.updateOrder');
-
+  Route::get('about_page', [DashbaordController::class, 'about_page'])->name('about_page');
   Route::resource('features', ServiceController::class)->only(['index', 'edit', 'update']);
   Route::post('/features/update-order', [ServiceController::class, 'updateOrder'])->name('features.updateOrder');
   Route::post('/sliders/update-order', [SliderController::class, 'updateOrder'])->name('sliders.updateOrder');

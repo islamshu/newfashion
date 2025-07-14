@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Validator;
 class DashbaordController extends Controller
 {
 
-
+    public function about_page(){
+        return view('dashboard.about_page');
+    }
     public function dashboard()
     {
         $productsCount = Product::count();

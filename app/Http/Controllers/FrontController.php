@@ -67,6 +67,11 @@ class FrontController extends Controller
 
         return response()->json($results);
     }
+   
+    public function about()
+    {
+        return view('frontend.about');
+    }
 
 
     public function dashboard()
@@ -237,41 +242,44 @@ class FrontController extends Controller
 
         return response()->json(['stock' => $variation?->stock ?? 0]);
     }
-    public function products(Request $request)
-    {
-        $categories = Category::withCount('products')->active()->orderBy('id', 'desc')->get();
+public function products(Request $request)
+{
+    $categories = Category::withCount('products')->active()->orderBy('id', 'desc')->get();
 
-        // عند طلب AJAX (فلترة أو Scroll أو اختيار فئة)
-        if ($request->ajax()) {
-            $query = Product::with(['category', 'images'])->active();
+    // عند طلب AJAX (فلترة أو Scroll أو اختيار فئة)
+    if ($request->ajax()) {
+        $query = Product::with(['category', 'images'])->active();
 
-            if ($request->filled('name')) {
-                $locale = app()->getLocale();
-
-                $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
-            }
-
-            if ($request->filled('price_min')) {
-                $query->where('price', '>=', $request->price_min);
-            }
-
-            if ($request->filled('price_max')) {
-                $query->where('price', '<=', $request->price_max);
-            }
-
-            if ($request->filled('category_id')) {
-                $query->where('category_id', $request->category_id);
-            }
-
-            $products = $query->latest()->paginate(9);
-            return view('frontend.partials.product-list', compact('products'))->render();
+        if ($request->filled('name')) {
+            $locale = app()->getLocale();
+            $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
         }
 
-        // عند تحميل الصفحة بشكل عادي
-        $products = $request->filled('category_id') ? null : Product::with(['category', 'images'])->active()->latest()->paginate(9);
+        if ($request->filled('price_min')) {
+            $query->where('price', '>=', $request->price_min);
+        }
 
-        return view('frontend.products', compact('categories', 'products'));
+        if ($request->filled('price_max')) {
+            $query->where('price', '<=', $request->price_max);
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $products = $query->latest()->paginate(9);
+        return view('frontend.partials.product-list', compact('products'))->render();
     }
+
+    // تحميل عادي للصفحة بدون أي فلتر => جلب كل المنتجات
+    $hasFilters = $request->filled('category_id') || $request->filled('name') || $request->filled('price_min') || $request->filled('price_max');
+
+    $products = !$hasFilters ? Product::with(['category', 'images'])->active()->latest()->paginate(9) : null;
+
+    return view('frontend.products', compact('categories', 'products'));
+}
+
+
     public function categories(Request $request)
     {
         $categories = Category::active()->latest()->paginate(8);

@@ -671,49 +671,49 @@
             });
         }
     </script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const searchForm = document.querySelector('.search-area form');
-    const searchInput = searchForm.querySelector('input[type="text"]');
-    const resultsBox = document.getElementById('searchResults');
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchForm = document.querySelector('.search-area form');
+            const searchInput = searchForm.querySelector('input[type="text"]');
+            const resultsBox = document.getElementById('searchResults');
 
-    // منع إعادة تحميل الصفحة عند الضغط زر البحث
-    searchForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const query = searchInput.value.trim();
-        if(query.length < 2) {
-            resultsBox.style.display = 'none';
-            resultsBox.innerHTML = '';
-            return;
-        }
-        performSearch(query);
-    });
+            // منع إعادة تحميل الصفحة عند الضغط زر البحث
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = searchInput.value.trim();
+                if (query.length < 2) {
+                    resultsBox.style.display = 'none';
+                    resultsBox.innerHTML = '';
+                    return;
+                }
+                performSearch(query);
+            });
 
-    // البحث أثناء الكتابة (مع تأخير 300ms)
-    let debounce;
-    searchInput.addEventListener('keyup', function(e) {
-        if(e.key === "Enter") return; // تجاهل enter هنا لأن الفورم يرسل البحث
+            // البحث أثناء الكتابة (مع تأخير 300ms)
+            let debounce;
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === "Enter") return; // تجاهل enter هنا لأن الفورم يرسل البحث
 
-        const query = this.value.trim();
-        clearTimeout(debounce);
+                const query = this.value.trim();
+                clearTimeout(debounce);
 
-        if(query.length < 2) {
-            resultsBox.style.display = 'none';
-            resultsBox.innerHTML = '';
-            return;
-        }
+                if (query.length < 2) {
+                    resultsBox.style.display = 'none';
+                    resultsBox.innerHTML = '';
+                    return;
+                }
 
-        debounce = setTimeout(() => {
-            performSearch(query);
-        }, 300);
-    });
+                debounce = setTimeout(() => {
+                    performSearch(query);
+                }, 300);
+            });
 
-    function performSearch(keyword) {
-        fetch(`{{ route('products.quickSearch') }}?name=${encodeURIComponent(keyword)}`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.length > 0) {
-                resultsBox.innerHTML = data.map(item => `
+            function performSearch(keyword) {
+                fetch(`{{ route('products.quickSearch') }}?name=${encodeURIComponent(keyword)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            resultsBox.innerHTML = data.map(item => `
                     <a href="/product/${item.id}" class="search-result-item" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #eee;text-decoration:none;color:#333;">
                         <img src="${item.image}" alt="${item.name}" style="width:50px;height:50px;object-fit:cover;border-radius:5px;flex-shrink:0;">
                         <div>
@@ -722,26 +722,80 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     </a>
                 `).join('');
-                resultsBox.style.display = 'block';
-            } else {
-                resultsBox.innerHTML = '<div style="padding:10px;text-align:center;color:#777;">لا توجد نتائج</div>';
-                resultsBox.style.display = 'block';
+                            resultsBox.style.display = 'block';
+                        } else {
+                            resultsBox.innerHTML =
+                                '<div style="padding:10px;text-align:center;color:#777;">لا توجد نتائج</div>';
+                            resultsBox.style.display = 'block';
+                        }
+                    })
+                    .catch(() => {
+                        resultsBox.innerHTML =
+                            '<div style="padding:10px;text-align:center;color:red;">حدث خطأ في البحث</div>';
+                        resultsBox.style.display = 'block';
+                    });
             }
-        })
-        .catch(() => {
-            resultsBox.innerHTML = '<div style="padding:10px;text-align:center;color:red;">حدث خطأ في البحث</div>';
-            resultsBox.style.display = 'block';
-        });
-    }
 
-    // إخفاء النتائج عند الضغط خارج صندوق البحث
-    document.addEventListener('click', function(e) {
-        if (!searchForm.contains(e.target) && !resultsBox.contains(e.target)) {
-            resultsBox.style.display = 'none';
-        }
-    });
-});
-</script>
+            // إخفاء النتائج عند الضغط خارج صندوق البحث
+            document.addEventListener('click', function(e) {
+                if (!searchForm.contains(e.target) && !resultsBox.contains(e.target)) {
+                    resultsBox.style.display = 'none';
+                }
+            });
+        });
+    </script>
+    <script>
+        const input = document.getElementById('mobileSearchInput');
+        const resultsContainer = document.getElementById('search-results');
+        const resultsList = resultsContainer.querySelector('ul');
+        let debounceTimeout = null;
+
+        input.addEventListener('input', function() {
+            const query = this.value.trim();
+
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                if (query.length < 2) {
+                    resultsContainer.classList.add('d-none');
+                    resultsList.innerHTML = '';
+                    return;
+                }
+
+                fetch(`{{ route('search.products') }}?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultsList.innerHTML = '';
+
+                        if (data.length === 0) {
+                            resultsList.innerHTML =
+                                `<li class="list-group-item text-center text-muted">{{ __('لا توجد نتائج مطابقة') }}</li>`;
+                        } else {
+                            data.forEach(product => {
+                                const item = document.createElement('li');
+                                item.className = 'list-group-item list-group-item-action';
+                                item.innerHTML = `
+                                <a href="/product/${product.id}" class="d-block text-decoration-none text-dark">
+                                    ${product.name}
+                                </a>
+                            `;
+                                resultsList.appendChild(item);
+                            });
+                        }
+
+                        resultsContainer.classList.remove('d-none');
+                    })
+                    .catch(() => {
+                        resultsContainer.classList.add('d-none');
+                    });
+            }, 300);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!resultsContainer.contains(e.target) && e.target !== input) {
+                resultsContainer.classList.add('d-none');
+            }
+        });
+    </script>
 
 
 
