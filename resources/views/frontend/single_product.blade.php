@@ -1,13 +1,13 @@
 @extends('layouts.frontend')
-@section('title',$product->name)
+@section('title', $product->name)
 
 @section('content')
     <div class="breadcrumb-section">
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/">{{__('الرئيسية')}}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{$product->name}}</li>
+                    <li class="breadcrumb-item"><a href="/">{{ __('الرئيسية') }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $product->name }}</li>
                 </ol>
             </nav>
         </div>
@@ -71,7 +71,8 @@
                         <div class="price-area">
                             <p class="price">{{ $product->price }} ₪</p>
                         </div>
-                        <p  id="stock-display" class="stock-available text-success mt-2" data-stock-label="{{ __('الكمية المتوفرة') }}"></p>
+                        <p id="stock-display" class="stock-available text-success mt-2"
+                            data-stock-label="{{ __('الكمية المتوفرة') }}"></p>
 
                         <div class="quantity-color-area product-box">
 
@@ -79,7 +80,8 @@
                                 <h6 class="widget-title">{{ __('الكمية') }}</h6>
                                 <div class="quantity-counter">
                                     <button type="button" class="quantity-btn minus"><i class='bx bx-minus'></i></button>
-                                    <input name="quantity" type="number" min="1" max="100" class="quantity-input" value="1">
+                                    <input name="quantity" type="number" min="1" max="100"
+                                        class="quantity-input" value="1">
                                     <button type="button" class="quantity-btn plus"><i class='bx bx-plus'></i></button>
                                     <input type="hidden" id="product_id" name="product_id" value="{{ $product->id }}">
                                 </div>
@@ -219,6 +221,35 @@
             </div>
         </div>
     </div>
+   <div class="newest-product-section mb-110">
+    <div class="container">
+        <div class="section-title2 style-2">
+            <h3>{{ __('منتجات ذات صلة') }}</h3>
+            <div class="slider-btn">
+                <div class="prev-btn" tabindex="0" role="button" aria-label="Previous slide" aria-controls="swiper-wrapper-4dc9910387c72ca0">
+                    <i class="bi bi-chevron-left"></i>
+                </div>
+                <div class="next-btn" tabindex="0" role="button" aria-label="Next slide" aria-controls="swiper-wrapper-4dc9910387c72ca0">
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="swiper newest-slider swiper-initialized swiper-horizontal swiper-pointer-events swiper-rtl">
+                    <div class="swiper-wrapper">
+                        @foreach($relatedProducts as $relatedProduct)
+                        <div class="swiper-slide">
+                                @include('frontend.partials.product-card', ['product' => $relatedProduct])
+
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @endsection
@@ -309,7 +340,7 @@
             });
 
             // التحكم في الكمية
-           
+
 
 
             // trigger initial stock load
@@ -391,75 +422,75 @@
         });
     </script>
     <script>
-$(document).ready(function() {
-    // دالة لاستخراج قيمة المخزون من العنصر
-    function getCurrentStock() {
-        const stockElement = document.getElementById('stock-display');
-        if (!stockElement) return 100; // قيمة افتراضية إذا لم يوجد العنصر
-        
-        // استخراج الرقم من النص (مثال: "الكمية المتوفرة: 5" → 5)
-        const stockText = stockElement.textContent || stockElement.innerText;
-        const stockValue = parseInt(stockText.replace(/[^0-9]/g, ''));
-        return isNaN(stockValue) ? 100 : stockValue; // قيمة افتراضية إذا لم يتم العثور على رقم
-    }
+        $(document).ready(function() {
+            // دالة لاستخراج قيمة المخزون من العنصر
+            function getCurrentStock() {
+                const stockElement = document.getElementById('stock-display');
+                if (!stockElement) return 100; // قيمة افتراضية إذا لم يوجد العنصر
 
-    // دالة للتحكم في الكمية
-    function handleQuantity(button, direction) {
-        const counter = button.closest('.quantity-counter');
-        const input = counter.querySelector('.quantity-input');
-        let value = parseInt(input.value) || 1;
-        const min = parseInt(input.getAttribute('min')) || 1;
-        const max = getCurrentStock(); // الحصول على المخزون الحالي
+                // استخراج الرقم من النص (مثال: "الكمية المتوفرة: 5" → 5)
+                const stockText = stockElement.textContent || stockElement.innerText;
+                const stockValue = parseInt(stockText.replace(/[^0-9]/g, ''));
+                return isNaN(stockValue) ? 100 : stockValue; // قيمة افتراضية إذا لم يتم العثور على رقم
+            }
 
-        if (direction === 'plus') {
-            value = Math.min(value + 1, max);
-        } else {
-            value = Math.max(value - 1, min);
-        }
-        
-        input.value = value;
-        updateButtonStates(input);
-        
-        // تشغيل حدث التغيير
-        input.dispatchEvent(new Event('change'));
-    }
+            // دالة للتحكم في الكمية
+            function handleQuantity(button, direction) {
+                const counter = button.closest('.quantity-counter');
+                const input = counter.querySelector('.quantity-input');
+                let value = parseInt(input.value) || 1;
+                const min = parseInt(input.getAttribute('min')) || 1;
+                const max = getCurrentStock(); // الحصول على المخزون الحالي
 
-    // دالة لتحديث حالة الأزرار
-    function updateButtonStates(input) {
-        const value = parseInt(input.value) || 1;
-        const min = parseInt(input.getAttribute('min')) || 1;
-        const max = getCurrentStock();
-        
-        const counter = input.closest('.quantity-counter');
-        counter.querySelector('.minus').classList.toggle('disabled', value <= min);
-        counter.querySelector('.plus').classList.toggle('disabled', value >= max);
-    }
+                if (direction === 'plus') {
+                    value = Math.min(value + 1, max);
+                } else {
+                    value = Math.max(value - 1, min);
+                }
 
-    // أحداث النقر على الأزرار
-    $(document).on('click', '.quantity-btn:not(.disabled)', function() {
-        const direction = $(this).hasClass('plus') ? 'plus' : 'minus';
-        handleQuantity(this, direction);
-    });
+                input.value = value;
+                updateButtonStates(input);
 
-    // التحقق من صحة الإدخال اليدوي
-    $(document).on('change input', '.quantity-input', function() {
-        let value = parseInt(this.value) || 1;
-        const min = parseInt(this.getAttribute('min')) || 1;
-        const max = getCurrentStock();
-        
-        if (isNaN(value) || value < min) {
-            this.value = min;
-        } else if (value > max) {
-            this.value = max;
-        }
-        
-        updateButtonStates(this);
-    });
+                // تشغيل حدث التغيير
+                input.dispatchEvent(new Event('change'));
+            }
 
-    // تحديث الحالة الأولية للأزرار
-    $('.quantity-input').each(function() {
-        updateButtonStates(this);
-    });
-});
-</script>
+            // دالة لتحديث حالة الأزرار
+            function updateButtonStates(input) {
+                const value = parseInt(input.value) || 1;
+                const min = parseInt(input.getAttribute('min')) || 1;
+                const max = getCurrentStock();
+
+                const counter = input.closest('.quantity-counter');
+                counter.querySelector('.minus').classList.toggle('disabled', value <= min);
+                counter.querySelector('.plus').classList.toggle('disabled', value >= max);
+            }
+
+            // أحداث النقر على الأزرار
+            $(document).on('click', '.quantity-btn:not(.disabled)', function() {
+                const direction = $(this).hasClass('plus') ? 'plus' : 'minus';
+                handleQuantity(this, direction);
+            });
+
+            // التحقق من صحة الإدخال اليدوي
+            $(document).on('change input', '.quantity-input', function() {
+                let value = parseInt(this.value) || 1;
+                const min = parseInt(this.getAttribute('min')) || 1;
+                const max = getCurrentStock();
+
+                if (isNaN(value) || value < min) {
+                    this.value = min;
+                } else if (value > max) {
+                    this.value = max;
+                }
+
+                updateButtonStates(this);
+            });
+
+            // تحديث الحالة الأولية للأزرار
+            $('.quantity-input').each(function() {
+                updateButtonStates(this);
+            });
+        });
+    </script>
 @endsection
