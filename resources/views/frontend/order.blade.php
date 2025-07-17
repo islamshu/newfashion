@@ -17,6 +17,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
+                    <div class="text-end mb-3">
+                        <button onclick="printInvoice()" class="btn btn-dark">
+                            🖨️ {{ __('طباعة الفاتورة') }}
+                        </button>
+                    </div>
+
                     @if ($order)
                         <div class="order-details-box p-5 rounded-4 shadow-lg bg-white border border-gray-200">
                             @php
@@ -26,7 +32,10 @@
                                     'completed' => ['text-success', __('مكتمل')],
                                     'cancelled' => ['text-danger', __('ملغى')],
                                 ];
-                                [$statusClass, $statusText] = $statusMap[$order->status] ?? ['text-secondary', $order->status ?? __('غير معروف')];
+                                [$statusClass, $statusText] = $statusMap[$order->status] ?? [
+                                    'text-secondary',
+                                    $order->status ?? __('غير معروف'),
+                                ];
                             @endphp
 
                             <div class="order-header mb-5">
@@ -34,8 +43,10 @@
                                     <div class="col-md-6">
                                         <h5>{{ __('معلومات الطلب') }}</h5>
                                         <p><strong>{{ __('رقم الطلب') }}:</strong> {{ $order->code }}</p>
-                                        <p><strong>{{ __('تاريخ الطلب') }}:</strong> {{ $order->created_at->format('Y-m-d') }}</p>
-                                        <p><strong>{{ __('حالة الطلب') }}:</strong> <span class="{{ $statusClass }}">{{ $statusText }}</span></p>
+                                        <p><strong>{{ __('تاريخ الطلب') }}:</strong>
+                                            {{ $order->created_at->format('Y-m-d') }}</p>
+                                        <p><strong>{{ __('حالة الطلب') }}:</strong> <span
+                                                class="{{ $statusClass }}">{{ $statusText }}</span></p>
                                     </div>
                                     <div class="col-md-6">
                                         <h5>{{ __('معلومات الدفع') }}</h5>
@@ -49,7 +60,8 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <h5>{{ __('معلومات العميل') }}</h5>
-                                        <p><strong>{{ __('الاسم') }}:</strong> {{ $order->fname }} {{ $order->lname }}</p>
+                                        <p><strong>{{ __('الاسم') }}:</strong> {{ $order->fname }} {{ $order->lname }}
+                                        </p>
                                         <p><strong>{{ __('البريد الإلكتروني') }}:</strong> {{ $order->email }}</p>
                                         <p><strong>{{ __('الهاتف') }}:</strong> {{ $order->phone }}</p>
                                     </div>
@@ -84,21 +96,25 @@
                                         </tbody>
                                         <tfoot class="table-light">
                                             <tr>
-                                                <td colspan="3" class="text-end"><strong>{{ __('المجموع الفرعي') }}:</strong></td>
+                                                <td colspan="3" class="text-end">
+                                                    <strong>{{ __('المجموع الفرعي') }}:</strong></td>
                                                 <td dir="ltr">{{ $order->subtotal }} ₪</td>
                                             </tr>
                                             @if ($order->discount > 0)
                                                 <tr>
-                                                    <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} ({{ $order->coupon_code }}):</strong></td>
+                                                    <td colspan="3" class="text-end"><strong>{{ __('الخصم') }}
+                                                            ({{ $order->coupon_code }}):</strong></td>
                                                     <td dir="ltr">- {{ $order->discount }} ₪</td>
                                                 </tr>
                                             @endif
                                             <tr>
-                                                <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
+                                                <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong>
+                                                </td>
                                                 <td dir="ltr">{{ $order->tax }} ₪</td>
                                             </tr>
                                             <tr>
-                                                <td colspan="3" class="text-end"><strong>{{ __('المجموع الكلي') }}:</strong></td>
+                                                <td colspan="3" class="text-end">
+                                                    <strong>{{ __('المجموع الكلي') }}:</strong></td>
                                                 <td dir="ltr">{{ $order->total }} ₪</td>
                                             </tr>
                                         </tfoot>
@@ -154,4 +170,35 @@
             color: #6c757d !important;
         }
     </style>
+@endsection
+@section('scripts')
+<script>
+    function printInvoice() {
+        // استهداف صندوق تفاصيل الطلب فقط
+        const printContents = document.querySelector('.order-details-box').innerHTML;
+        const originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = `
+            <html>
+            <head>
+                <title>{{ __('فاتورة الطلب') }}</title>
+                <style>
+                    body { direction: rtl; font-family: Arial, sans-serif; color: #000; padding: 20px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ddd; padding: 8px; }
+                    th { background-color: #f2f2f2; }
+                    h5 { margin-top: 20px; }
+                </style>
+            </head>
+            <body>
+                ${printContents}
+            </body>
+            </html>
+        `;
+
+        window.print();
+        document.body.innerHTML = originalContents;
+        window.location.reload(); // لإعادة الصفحة كما كانت
+    }
+</script>
 @endsection
