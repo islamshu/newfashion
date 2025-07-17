@@ -318,7 +318,7 @@
                             text: data.message,
                             icon: 'success'
                         }).then(() => {
-                          const orderCode = response.code; // يجب أن ترسله من السيرفر
+                          const orderCode = data.code; // يجب أن ترسله من السيرفر
                           window.location.href = "/order/" + orderCode;
                         });
                     } else {
