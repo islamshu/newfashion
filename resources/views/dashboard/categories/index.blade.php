@@ -184,7 +184,6 @@
         }
     </style>
 
-    </style>
 @endsection
 @section('title', __('قائمة التصنيفات'))
 @section('content')

@@ -64,8 +64,10 @@
                                         d="M16.4186 15.8812C15.7698 16.5516 15.2284 17.0973 15.2069 17.093C15.1897 17.0844 14.919 16.7922 14.6097 16.4441L14.0425 15.8039L13.905 15.9285C13.8319 15.9973 13.6128 16.1949 13.4151 16.3711C13.2218 16.543 13.0671 16.702 13.0714 16.7191C13.0972 16.775 15.1425 19.0781 15.1725 19.0781C15.1897 19.0781 15.9675 18.2875 16.8999 17.325L18.5971 15.5676L18.1417 15.1121C17.8882 14.8586 17.6604 14.6523 17.6389 14.6523C17.6132 14.6566 17.0675 15.2066 16.4186 15.8812Z" />
                                 </svg>
                                 {{ __('طلباتي') }}</button>
-                            <button class="nav-link nav-btn-style mx-auto" type="button" role="tab"><svg width="20"
-                                    height="20" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+                            <a href="{{ route('client.logout') }}"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                class="nav-link nav-btn-style mx-auto" role="tab">
+                                <svg width="20" height="20" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
                                     <g clip-path="url(#clip0_382_377)">
                                         <path
                                             d="M21.7273 10.4732L19.3734 8.81368C18.9473 8.51333 18.3574 8.81866 18.3574 9.34047V12.6595C18.3574 13.1834 18.9485 13.4856 19.3733 13.1863L21.7272 11.5268C22.0916 11.2699 22.0906 10.7294 21.7273 10.4732Z" />
@@ -79,7 +81,11 @@
                                             <rect width="22" height="22" />
                                         </clipPath>
                                     </defs>
-                                </svg>{{ __('تسجيل خروج') }}</button>
+                                </svg>
+                                {{ __('تسجيل خروج') }}
+                            </a>
+
+
                         </div>
                     </div>
 
@@ -100,7 +106,7 @@
                                             </div>
                                             <div class="body">
                                                 <div class="counter-item">
-                                                    <h2>3600</h2>
+                                                    <h2>{{ $user->orders->count() }}</h2>
                                                 </div>
                                                 <div class="icon">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"
@@ -125,7 +131,7 @@
                                             </div>
                                             <div class="body">
                                                 <div class="counter-item">
-                                                    <h2>200</h2>
+                                                    <h2>{{ $user->orders->where('status', 'pending')->count() }}</h2>
                                                 </div>
                                                 <div class="icon">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"
@@ -195,7 +201,7 @@
                                                 <div class="form-inner">
                                                     <input type="text" name="name" id="name"
                                                         placeholder="{{ __('الاسم الكامل *') }}"
-                                                        value="{{ old('name', auth()->user()->name) }}" />
+                                                        value="{{ old('name', $user->name) }}" />
                                                     <div class="invalid-feedback" id="error-name"></div>
                                                 </div>
                                             </div>
@@ -203,7 +209,7 @@
                                                 <div class="form-inner">
                                                     <input type="text" name="phone" id="phone"
                                                         placeholder="{{ __('رقم الهاتف *') }}"
-                                                        value="{{ old('phone', auth()->user()->phone_number) }}" />
+                                                        value="{{ old('phone', $user->phone_number) }}" />
                                                     <div class="invalid-feedback" id="error-phone"></div>
                                                 </div>
                                             </div>
@@ -270,133 +276,129 @@
                         <div class="tab-pane fade" id="v-pills-order" role="tabpanel"
                             aria-labelledby="v-pills-order-tab">
                             <div class="order-traking-area">
-                                <p>To track your order please enter your Order ID in the box below and press the "Track"
-                                    button. This given to you on your receipt and in the confirmation email you should
-                                    have received.</p>
-                                <form>
+                                <h3>{{ __('تتبع طلبك') }}</h3>
+                                <p>{{ __('للبحث عن طلبك، يرجى إدخال رقم الطلب في الحقل أدناه والضغط على زر "تتبع"') }}</p>
+                                <form id="trackOrderForm">
                                     <div class="row justify-content-center">
                                         <div class="col-md-8 mb-25">
                                             <div class="form-inner">
-                                                <label>Order ID</label>
-                                                <input type="text" placeholder="Enter your order ID">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <div class="form-inner">
-                                                <label>Billing Email</label>
-                                                <input type="text" placeholder="Enter your email">
+                                                <label>{{ __('رقم الطلب') }}</label>
+                                                <div class="input-group" dir="ltr">
+                                                    <span class="input-group-text">ORD-</span>
+                                                    <input type="text" name="order_code" id="order_code"
+                                                        placeholder="{{ __('أدخل الجزء المتبقي من رقم الطلب') }}"
+                                                        class="form-control">
+                                                </div>
+                                                <div class="invalid-feedback" id="error-order_code"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-5 d-flex justify-content-center">
                                             <div class="button-group">
                                                 <button type="submit"
-                                                    class="primary-btn3 black-bg  hover-btn5 hover-white">Track</button>
+                                                    class="primary-btn3 black-bg hover-btn5 hover-white">{{ __('تتبع') }}</button>
                                             </div>
                                         </div>
-
                                     </div>
                                 </form>
+
+                                <!-- نتائج البحث عن الطلب -->
+                                <div id="orderResults" class="mt-4" style="display: none;">
+                                    <div class="order-details-container">
+                                        <!-- سيتم ملء هذه المنطقة بنتائج البحث -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="v-pills-purchase" role="tabpanel"
                             aria-labelledby="v-pills-purchase-tab">
                             <!-- table title-->
-                            <div class="table-title-area">
-                                <h3>My Order</h3>
-                                <select>
-                                    <option value="01">Show: Last 05 Order</option>
-                                    <option value="02">Show: Last 03 Order</option>
-                                    <option value="03">Show: Last 15 Order</option>
-                                    <option value="04">Show: Last 20 Order</option>
+                            <div class="table-title-area d-flex justify-content-between align-items-center mb-3">
+                                <h3>{{ __('طلباتي') }}</h3>
+                                <select id="orderLimitSelect">
+                                    <option value="1">Show: Last 05 Order</option>
+                                    <option value="2">Show: Last 03 Order</option>
+                                    <option value="15">Show: Last 15 Order</option>
+                                    <option value="20">Show: Last 20 Order</option>
                                 </select>
                             </div>
 
                             <!-- table -->
                             <div class="table-wrapper">
-                                <table class="eg-table order-table table mb-0">
+                                <table id="ordersTable" class="eg-table order-table table mb-0 text-center align-middle">
                                     <thead>
                                         <tr>
-                                            <th>Image</th>
-                                            <th>Order ID</th>
-                                            <th>Product Details</th>
-                                            <th>price</th>
-                                            <th>Status</th>
+                                            <th>{{ __('اسم المستلم') }}</th>
+                                            <th>{{ __('البريد الإلكتروني') }}</th>
+                                            <th>{{ __('الهاتف') }}</th>
+                                            <th>{{ __('الإجمالي') }}</th>
+                                            <th>{{ __('الحالة') }}</th>
+                                            <th>{{ __('تاريخ الإنشاء') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td data-label="Image"><img alt="image"
-                                                    src="assets/img/inner-page/whistlist-img1.png" class="img-fluid">
-                                            </td>
-                                            <td data-label="Order ID">#4ce345c3e</td>
-                                            <td data-label="Product Details">Eau De Blue Perfume</td>
-                                            <td data-label="price">$40.00</td>
-                                            <td data-label="Status" class="text-green">Shipped</td>
-                                        </tr>
-                                        <tr>
-                                            <td data-label="Image"><img alt="image"
-                                                    src="assets/img/inner-page/whistlist-img2.png" class="img-fluid">
-                                            </td>
-                                            <td data-label="Order ID">#4ce3533e</td>
-                                            <td data-label="Product Details">Smooth Makeup Box</td>
-                                            <td data-label="price">$25.00</td>
-                                            <td data-label="Status" class="text-red">Pending</td>
-                                        </tr>
-                                        <tr>
-                                            <td data-label="Image"><img alt="image"
-                                                    src="assets/img/inner-page/whistlist-img3.png" class="img-fluid">
-                                            </td>
-                                            <td data-label="Order ID">#8ce3533e</td>
-                                            <td data-label="Product Details">Modern Red Lipstick </td>
-                                            <td data-label="price">$32.00</td>
-                                            <td data-label="Status" class="text-red">Pending</td>
-                                        </tr>
-                                        <tr>
-                                            <td data-label="Image"><img alt="image"
-                                                    src="assets/img/inner-page/whistlist-img4.png" class="img-fluid">
-                                            </td>
-                                            <td data-label="Order ID">#8ce3533e</td>
-                                            <td data-label="Product Details">New Botanical Shampoo</td>
-                                            <td data-label="price">$27.00</td>
-                                            <td data-label="Status" class="text-green">Shipped</td>
-                                        </tr>
+                                        <!-- بيانات الطلبات ستُعبأ هنا بواسطة جافاسكريبت -->
                                     </tbody>
                                 </table>
+
+
+
+                                @php
+                                    function getStatusText($status)
+                                    {
+                                        return match ($status) {
+                                            'pending' => __('قيد المعالجة'),
+                                            'processing' => __('قيد التنفيذ'),
+                                            'completed' => __('مكتمل'),
+                                            'cancelled' => __('ملغى'),
+                                            default => __('غير معروف'),
+                                        };
+                                    }
+                                @endphp
+
                             </div>
 
-                            <!-- pagination area -->
-                            <div class="table-pagination">
-                                <p>Showing 10 to 20 of 1 entries</p>
+                            <!-- pagination area (يمكنك تعديلها لاحقاً لتصبح تفاعلية) -->
+                            <div class="table-pagination mt-3 d-flex justify-content-between align-items-center">
+                                <p>{{ __('عرض 1 إلى 5 من إجمالي') }} {{ $user->orders->count() }} {{ __('طلبات') }}</p>
                                 <nav class="shop-pagination">
-                                    <ul class="pagination-list">
-                                        <li>
-                                            <a href="#" class="shop-pagi-btn"><i
-                                                    class="bi bi-chevron-left"></i></a>
+                                    <ul class="pagination-list pagination">
+                                        <li class="page-item disabled">
+                                            <a href="#" class="page-link"><i class="bi bi-chevron-left"></i></a>
                                         </li>
-                                        <li>
-                                            <a href="#">1</a>
-                                        </li>
-                                        <li>
-                                            <a href="#" class="active">2</a>
-                                        </li>
-                                        <li>
-                                            <a href="#">3</a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="bi bi-three-dots"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#">6</a>
-                                        </li>
-                                        <li>
-                                            <a href="#" class="shop-pagi-btn"><i
-                                                    class="bi bi-chevron-right"></i></a>
+                                        <li class="page-item active"><a href="#" class="page-link">1</a></li>
+                                        <li class="page-item"><a href="#" class="page-link">2</a></li>
+                                        <li class="page-item"><a href="#" class="page-link">3</a></li>
+                                        <li class="page-item"><a href="#" class="page-link"><i
+                                                    class="bi bi-three-dots"></i></a></li>
+                                        <li class="page-item"><a href="#" class="page-link">6</a></li>
+                                        <li class="page-item">
+                                            <a href="#" class="page-link"><i class="bi bi-chevron-right"></i></a>
                                         </li>
                                     </ul>
                                 </nav>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal لعرض تفاصيل الطلب -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailsModalLabel">{{ __('تفاصيل الطلب') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsContent">
+                    <!-- سيتم ملء محتوى الطلب هنا -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="primary-btn3 hover-btn5"
+                        data-bs-dismiss="modal">{{ __('إغلاق') }}</button>
                 </div>
             </div>
         </div>
@@ -530,6 +532,313 @@
             $('#cancelBtn').click(function() {
                 $('#profileForm')[0].reset();
                 clearErrors();
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // تتبع الطلب
+            $('#trackOrderForm').on('submit', function(e) {
+                e.preventDefault();
+                let orderCode = $('#order_code').val().trim();
+                if (!orderCode.startsWith('ORD-')) {
+                    orderCode = 'ORD-' + orderCode;
+                }
+
+                if (orderCode === 'ORD-') {
+                    $('#error-order_code').text('الرجاء إدخال رقم الطلب');
+                    $('#order_code').addClass('is-invalid');
+                    return;
+                }
+
+                if (!orderCode) {
+                    $('#error-order_code').text('الرجاء إدخال رقم الطلب');
+                    $('#order_code').addClass('is-invalid');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('orders.track') }}",
+                    method: 'POST',
+                    data: {
+                        order_code: orderCode,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            // عرض النتائج
+                            displayOrderResults(response.order);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطأ',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 404) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطأ',
+                                text: 'لم يتم العثور على طلب بهذا الرقم'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطأ',
+                                text: 'حدث خطأ أثناء محاولة تتبع الطلب'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // عرض نتائج الطلب
+            function displayOrderResults(order) {
+                let statusClass = '';
+                switch (order.status) {
+                    case 'pending':
+                        statusClass = 'text-warning';
+                        break;
+                    case 'processing':
+                        statusClass = 'text-info';
+                        break;
+                    case 'completed':
+                        statusClass = 'text-success';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'text-danger';
+                        break;
+                    default:
+                        statusClass = 'text-secondary';
+                }
+
+                let html = `
+                <div class="order-summary box--shadow p-4">
+                    <h4 class="mb-3">{{ __('ملخص الطلب') }}</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>{{ __('رقم الطلب') }}:</strong> ${order.code}</p>
+                            <p><strong>{{ __('تاريخ الطلب') }}:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>{{ __('الحالة') }}:</strong> <span class="${statusClass}">${getStatusText(order.status)}</span></p>
+                            <p><strong>{{ __('المجموع') }}:</strong> ${order.total} ₪</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="primary-btn3 black-bg hover-btn5 hover-white view-details-btn" 
+                                data-order-id="${order.id}">
+                            {{ __('عرض التفاصيل') }}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+                $('#orderResults').html(html).show();
+                $('.view-details-btn').click(function() {
+                    fetchOrderDetails($(this).data('order-id'));
+                });
+            }
+
+            // جلب تفاصيل الطلب
+            function fetchOrderDetails(orderId) {
+                $.ajax({
+                    url: `/orders/${orderId}/details`,
+                    method: 'GET',
+                    success: function(response) {
+                        displayOrderDetails(response.order);
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'خطأ',
+                            text: 'حدث خطأ أثناء جلب تفاصيل الطلب'
+                        });
+                    }
+                });
+            }
+
+            // عرض تفاصيل الطلب في المودال
+            function displayOrderDetails(order) {
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `
+                    <tr>
+                        <td>${item.product_name}</td>
+                        <td>${item.quantity}</td>
+                        <td>${item.price} ₪</td>
+                        <td>${item.quantity * item.price} ₪</td>
+                    </tr>
+                `;
+                });
+
+                let statusClass = '';
+                switch (order.status) {
+                    case 'pending':
+                        statusClass = 'text-warning';
+                        break;
+                    case 'processing':
+                        statusClass = 'text-info';
+                        break;
+                    case 'completed':
+                        statusClass = 'text-success';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'text-danger';
+                        break;
+                    default:
+                        statusClass = 'text-secondary';
+                }
+
+                let html = `
+                <div class="order-details">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>{{ __('معلومات الطلب') }}</h5>
+                            <p><strong>{{ __('رقم الطلب') }}:</strong> ${order.code}</p>
+                            <p><strong>{{ __('تاريخ الطلب') }}:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
+                            <p><strong>{{ __('الحالة') }}:</strong> <span class="${statusClass}">${getStatusText(order.status)}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{{ __('معلومات الدفع') }}</h5>
+                            <p><strong>{{ __('طريقة الدفع') }}:</strong> {{ __('الدفع عند الاستلام') }}</p>
+                            <p><strong>{{ __('المجموع') }}:</strong> ${order.total} ₪</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>{{ __('معلومات العميل') }}</h5>
+                            <p><strong>{{ __('الاسم') }}:</strong> ${order.fname} ${order.lname}</p>
+                            <p><strong>{{ __('البريد الإلكتروني') }}:</strong> ${order.email}</p>
+                            <p><strong>{{ __('الهاتف') }}:</strong> ${order.phone}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{{ __('عنوان الشحن') }}</h5>
+                            <p>${order.address}, ${order.city}, ${order.postcode}</p>
+                        </div>
+                    </div>
+                    
+                    <h5>{{ __('تفاصيل الطلب') }}</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('المنتج') }}</th>
+                                    <th>{{ __('الكمية') }}</th>
+                                    <th>{{ __('السعر') }}</th>
+                                    <th>{{ __('المجموع') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsHtml}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{{ __('المجموع الفرعي') }}:</strong></td>
+                                    <td>${order.subtotal} ₪</td>
+                                </tr>
+                                ${order.discount > 0 ? `
+                                                            <tr>
+                                                                <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
+                                                                <td>-${order.discount} ₪</td>
+                                                            </tr>
+                                                            ` : ''}
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
+                                    <td>${order.tax} ₪</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{{ __('المجموع الكلي') }}:</strong></td>
+                                    <td>${order.total} ₪</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    ${order.notes ? `
+                                                <div class="order-notes mt-3">
+                                                    <h5>{{ __('ملاحظات الطلب') }}</h5>
+                                                    <p>${order.notes}</p>
+                                                </div>
+                                                ` : ''}
+                </div>
+            `;
+
+                $('#orderDetailsContent').html(html);
+                $('#orderDetailsModal').modal('show');
+            }
+
+            // تحويل حالة الطلب إلى نص عربي
+            function getStatusText(status) {
+                const statuses = {
+                    'pending': '{{ __('قيد المعالجة') }}',
+                    'processing': '{{ __('قيد التنفيذ') }}',
+                    'completed': '{{ __('مكتمل') }}',
+                    'cancelled': '{{ __('ملغى') }}'
+                };
+                return statuses[status] || status;
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            function getStatusText(status) {
+                const map = {
+                    'pending': '{{ __('قيد الانتظار') }}',
+                    'processing': '{{ __('قيد المعالجة') }}',
+                    'completed': '{{ __('مكتمل') }}',
+                    'cancelled': '{{ __('ملغى') }}',
+                };
+                return map[status] ?? status;
+            }
+
+            function renderOrdersTable(orders) {
+                let rows = '';
+                orders.forEach(order => {
+                    rows += `
+                    <tr>
+                        <td>${order.fname} ${order.lname}</td>
+                        <td>${order.email}</td>
+                        <td>${order.phone}</td>
+                        <td>${parseFloat(order.total).toFixed(2)} ₪</td>
+                        <td>${getStatusText(order.status)}</td>
+                        <td>${new Date(order.created_at).toISOString().slice(0,10)}</td>
+                    </tr>
+                `;
+                });
+                $('#ordersTable tbody').html(rows);
+            }
+
+            // تحميل الطلبات عند أول فتح التبويبة مع القيمة الافتراضية (مثلاً 5)
+            let defaultLimit = $('#orderLimitSelect').val() || 5;
+
+            function loadOrders(limit) {
+                $.ajax({
+                    url: '{{ route('orders.fetch') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        limit: limit,
+                    },
+                    success: function(res) {
+                        renderOrdersTable(res.orders);
+                    },
+                    error: function() {
+                        alert('حدث خطأ أثناء جلب الطلبات');
+                    }
+                });
+            }
+
+            // تحميل الطلبات أول مرة
+            loadOrders(defaultLimit);
+
+            // حدث تغيير قيمة limit
+            $('#orderLimitSelect').on('change', function() {
+                let selectedLimit = $(this).val();
+                loadOrders(selectedLimit);
             });
         });
     </script>

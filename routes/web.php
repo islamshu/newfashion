@@ -4,11 +4,14 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashbaordController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FrontController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductAttributeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SliderController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -34,8 +37,10 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
   Route::post('/add_general', [DashbaordController::class, 'add_general'])->name('add_general');
   Route::get('/popup_model', [DashbaordController::class, 'popup_model'])->name('popup_model');
   Route::get('/setting', [DashbaordController::class, 'setting'])->name('setting');
+  Route::get('/trake_page', [DashbaordController::class, 'trake_page'])->name('trake_page');
+
   Route::resource('categories', CategoryController::class)->except(['show']);
-  Route::resource('products', ProductController::class)->except(['show']);
+  Route::resource('products', ProductController::class);
   Route::get('/products/ajax', [ProductController::class, 'ajaxIndex'])->name('products.ajax');
   Route::get('/categories/ajax', [CategoryController::class, 'ajaxIndex'])->name('categories.ajax');
   Route::get('/coupons/ajax', [CouponController::class, 'ajaxIndex'])->name('coupons.ajax');
@@ -49,9 +54,25 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
   Route::post('/features/update-order', [ServiceController::class, 'updateOrder'])->name('features.updateOrder');
   Route::post('/sliders/update-order', [SliderController::class, 'updateOrder'])->name('sliders.updateOrder');
   Route::get('update_status_slider', [SliderController::class, 'update_status_slider'])->name('update_status_slider');
-
   Route::get('update_status_category', [CategoryController::class, 'update_status_category'])->name('update_status_category');
   Route::resource('coupons', CouponController::class)->except(['show']);
   Route::get('language_translate/{local}', [DashbaordController::class, 'show_translate'])->name('show_translate');
   Route::post('/languages/key_value_store', [DashbaordController::class, 'key_value_store'])->name('languages.key_value_store');
+  Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+  Route::get('/orders/ajax', [OrderController::class, 'index'])->name('orders.ajax');
+  Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+  Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+  Route::resource('clients', ClientController::class)->only([
+    'index',
+    'show',
+    'edit',
+    'update'
+  ]);
+  Route::get('client_ajax', [ClientController::class, 'ajax'])->name('clients.ajax');
+  Route::get('/coupons/{coupon}/usages', [CouponController::class, 'usages'])->name('coupons.usages');
+Route::resource('reviews', ReviewController::class);
+
+
+  Route::post('/orders/{order}/change-status', [OrderController::class, 'changeStatus'])
+    ->name('orders.change_status');
 });

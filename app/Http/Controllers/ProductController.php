@@ -132,6 +132,14 @@ class ProductController extends Controller
 
         return view('dashboard.products.edit', compact('product', 'categories', 'colors', 'sizes'));
     }
+    public function show(Product $product)
+    {
+        $categories = Category::active()->get();
+        $colors = ProductAttribute::where('type', 'color')->get();
+        $sizes = ProductAttribute::where('type', 'size')->get();
+
+        return view('dashboard.products.show', compact('product', 'categories', 'colors', 'sizes'));
+    }
 
 
 public function update(Request $request, Product $product)

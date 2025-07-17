@@ -110,8 +110,40 @@
                     </li>
                 </ul>
             </li>
+            <!-- الطلبات -->
+            <li class="dropdown nav-item {{ request()->routeIs('orders.index') || request()->routeIs('orders.show') ? 'active' : '' }}"
+                data-menu="dropdown">
+                <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
+                    <i class="la la-shopping-cart"></i>
+                    <span>{{ __('الطلبات') }}</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('orders.index') ? 'active' : '' }}"
+                            href="{{ route('orders.index') }}">
+                            <i class="la la-list"></i> {{ __('جميع الطلبات') }}
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown nav-item {{ request()->routeIs('clients.index') || request()->routeIs('clients.show') ? 'active' : '' }}"
+                data-menu="dropdown">
+                <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
+                    <i class="la la-users"></i>
+                    <span>{{ __('العملاء') }}</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('clients.index') ? 'active' : '' }}"
+                            href="{{ route('clients.index') }}">
+                            <i class="la la-list"></i> {{ __('جميع العملاء') }}
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="dropdown nav-item 
-    {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') || request()->routeIs('banners.index') || request()->routeIs('popup_model') ? 'active' : '' }}"
+    {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') || request()->routeIs('banners.index') || request()->routeIs('popup_model')  || request()->routeIs('trake_page') ? 'active' : ''  }}"
                 data-menu="dropdown">
                 <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
                     <i class="la la-image"></i>
@@ -140,6 +172,12 @@
                         <a class="dropdown-item {{ request()->routeIs('banners.index') ? 'active' : '' }}"
                             href="{{ route('banners.index') }}">
                             <i class="la la-image"></i> {{ __('البنرات') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('trake_page') ? 'active' : '' }}"
+                            href="{{ route('trake_page') }}">
+                            <i class="la la-image"></i> {{ __('اعادات صفحة تتبع الطلب') }}
                         </a>
                     </li>
                 </ul>

@@ -6,10 +6,12 @@ use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Client;
 use App\Models\ContactMessage;
+use App\Models\Order;
 use App\Models\Slider;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductVariation;
+use App\Models\Review;
 use App\Models\Service;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -29,16 +31,35 @@ class FrontController extends Controller
         $sliders = Slider::active()->ordered()->get();
         $features = Service::ordered()->get();
         $baneers = Banner::active()->ordered()->get();
+        $reviews = Review::orderby('id','desc')->get();
         return view('frontend.index', [
             'products' => $products,
             'sliders' => $sliders,
             'features' => $features,
             'featchersCategories' => $featchersCategories,
             'bestProduct' => $bestProduct,
-            'banners' => $baneers
+            'banners' => $baneers,
+            'reviews'=>$reviews
 
         ]);
     }
+    public function fetchOrders(Request $request)
+{
+    $user = auth('client')->user();
+    $limit = intval($request->input('limit', 1));
+
+    $orders = $user->orders()->orderBy('created_at', 'desc')->limit($limit)->get();
+
+    // ترجع JSON مع البيانات لتحديث الجدول بالـ AJAX
+    return response()->json([
+        'orders' => $orders
+    ]);
+}
+
+    public function get_track(){
+        return view('frontend.track_order');
+    }
+
     public function quickSearch(Request $request)
     {
         $locale = app()->getLocale();
@@ -46,16 +67,16 @@ class FrontController extends Controller
         $products = Product::with('images')
             ->active()
             ->when($request->filled('name'), function ($query) use ($request, $locale) {
-         $locale = app()->getLocale();
+                $locale = app()->getLocale();
 
-            $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
+                $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
             })
             ->limit(10)
             ->get();
 
         // إعادة تنسيق البيانات
         $results = $products->map(function ($product) use ($locale) {
-                    $imagePath = $product->images->first()?->image; // مثلاً: products/image.jpg
+            $imagePath = $product->images->first()?->image; // مثلاً: products/image.jpg
             return [
                 'id' => $product->id,
                 'slug' => $product->slug ?? $product->id, // تأكد من وجود slug
@@ -67,7 +88,7 @@ class FrontController extends Controller
 
         return response()->json($results);
     }
-   
+
     public function about()
     {
         return view('frontend.about');
@@ -76,13 +97,13 @@ class FrontController extends Controller
 
     public function dashboard()
     {
-        $user = auth()->user();
+        $user = auth('client')->user();
 
         return view('frontend.profile')->with('user', $user);
     }
     public function updateProfile(Request $request)
     {
-        $user = auth()->user();
+        $user = $user = auth('client')->user();;
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -162,7 +183,7 @@ class FrontController extends Controller
             'otp' => 'required|digits:6',
         ]);
 
-        $user = auth()->user();
+        $user = $user = auth('client')->user();;
 
         if (!$user->otp || !$user->phone_new) {
             return response()->json([
@@ -242,42 +263,42 @@ class FrontController extends Controller
 
         return response()->json(['stock' => $variation?->stock ?? 0]);
     }
-public function products(Request $request)
-{
-    $categories = Category::withCount('products')->active()->orderBy('id', 'desc')->get();
+    public function products(Request $request)
+    {
+        $categories = Category::withCount('products')->active()->orderBy('id', 'desc')->get();
 
-    // عند طلب AJAX (فلترة أو Scroll أو اختيار فئة)
-    if ($request->ajax()) {
-        $query = Product::with(['category', 'images'])->active();
+        // عند طلب AJAX (فلترة أو Scroll أو اختيار فئة)
+        if ($request->ajax()) {
+            $query = Product::with(['category', 'images'])->active();
 
-        if ($request->filled('name')) {
-            $locale = app()->getLocale();
-            $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
+            if ($request->filled('name')) {
+                $locale = app()->getLocale();
+                $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
+            }
+
+            if ($request->filled('price_min')) {
+                $query->where('price', '>=', $request->price_min);
+            }
+
+            if ($request->filled('price_max')) {
+                $query->where('price', '<=', $request->price_max);
+            }
+
+            if ($request->filled('category_id')) {
+                $query->where('category_id', $request->category_id);
+            }
+
+            $products = $query->latest()->paginate(9);
+            return view('frontend.partials.product-list', compact('products'))->render();
         }
 
-        if ($request->filled('price_min')) {
-            $query->where('price', '>=', $request->price_min);
-        }
+        // تحميل عادي للصفحة بدون أي فلتر => جلب كل المنتجات
+        $hasFilters = $request->filled('category_id') || $request->filled('name') || $request->filled('price_min') || $request->filled('price_max');
 
-        if ($request->filled('price_max')) {
-            $query->where('price', '<=', $request->price_max);
-        }
+        $products = !$hasFilters ? Product::with(['category', 'images'])->active()->latest()->paginate(9) : null;
 
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
-
-        $products = $query->latest()->paginate(9);
-        return view('frontend.partials.product-list', compact('products'))->render();
+        return view('frontend.products', compact('categories', 'products'));
     }
-
-    // تحميل عادي للصفحة بدون أي فلتر => جلب كل المنتجات
-    $hasFilters = $request->filled('category_id') || $request->filled('name') || $request->filled('price_min') || $request->filled('price_max');
-
-    $products = !$hasFilters ? Product::with(['category', 'images'])->active()->latest()->paginate(9) : null;
-
-    return view('frontend.products', compact('categories', 'products'));
-}
 
 
     public function categories(Request $request)
@@ -534,6 +555,58 @@ public function products(Request $request)
             'colors' => $colors,
             'sizes' => $sizes,
             'variations' => $variations
+        ]);
+    }
+    public function track(Request $request)
+    {
+        $request->validate([
+            'order_code' => 'required|string'
+        ]);
+
+        $order = Order::where('code', $request->order_code)->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'لم يتم العثور على طلب بهذا الرقم'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'order' => $order
+        ]);
+    }
+
+    public function track_single(Request $request)
+{
+    $request->validate([
+        'order_code' => 'required|string'
+    ]);
+
+    // استخدام with('items') لتحميل المنتجات المرتبطة
+    $order = Order::with('items')->where('code', $request->order_code)->first();
+
+    if (!$order) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'لم يتم العثور على طلب بهذا الرقم'
+        ], 404);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'order' => $order
+    ]);
+}
+
+    public function details(Order $order)
+    {
+        $order->load('items');
+
+        return response()->json([
+            'status' => 'success',
+            'order' => $order
         ]);
     }
 

@@ -70,7 +70,7 @@ return [
         ],
         'clients' => [
             'driver' => 'eloquent',
-             'model' => App\Models\Client::class,
+            'model' => App\Models\Client::class,
         ],
 
         // 'users' => [
@@ -78,7 +78,6 @@ return [
         //     'table' => 'users',
         // ],
     ],
-
     /*
     |--------------------------------------------------------------------------
     | Resetting Passwords

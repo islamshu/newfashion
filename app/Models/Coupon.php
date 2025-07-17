@@ -53,4 +53,8 @@ class Coupon extends Model
             ? $subtotal * ($this->discount_value / 100)
             : min($this->discount_value, $subtotal);
     }
+    public function usages()
+    {
+        return $this->hasMany(CouponUsage::class);
+    }
 }

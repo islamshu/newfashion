@@ -125,7 +125,7 @@
                                 <span>Out Of Stock</span>
                             </div>
                         @else
-                            <a href="shop-list.html" class="primary-btn1 hover-btn3">{{ __('اشتري الآن') }}</a>
+                            <a id="add-to-cart-btn-checkout" class="primary-btn1 hover-btn3">{{ __('اشتري الآن') }}</a>
                             <a id="add-to-cart-btn" class="primary-btn1 style-3 hover-btn4">{{ __('أضف الى السلة') }}</a>
                         @endif
                     </div>

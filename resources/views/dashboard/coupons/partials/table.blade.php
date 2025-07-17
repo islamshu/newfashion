@@ -38,7 +38,7 @@
                         {{ __('إلى') }} {{ $coupon->end_date->format('Y-m-d') }}
                     </td>
                     <td>
-                        {{ $coupon->used_count }} / {{ $coupon->usage_limit ?? '∞' }}
+                     <a href="{{ route('coupons.usages', $coupon->id) }}"> {{ $coupon->used_count }} / {{ $coupon->usage_limit ?? '∞' }}</a>
                     </td>
                     <td>
                         <div class="btn-group" role="group">

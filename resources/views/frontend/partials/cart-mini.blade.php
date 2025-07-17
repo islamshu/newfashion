@@ -58,8 +58,8 @@
         </div>
         <div class="footer-button mt-3">
             <ul class="list-unstyled d-grid gap-2">
-                <li><a class="primary-btn1 hover-btn4 btn btn-outline-primary btn-sm w-100" href="">{{ __('متابعة التسوق') }}</a></li>
-                <li><a class="primary-btn1 hover-btn3 btn btn-primary btn-sm w-100" href="">{{ __('إتمام الشراء') }}</a></li>
+                <li><a class="primary-btn1 hover-btn4 btn btn-outline-primary btn-sm w-100" href="{{route('products.all')}}">{{ __('متابعة التسوق') }}</a></li>
+                <li><a class="primary-btn1 hover-btn3 btn btn-primary btn-sm w-100" href="{{route('checkout')}}">{{ __('إتمام الشراء') }}</a></li>
             </ul>
         </div>
     </div>

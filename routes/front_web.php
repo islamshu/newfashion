@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\FrontController;
+use App\Http\Middleware\RedirectIfUnauthenticatedClient;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +25,10 @@ Route::get('/categories', [FrontController::class, 'categories'])->name('categor
 Route::get('/contactUs', [FrontController::class, 'contactUs'])->name('contactUs');
 Route::post('/contact/send', [FrontController::class, 'sendContactUs'])->name('contact.send');
 Route::get('/about', [FrontController::class, 'about'])->name('about');
+Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+Route::post('/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.applyCoupon');
+Route::post('/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.removeCoupon');
+Route::post('/checkout-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 
 Route::get('/product/{id}', [FrontController::class, 'product'])->name('product.show');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
@@ -30,8 +36,17 @@ Route::get('/cart/mini', [CartController::class, 'mini']);
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/quick-search', [FrontController::class, 'quickSearch'])->name('products.quickSearch');
 Route::get('/search-products', [FrontController::class, 'quickSearch'])->name('search.products');
+Route::post('/cart/remove-item', [CartController::class, 'removeItem'])->name('cart.removeItem');
+// تتبع الطلب
+Route::post('/orders/track', [FrontController::class, 'track'])->name('orders.track');
+Route::get('/track', [FrontController::class, 'get_track'])->name('orders.get_track');
 
-Route::group(['middleware' => 'auth:client'], function () {
+Route::post('/order/track', [FrontController::class, 'track_single'])->name('order.track');
+Route::post('/dashboard/orders/fetch', [FrontController::class, 'fetchOrders'])->name('orders.fetch');
+
+// عرض تفاصيل الطلب
+Route::get('/orders/{order}/details', [FrontController::class, 'details'])->name('orders.details');
+Route::middleware(['auth.client'])->group(function () {
     Route::get('/client/dashboard', [FrontController::class, 'dashboard'])->name('client.dashboard');
     Route::post('/wishlist/add', [FrontController::class, 'addWishlist']);
     Route::get('/client/wishlist', [FrontController::class, 'wishlist'])->name('client.wishlist');

@@ -166,7 +166,14 @@
 
 <script>
     $(document).ready(function() {
-        @if (!Route::is('products.index') && !Route::is('categories.index') && !Route::is('coupons.index'))
+        @if (
+            !Route::is('products.index') &&
+                !Route::is('categories.index') &&
+                !Route::is('coupons.index') &&
+                !Route::is('orders.index') &&
+                !Route::is('products.show'))
+                !Route::is('clients.show'))
+
             @if (app()->getLocale() == 'ar')
                 $('table').DataTable({
                     language: {

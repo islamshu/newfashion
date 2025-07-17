@@ -15,7 +15,7 @@ class StoreCouponRequest extends FormRequest
             'discount_type' => ['required', Rule::in(['percentage', 'fixed_amount'])],
             'discount_value' => 'required|numeric|min:0',
             'min_order_amount' => 'nullable|numeric|min:0',
-            'start_date' => 'required|date|after_or_equal:today',
+            'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'usage_limit' => 'nullable|integer|min:1',
             'is_active' => 'boolean',

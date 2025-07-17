@@ -16,5 +16,5 @@
     {{-- @include('frontend.best_brands') --}}
     @include('frontend.say_about')
     {{-- @include('frontend.blogs') --}}
-    @include('frontend.newsletter')
+    @include('frontend.tackers')
 @endsection

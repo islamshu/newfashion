@@ -9,19 +9,24 @@ use App\Http\Requests\UpdateCouponRequest;
 
 class CouponController extends Controller
 {
-     public function index(Request $request)
+    public function index(Request $request)
     {
-      
+
         $coupons = Coupon::paginate(10);
         return view('dashboard.coupons.index', compact('coupons'));
     }
+    public function usages(Coupon $coupon)
+    {
+        $usages = $coupon->usages()->with('client')->latest()->paginate(15);
+        return view('dashboard.coupons.usages', compact('coupon', 'usages'));
+    }
 
-     public function ajaxIndex(Request $request)
+    public function ajaxIndex(Request $request)
     {
         $query = Coupon::query();
 
-         if ($request->filled('search')) {
-            $query->where('code', 'like', '%'.$request->search.'%');
+        if ($request->filled('search')) {
+            $query->where('code', 'like', '%' . $request->search . '%');
         }
 
         if ($request->filled('status')) {
@@ -30,11 +35,11 @@ class CouponController extends Controller
 
         $coupons = $query->latest()->paginate(10);
 
-       return response()->json([
+        return response()->json([
             'html' => view('dashboard.coupons.partials.table', compact('coupons'))->render(),
         ]);
     }
-  
+
 
     public function create()
     {

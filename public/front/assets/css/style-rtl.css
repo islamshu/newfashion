@@ -293,6 +293,72 @@
     font-weight: bold;
 }
 
+.order-details-box h5 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #343a40;
+    padding-bottom: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.order-details-box p,
+.order-details-box td,
+.order-details-box th {
+    font-size: 1rem;
+    color: #343a40;
+}
+
+.order-details-box table {
+    border-collapse: separate !important;
+    border-spacing: 0 1em !important;
+}
+
+.order-details-box table thead tr th {
+    background-color: #f8f9fa !important;
+    border-bottom: none !important;
+    padding: 1rem !important;
+}
+
+.order-details-box table tbody tr {
+    background: #fefefe;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    border-radius: 12px;
+}
+
+.order-details-box table tbody tr td {
+    padding: 1rem !important;
+    vertical-align: middle !important;
+}
+
+.order-details-box table tfoot tr td {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #212529;
+    padding: 1rem !important;
+    border-top: 2px solid #343a40 !important;
+}
+
+
+/* طبقة تعتيم */
+
+.order-tracking-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    /* لون أبيض شفاف */
+    z-index: 2;
+}
+
+
+/* اجعل المحتوى فوق الطبقة */
+
+.order-tracking-section>* {
+    position: relative;
+    z-index: 3;
+}
+
 
 /* عناصر النتائج */
 
