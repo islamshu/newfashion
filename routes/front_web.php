@@ -9,7 +9,8 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
-Route::get('/frontend', [FrontController::class, 'index'])->name('home');
+
+Route::get('/', [FrontController::class, 'index'])->name('home');
 
 Route::get('/ff', [FrontController::class, 'test_vue'])->name('test_vue');
 Route::get('/products/{id}/modal', [FrontController::class, 'modal'])->name('products.modal');
@@ -25,10 +26,8 @@ Route::get('/categories', [FrontController::class, 'categories'])->name('categor
 Route::get('/contactUs', [FrontController::class, 'contactUs'])->name('contactUs');
 Route::post('/contact/send', [FrontController::class, 'sendContactUs'])->name('contact.send');
 Route::get('/about', [FrontController::class, 'about'])->name('about');
-Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
 Route::post('/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.applyCoupon');
 Route::post('/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.removeCoupon');
-Route::post('/checkout-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 
 Route::get('/product/{id}', [FrontController::class, 'product'])->name('product.show');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
@@ -54,7 +53,8 @@ Route::middleware(['auth.client'])->group(function () {
     Route::get('/client/wishlist', [FrontController::class, 'wishlist'])->name('client.wishlist');
     Route::get('/wishlist/reload', [FrontController::class, 'reloadWishlist'])->name('client.wishlist.reload');
     Route::post('/profile/verify-otp', [FrontController::class, 'verifyPhoneOtp'])->name('profile.verifyOtp');
-
+    Route::post('/checkout-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::put('/profile', [FrontController::class, 'updateProfile'])->name('profile.update');
     Route::post('/client/logout', function () {
         Auth::guard('client')->logout();

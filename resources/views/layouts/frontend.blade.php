@@ -55,6 +55,7 @@
         </div>
     </div>
 
+
     <script data-cfasync="false" src="{{ asset('front/assets/js/cloudflare-static/email-decode.min.js') }}"></script>
     <script src="{{ asset('front/assets/js/jquery-3.6.0.min.js') }}"></script>
     <!-- Popper and Bootstrap JS -->
@@ -70,6 +71,16 @@
     <!-- main js  -->
     <script src="{{ asset('front/assets/js/main.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if (session('login_required'))
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'تنبيه',
+                text: '{{ session('alert_message') }}',
+                confirmButtonText: 'حسناً'
+            });
+        </script>
+    @endif
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.body.addEventListener('click', function(event) {
@@ -674,8 +685,9 @@
                             $('.cart-menu').html(html);
                         });
 
-                        $('#add-to-cart-btn-checkout').html('{{ __('أضف إلى السلة') }}').prop('disabled', false);
-                                 window.location.href = '{{ route("checkout") }}';
+                        $('#add-to-cart-btn-checkout').html('{{ __('أضف إلى السلة') }}').prop('disabled',
+                            false);
+                        window.location.href = '{{ route('checkout') }}';
 
                     },
                     error: function(xhr) {
@@ -685,11 +697,11 @@
                             text: xhr.responseJSON?.message || 'فشل في إضافة المنتج إلى السلة!',
                         });
 
-                        $('#add-to-cart-btn-checkout').html('{{ __('أضف إلى السلة') }}').prop('disabled', false);
+                        $('#add-to-cart-btn-checkout').html('{{ __('أضف إلى السلة') }}').prop('disabled',
+                            false);
                     }
                 });
             });
-            
         </script>
     @endif
 
