@@ -4,6 +4,7 @@
 /public/hot
 /public/build
 /public/storage
+/database/database.sqlite
 
 # Allow storage/app/public files (uploaded images, etc.)
 /storage/*
