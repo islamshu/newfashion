@@ -118,6 +118,7 @@ class CheckoutController extends Controller
                 'success' => true,
                 'message' => 'تم إرسال الطلب بنجاح!',
                 'order_id' => $order->id,
+                'order_code'=>$order->code
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

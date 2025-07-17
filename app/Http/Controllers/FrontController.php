@@ -31,7 +31,7 @@ class FrontController extends Controller
         $sliders = Slider::active()->ordered()->get();
         $features = Service::ordered()->get();
         $baneers = Banner::active()->ordered()->get();
-        $reviews = Review::orderby('id','desc')->get();
+        $reviews = Review::orderby('id', 'desc')->get();
         return view('frontend.index', [
             'products' => $products,
             'sliders' => $sliders,
@@ -39,24 +39,37 @@ class FrontController extends Controller
             'featchersCategories' => $featchersCategories,
             'bestProduct' => $bestProduct,
             'banners' => $baneers,
-            'reviews'=>$reviews
+            'reviews' => $reviews
 
         ]);
     }
     public function fetchOrders(Request $request)
+    {
+        $user = auth('client')->user();
+        $limit = intval($request->input('limit', 1));
+
+        $orders = $user->orders()->orderBy('created_at', 'desc')->limit($limit)->get();
+
+        // ترجع JSON مع البيانات لتحديث الجدول بالـ AJAX
+        return response()->json([
+            'orders' => $orders
+        ]);
+    }
+   public function order($code)
 {
-    $user = auth('client')->user();
-    $limit = intval($request->input('limit', 1));
 
-    $orders = $user->orders()->orderBy('created_at', 'desc')->limit($limit)->get();
+    if ($code) {
+        $order = Order::with('items.product')->where('code', $code)->first();
+    }else{
+        abort (404);
+    }
 
-    // ترجع JSON مع البيانات لتحديث الجدول بالـ AJAX
-    return response()->json([
-        'orders' => $orders
-    ]);
+    return view('frontend.order', compact('order'));
 }
 
-    public function get_track(){
+
+    public function get_track()
+    {
         return view('frontend.track_order');
     }
 
@@ -579,26 +592,26 @@ class FrontController extends Controller
     }
 
     public function track_single(Request $request)
-{
-    $request->validate([
-        'order_code' => 'required|string'
-    ]);
+    {
+        $request->validate([
+            'order_code' => 'required|string'
+        ]);
 
-    // استخدام with('items') لتحميل المنتجات المرتبطة
-    $order = Order::with('items')->where('code', $request->order_code)->first();
+        // استخدام with('items') لتحميل المنتجات المرتبطة
+        $order = Order::with('items')->where('code', $request->order_code)->first();
 
-    if (!$order) {
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'لم يتم العثور على طلب بهذا الرقم'
+            ], 404);
+        }
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'لم يتم العثور على طلب بهذا الرقم'
-        ], 404);
+            'status' => 'success',
+            'order' => $order
+        ]);
     }
-
-    return response()->json([
-        'status' => 'success',
-        'order' => $order
-    ]);
-}
 
     public function details(Order $order)
     {

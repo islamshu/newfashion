@@ -36,6 +36,8 @@ Route::get('/cart/mini', [CartController::class, 'mini']);
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/quick-search', [FrontController::class, 'quickSearch'])->name('products.quickSearch');
 Route::get('/search-products', [FrontController::class, 'quickSearch'])->name('search.products');
+Route::get('/order/{code}', [FrontController::class, 'order'])->name('order');
+
 Route::post('/cart/remove-item', [CartController::class, 'removeItem'])->name('cart.removeItem');
 // تتبع الطلب
 Route::post('/orders/track', [FrontController::class, 'track'])->name('orders.track');

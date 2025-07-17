@@ -318,7 +318,8 @@
                             text: data.message,
                             icon: 'success'
                         }).then(() => {
-                            window.location.href = "/";
+                          const orderCode = response.code; // يجب أن ترسله من السيرفر
+                          window.location.href = "/order/" + orderCode;
                         });
                     } else {
                         Swal.fire('خطأ!', data.message || 'حدث خطأ ما', 'error');
