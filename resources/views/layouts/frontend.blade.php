@@ -370,6 +370,7 @@
                             document.getElementById('otp-section-login').style.display = 'block';
                             document.getElementById('resend-otp-btn').style.display = 'inline-block';
                                const otp = data.otp;
+                               
 
                             // نسخ الرمز إلى الحافظة
                             navigator.clipboard.writeText(otp).then(function() {
