@@ -314,12 +314,13 @@
                             <!-- table title-->
                             <div class="table-title-area d-flex justify-content-between align-items-center mb-3">
                                 <h3>{{ __('طلباتي') }}</h3>
-                                <select id="orderLimitSelect">
-                                    <option value="1">Show: Last 05 Order</option>
-                                    <option value="2">Show: Last 03 Order</option>
-                                    <option value="15">Show: Last 15 Order</option>
-                                    <option value="20">Show: Last 20 Order</option>
-                                </select>
+                               <select id="orderLimitSelect" class="form-select w-auto">
+    <option value="5">{{ __('عرض: آخر 5 طلبات') }}</option>
+    <option value="10">{{ __('عرض: آخر 10 طلبات') }}</option>
+    <option value="15">{{ __('عرض: آخر 15 طلبًا') }}</option>
+    <option value="20">{{ __('عرض: آخر 20 طلبًا') }}</option>
+</select>
+
                             </div>
 
                             <!-- table -->
@@ -358,25 +359,15 @@
                             </div>
 
                             <!-- pagination area (يمكنك تعديلها لاحقاً لتصبح تفاعلية) -->
-                            <div class="table-pagination mt-3 d-flex justify-content-between align-items-center">
-                                <p>{{ __('عرض 1 إلى 5 من إجمالي') }} {{ $user->orders->count() }} {{ __('طلبات') }}</p>
-                                <nav class="shop-pagination">
-                                    <ul class="pagination-list pagination">
-                                        <li class="page-item disabled">
-                                            <a href="#" class="page-link"><i class="bi bi-chevron-left"></i></a>
-                                        </li>
-                                        <li class="page-item active"><a href="#" class="page-link">1</a></li>
-                                        <li class="page-item"><a href="#" class="page-link">2</a></li>
-                                        <li class="page-item"><a href="#" class="page-link">3</a></li>
-                                        <li class="page-item"><a href="#" class="page-link"><i
-                                                    class="bi bi-three-dots"></i></a></li>
-                                        <li class="page-item"><a href="#" class="page-link">6</a></li>
-                                        <li class="page-item">
-                                            <a href="#" class="page-link"><i class="bi bi-chevron-right"></i></a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
+                           <div class="table-pagination mt-3 d-flex justify-content-between align-items-center">
+    <p>عرض 1 إلى 5 من إجمالي {{ $user->orders->count() }} طلبات</p>
+    <nav class="shop-pagination">
+        <ul class="pagination-list pagination">
+            <!-- سيتم تعبئة الأزرار ديناميكيًا -->
+        </ul>
+    </nav>
+</div>
+
                         </div>
                     </div>
                 </div>
@@ -783,64 +774,110 @@
             }
         });
     </script>
-    <script>
-        $(document).ready(function() {
-            function getStatusText(status) {
-                const map = {
-                    'pending': '{{ __('قيد الانتظار') }}',
-                    'processing': '{{ __('قيد المعالجة') }}',
-                    'completed': '{{ __('مكتمل') }}',
-                    'cancelled': '{{ __('ملغى') }}',
-                };
-                return map[status] ?? status;
-            }
+<script>
+    const translations = {
+        pending: @json(__('قيد المعالجة')),
+        processing: @json(__('قيد التنفيذ')),
+        completed: @json(__('مكتمل')),
+        cancelled: @json(__('ملغى')),
+    };
 
-            function renderOrdersTable(orders) {
-                let rows = '';
-                orders.forEach(order => {
-                    rows += `
+    $(document).ready(function () {
+        let currentPage = 1;
+        let currentLimit = $('#orderLimitSelect').val();
+
+        function getStatusText(status) {
+            return translations[status] ?? status;
+        }
+
+        function renderOrdersTable(orders) {
+            let rows = '';
+            orders.forEach(order => {
+                rows += `
                     <tr>
                         <td>${order.fname} ${order.lname}</td>
                         <td>${order.email}</td>
                         <td>${order.phone}</td>
                         <td>${parseFloat(order.total).toFixed(2)} ₪</td>
                         <td>${getStatusText(order.status)}</td>
-                        <td>${new Date(order.created_at).toISOString().slice(0,10)}</td>
+                        <td>${new Date(order.created_at).toISOString().slice(0, 10)}</td>
                     </tr>
                 `;
-                });
-                $('#ordersTable tbody').html(rows);
-            }
-
-            // تحميل الطلبات عند أول فتح التبويبة مع القيمة الافتراضية (مثلاً 5)
-            let defaultLimit = $('#orderLimitSelect').val() || 5;
-
-            function loadOrders(limit) {
-                $.ajax({
-                    url: '{{ route('orders.fetch') }}',
-                    method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        limit: limit,
-                    },
-                    success: function(res) {
-                        renderOrdersTable(res.orders);
-                    },
-                    error: function() {
-                        alert('حدث خطأ أثناء جلب الطلبات');
-                    }
-                });
-            }
-
-            // تحميل الطلبات أول مرة
-            loadOrders(defaultLimit);
-
-            // حدث تغيير قيمة limit
-            $('#orderLimitSelect').on('change', function() {
-                let selectedLimit = $(this).val();
-                loadOrders(selectedLimit);
             });
+            $('#ordersTable tbody').html(rows);
+        }
+
+        function updateFooter(from, to, total) {
+            $('.table-pagination p').text(`عرض ${from} إلى ${to} من إجمالي ${total} طلبات`);
+        }
+
+        function renderPagination(current, last) {
+            let pages = '';
+            for (let i = 1; i <= last; i++) {
+                pages += `<li class="page-item ${i === current ? 'active' : ''}">
+                    <a href="#" class="page-link page-number" data-page="${i}">${i}</a>
+                </li>`;
+            }
+
+            let prevDisabled = current === 1 ? 'disabled' : '';
+            let nextDisabled = current === last ? 'disabled' : '';
+
+            $('.pagination-list').html(`
+                <li class="page-item ${prevDisabled}">
+                    <a href="#" class="page-link prev-page" data-page="${current - 1}"><i class="bi bi-chevron-left"></i></a>
+                </li>
+                ${pages}
+                <li class="page-item ${nextDisabled}">
+                    <a href="#" class="page-link next-page" data-page="${current + 1}"><i class="bi bi-chevron-right"></i></a>
+                </li>
+            `);
+        }
+
+        function loadOrders(limit, page = 1) {
+            $.ajax({
+                url: '{{ route('orders.fetch') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    limit: limit,
+                    page: page,
+                },
+                success: function (res) {
+                    renderOrdersTable(res.orders);
+
+                    const from = ((page - 1) * res.pagination.per_page) + 1;
+                    const to = from + res.orders.length - 1;
+                    updateFooter(from, to, res.pagination.total);
+
+                    renderPagination(res.pagination.current_page, res.pagination.last_page);
+                },
+                error: function () {
+                    alert('حدث خطأ أثناء جلب الطلبات');
+                }
+            });
+        }
+
+        // تحميل أولي
+        loadOrders(currentLimit, currentPage);
+
+        // عند تغيير limit
+        $('#orderLimitSelect').on('change', function () {
+            currentLimit = $(this).val();
+            currentPage = 1;
+            loadOrders(currentLimit, currentPage);
         });
-    </script>
+
+        // عند الضغط على أزرار الصفحات
+        $(document).on('click', '.page-link', function (e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            if (page && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                currentPage = page;
+                loadOrders(currentLimit, currentPage);
+            }
+        });
+    });
+</script>
+
 
 @endsection

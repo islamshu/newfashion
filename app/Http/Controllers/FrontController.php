@@ -43,29 +43,39 @@ class FrontController extends Controller
 
         ]);
     }
+    // OrderController.php
     public function fetchOrders(Request $request)
     {
         $user = auth('client')->user();
-        $limit = intval($request->input('limit', 1));
+        $limit = intval($request->input('limit', 5));
+        $page = intval($request->input('page', 1));
 
-        $orders = $user->orders()->orderBy('created_at', 'desc')->limit($limit)->get();
+        $orders = $user->orders()
+            ->orderBy('created_at', 'desc')
+            ->paginate($limit, ['*'], 'page', $page);
 
-        // ترجع JSON مع البيانات لتحديث الجدول بالـ AJAX
         return response()->json([
-            'orders' => $orders
+            'orders' => $orders->items(),
+            'pagination' => [
+                'current_page' => $orders->currentPage(),
+                'last_page' => $orders->lastPage(),
+                'total' => $orders->total(),
+                'per_page' => $orders->perPage()
+            ]
         ]);
     }
-   public function order($code)
-{
 
-    if ($code) {
-        $order = Order::with('items.product')->where('code', $code)->first();
-    }else{
-        abort (404);
+    public function order($code)
+    {
+
+        if ($code) {
+            $order = Order::with('items.product')->where('code', $code)->first();
+        } else {
+            abort(404);
+        }
+
+        return view('frontend.order', compact('order'));
     }
-
-    return view('frontend.order', compact('order'));
-}
 
 
     public function get_track()
@@ -419,7 +429,7 @@ class FrontController extends Controller
                     'success' => true,
                     'message' => __('تم إرسال رمز التحقق مجددًا.'),
                     'show_otp' => true,
-                    'otp'=>$otp
+                    'otp' => $otp
                 ]);
             }
         }
@@ -441,7 +451,7 @@ class FrontController extends Controller
             'success' => true,
             'message' => __('تم إرسال رمز التحقق.'),
             'show_otp' => true,
-            'otp'=>$otp
+            'otp' => $otp
 
         ]);
     }
@@ -464,7 +474,7 @@ class FrontController extends Controller
 
         return response()->json([
             'success' => true,
-            'otp'=>$otp,
+            'otp' => $otp,
             'message' => __('تم إعادة إرسال رمز التحقق.'),
         ]);
     }
@@ -536,7 +546,7 @@ class FrontController extends Controller
             return response()->json([
                 'success' => false,
                 'requires_otp' => true,
-                'otp'=>$client->otp,
+                'otp' => $client->otp,
                 'message' => __('حسابك غير مفعل، يرجى إدخال رمز التحقق.'),
             ]);
         }
