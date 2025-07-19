@@ -141,9 +141,8 @@
                     </li>
                 </ul>
             </li>
-
             <li class="dropdown nav-item 
-    {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') || request()->routeIs('banners.index') || request()->routeIs('popup_model')  || request()->routeIs('trake_page') ? 'active' : ''  }}"
+    {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') || request()->routeIs('banners.index') || request()->routeIs('popup_model') || request()->routeIs('trake_page') || request()->routeIs('reviews.index') ? 'active' : '' }}"
                 data-menu="dropdown">
                 <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
                     <i class="la la-image"></i>
@@ -177,11 +176,19 @@
                     <li>
                         <a class="dropdown-item {{ request()->routeIs('trake_page') ? 'active' : '' }}"
                             href="{{ route('trake_page') }}">
-                            <i class="la la-image"></i> {{ __('اعادات صفحة تتبع الطلب') }}
+                            <i class="la la-cog"></i> {{ __('إعدادات صفحة تتبع الطلب') }}
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('reviews.index') ? 'active' : '' }}"
+                            href="{{ route('reviews.index') }}">
+                            <i class="la la-comments"></i> {{ __('الآراء') }}
                         </a>
                     </li>
                 </ul>
             </li>
+
 
 
         </ul>
