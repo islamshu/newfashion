@@ -359,6 +359,27 @@
     z-index: 3;
 }
 
+.order-table td,
+.order-table th {
+    font-size: 14px;
+    white-space: nowrap;
+    /* تمنع التكسير في الكلمات */
+    padding: 10px;
+}
+
+.order-table th:nth-child(2),
+.order-table td:nth-child(2) {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.order-table th:nth-child(1),
+.order-table td:nth-child(1) {
+    max-width: 130px;
+}
+
 
 /* عناصر النتائج */
 

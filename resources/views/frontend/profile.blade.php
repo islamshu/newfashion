@@ -314,59 +314,57 @@
                             <!-- table title-->
                             <div class="table-title-area d-flex justify-content-between align-items-center mb-3">
                                 <h3>{{ __('طلباتي') }}</h3>
-                               <select id="orderLimitSelect" class="form-select w-auto">
-    <option value="5">{{ __('عرض: آخر 5 طلبات') }}</option>
-    <option value="10">{{ __('عرض: آخر 10 طلبات') }}</option>
-    <option value="15">{{ __('عرض: آخر 15 طلبًا') }}</option>
-    <option value="20">{{ __('عرض: آخر 20 طلبًا') }}</option>
-</select>
+                                <select id="orderLimitSelect" class="form-select w-auto">
+                                    <option value="5">{{ __('عرض: آخر 5 طلبات') }}</option>
+                                    <option value="10">{{ __('عرض: آخر 10 طلبات') }}</option>
+                                    <option value="15">{{ __('عرض: آخر 15 طلبًا') }}</option>
+                                    <option value="20">{{ __('عرض: آخر 20 طلبًا') }}</option>
+                                </select>
 
                             </div>
 
                             <!-- table -->
-                            <div class="table-wrapper">
-                                <table id="ordersTable" class="eg-table order-table table mb-0 text-center align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>{{ __('اسم المستلم') }}</th>
-                                            <th>{{ __('البريد الإلكتروني') }}</th>
-                                            <th>{{ __('الهاتف') }}</th>
-                                            <th>{{ __('الإجمالي') }}</th>
-                                            <th>{{ __('الحالة') }}</th>
-                                            <th>{{ __('تاريخ الإنشاء') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- بيانات الطلبات ستُعبأ هنا بواسطة جافاسكريبت -->
-                                    </tbody>
-                                </table>
+                           <div class="table-wrapper" style="overflow-x: auto;">
+    <table id="ordersTable" class="eg-table order-table table mb-0 text-center align-middle">
+        <thead>
+            <tr>
+                <th>{{ __('رقم الطلب') }}</th>
+                <th>{{ __('البريد الإلكتروني') }}</th>
+                <th>{{ __('رقم الهاتف') }}</th>
+                <th>{{ __('الإجمالي') }}</th>
+                <th>{{ __('حالة الطلب') }}</th>
+                <th>{{ __('تاريخ الإنشاء') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- بيانات الطلبات ستُعبأ هنا بواسطة JavaScript -->
+        </tbody>
+    </table>
+</div>
 
+@php
+    function getStatusText($status)
+    {
+        return match ($status) {
+            'pending' => __('قيد الانتظار'),
+            'processing' => __('قيد التنفيذ'),
+            'completed' => __('مكتمل'),
+            'cancelled' => __('ملغى'),
+            default => __('غير معروف'),
+        };
+    }
+@endphp
 
-
-                                @php
-                                    function getStatusText($status)
-                                    {
-                                        return match ($status) {
-                                            'pending' => __('قيد المعالجة'),
-                                            'processing' => __('قيد التنفيذ'),
-                                            'completed' => __('مكتمل'),
-                                            'cancelled' => __('ملغى'),
-                                            default => __('غير معروف'),
-                                        };
-                                    }
-                                @endphp
-
-                            </div>
 
                             <!-- pagination area (يمكنك تعديلها لاحقاً لتصبح تفاعلية) -->
-                           <div class="table-pagination mt-3 d-flex justify-content-between align-items-center">
-    <p>عرض 1 إلى 5 من إجمالي {{ $user->orders->count() }} طلبات</p>
-    <nav class="shop-pagination">
-        <ul class="pagination-list pagination">
-            <!-- سيتم تعبئة الأزرار ديناميكيًا -->
-        </ul>
-    </nav>
-</div>
+                            <div class="table-pagination mt-3 d-flex justify-content-between align-items-center">
+                                <p>عرض 1 إلى 5 من إجمالي {{ $user->orders->count() }} طلبات</p>
+                                <nav class="shop-pagination">
+                                    <ul class="pagination-list pagination">
+                                        <!-- سيتم تعبئة الأزرار ديناميكيًا -->
+                                    </ul>
+                                </nav>
+                            </div>
 
                         </div>
                     </div>
@@ -732,11 +730,11 @@
                                     <td>${order.subtotal} ₪</td>
                                 </tr>
                                 ${order.discount > 0 ? `
-                                                                <tr>
-                                                                    <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
-                                                                    <td>-${order.discount} ₪</td>
-                                                                </tr>
-                                                                ` : ''}
+                                                                            <tr>
+                                                                                <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
+                                                                                <td>-${order.discount} ₪</td>
+                                                                            </tr>
+                                                                            ` : ''}
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
                                     <td>${order.tax} ₪</td>
@@ -750,11 +748,11 @@
                     </div>
                     
                     ${order.notes ? `
-                                                    <div class="order-notes mt-3">
-                                                        <h5>{{ __('ملاحظات الطلب') }}</h5>
-                                                        <p>${order.notes}</p>
-                                                    </div>
-                                                    ` : ''}
+                                                                <div class="order-notes mt-3">
+                                                                    <h5>{{ __('ملاحظات الطلب') }}</h5>
+                                                                    <p>${order.notes}</p>
+                                                                </div>
+                                                                ` : ''}
                 </div>
             `;
 
@@ -774,28 +772,29 @@
             }
         });
     </script>
-<script>
-    const translations = {
-        pending: @json(__('قيد المعالجة')),
-        processing: @json(__('قيد التنفيذ')),
-        completed: @json(__('مكتمل')),
-        cancelled: @json(__('ملغى')),
-    };
+    <script>
+        const translations = {
+            pending: @json(__('قيد المعالجة')),
+            processing: @json(__('قيد التنفيذ')),
+            completed: @json(__('مكتمل')),
+            cancelled: @json(__('ملغى')),
+        };
 
-    $(document).ready(function () {
-        let currentPage = 1;
-        let currentLimit = $('#orderLimitSelect').val();
+        $(document).ready(function() {
+            let currentPage = 1;
+            let currentLimit = $('#orderLimitSelect').val();
 
-        function getStatusText(status) {
-            return translations[status] ?? status;
-        }
+            function getStatusText(status) {
+                return translations[status] ?? status;
+            }
 
-        function renderOrdersTable(orders) {
-            let rows = '';
-            orders.forEach(order => {
-                rows += `
+            function renderOrdersTable(orders) {
+                let rows = '';
+                orders.forEach(order => {
+                    rows += `
                     <tr>
-                        <td>${order.fname} ${order.lname}</td>
+                                                <td>${order.code}</td>
+
                         <td>${order.email}</td>
                         <td>${order.phone}</td>
                         <td>${parseFloat(order.total).toFixed(2)} ₪</td>
@@ -803,26 +802,26 @@
                         <td>${new Date(order.created_at).toISOString().slice(0, 10)}</td>
                     </tr>
                 `;
-            });
-            $('#ordersTable tbody').html(rows);
-        }
-
-        function updateFooter(from, to, total) {
-            $('.table-pagination p').text(`عرض ${from} إلى ${to} من إجمالي ${total} طلبات`);
-        }
-
-        function renderPagination(current, last) {
-            let pages = '';
-            for (let i = 1; i <= last; i++) {
-                pages += `<li class="page-item ${i === current ? 'active' : ''}">
-                    <a href="#" class="page-link page-number" data-page="${i}">${i}</a>
-                </li>`;
+                });
+                $('#ordersTable tbody').html(rows);
             }
 
-            let prevDisabled = current === 1 ? 'disabled' : '';
-            let nextDisabled = current === last ? 'disabled' : '';
+            function updateFooter(from, to, total) {
+                $('.table-pagination p').text(`عرض ${from} إلى ${to} من إجمالي ${total} طلبات`);
+            }
 
-            $('.pagination-list').html(`
+            function renderPagination(current, last) {
+                let pages = '';
+                for (let i = 1; i <= last; i++) {
+                    pages += `<li class="page-item ${i === current ? 'active' : ''}">
+                    <a href="#" class="page-link page-number" data-page="${i}">${i}</a>
+                </li>`;
+                }
+
+                let prevDisabled = current === 1 ? 'disabled' : '';
+                let nextDisabled = current === last ? 'disabled' : '';
+
+                $('.pagination-list').html(`
                 <li class="page-item ${prevDisabled}">
                     <a href="#" class="page-link prev-page" data-page="${current - 1}"><i class="bi bi-chevron-left"></i></a>
                 </li>
@@ -831,53 +830,54 @@
                     <a href="#" class="page-link next-page" data-page="${current + 1}"><i class="bi bi-chevron-right"></i></a>
                 </li>
             `);
-        }
+            }
 
-        function loadOrders(limit, page = 1) {
-            $.ajax({
-                url: '{{ route('orders.fetch') }}',
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    limit: limit,
-                    page: page,
-                },
-                success: function (res) {
-                    renderOrdersTable(res.orders);
+            function loadOrders(limit, page = 1) {
+                $.ajax({
+                    url: '{{ route('orders.fetch') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        limit: limit,
+                        page: page,
+                    },
+                    success: function(res) {
+                        renderOrdersTable(res.orders);
 
-                    const from = ((page - 1) * res.pagination.per_page) + 1;
-                    const to = from + res.orders.length - 1;
-                    updateFooter(from, to, res.pagination.total);
+                        const from = ((page - 1) * res.pagination.per_page) + 1;
+                        const to = from + res.orders.length - 1;
+                        updateFooter(from, to, res.pagination.total);
 
-                    renderPagination(res.pagination.current_page, res.pagination.last_page);
-                },
-                error: function () {
-                    alert('حدث خطأ أثناء جلب الطلبات');
+                        renderPagination(res.pagination.current_page, res.pagination.last_page);
+                    },
+                    error: function() {
+                        alert('حدث خطأ أثناء جلب الطلبات');
+                    }
+                });
+            }
+
+            // تحميل أولي
+            loadOrders(currentLimit, currentPage);
+
+            // عند تغيير limit
+            $('#orderLimitSelect').on('change', function() {
+                currentLimit = $(this).val();
+                currentPage = 1;
+                loadOrders(currentLimit, currentPage);
+            });
+
+            // عند الضغط على أزرار الصفحات
+            $(document).on('click', '.page-link', function(e) {
+                e.preventDefault();
+                const page = $(this).data('page');
+                if (page && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass(
+                        'active')) {
+                    currentPage = page;
+                    loadOrders(currentLimit, currentPage);
                 }
             });
-        }
-
-        // تحميل أولي
-        loadOrders(currentLimit, currentPage);
-
-        // عند تغيير limit
-        $('#orderLimitSelect').on('change', function () {
-            currentLimit = $(this).val();
-            currentPage = 1;
-            loadOrders(currentLimit, currentPage);
         });
-
-        // عند الضغط على أزرار الصفحات
-        $(document).on('click', '.page-link', function (e) {
-            e.preventDefault();
-            const page = $(this).data('page');
-            if (page && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
-                currentPage = page;
-                loadOrders(currentLimit, currentPage);
-            }
-        });
-    });
-</script>
+    </script>
 
 
 @endsection
