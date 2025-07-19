@@ -793,7 +793,7 @@
                 orders.forEach(order => {
                     rows += `
                     <tr>
-                        <td><a href="/order/${order.code}">${order.code}</a></td>
+                        <td><a target="_blank" href="/order/${order.code}">${order.code}</a></td>
                         <td>${order.email}</td>
                         <td>${order.phone}</td>
                         <td>${parseFloat(order.total).toFixed(2)} ₪</td>
