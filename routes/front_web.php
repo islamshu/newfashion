@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ClientAuthController;
+use App\Http\Controllers\ClientForgotPasswordController;
 use App\Http\Controllers\FrontController;
 use App\Http\Middleware\RedirectIfUnauthenticatedClient;
 use Illuminate\Support\Facades\Route;
@@ -44,7 +46,7 @@ Route::get('/track', [FrontController::class, 'get_track'])->name('orders.get_tr
 
 Route::post('/order/track', [FrontController::class, 'track_single'])->name('order.track');
 Route::post('/dashboard/orders/fetch', [FrontController::class, 'fetchOrders'])->name('orders.fetch');
-
+Route::post('/password/email', [FrontController::class, 'sendResetLinkEmail'])->name('password.email.ajax');
 // عرض تفاصيل الطلب
 Route::get('/orders/{order}/details', [FrontController::class, 'details'])->name('orders.details');
 Route::middleware(['auth.client'])->group(function () {

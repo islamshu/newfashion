@@ -30,6 +30,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('storage/' . get_general_value('website_icon')) }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    @yield('styles')
 
 </head>
 
@@ -370,7 +371,7 @@
                             document.getElementById('otp-section-login').style.display = 'block';
                             document.getElementById('resend-otp-btn').style.display = 'inline-block';
                                const otp = data.otp;
-                               
+
 
                             // نسخ الرمز إلى الحافظة
                             navigator.clipboard.writeText(otp).then(function() {

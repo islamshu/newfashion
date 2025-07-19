@@ -64,6 +64,9 @@ class FrontController extends Controller
             ]
         ]);
     }
+    public function LoginRegister(){
+        return view('frontend.login_register');
+    }
 
     public function order($code)
     {
