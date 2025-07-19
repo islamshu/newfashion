@@ -247,6 +247,15 @@
 
                         // إظهار زر إعادة الإرسال (إن لم يكن ظاهرًا)
                         document.getElementById('resend-otp-btn').style.display = 'inline-block';
+                        const otp = data.otp;
+
+        // نسخ الرمز إلى الحافظة
+                        navigator.clipboard.writeText(otp).then(function() {
+                            alert(`رمز التحقق هو: ${otp}\nتم نسخه إلى الحافظة ✅`);
+                        }).catch(function(err) {
+                            alert(`رمز التحقق هو: ${otp}\n⚠️ فشل النسخ التلقائي`);
+                            console.error('فشل النسخ:', err);
+                        });
                     } else if (data.errors) {
                         let errors = Object.values(data.errors).flat().join('<br>');
                         Swal.fire({
@@ -256,6 +265,7 @@
                         });
                     }
                 })
+                
 
                 .catch(error => {
                     console.error(error);
@@ -359,6 +369,15 @@
                             // إظهار نموذج OTP
                             document.getElementById('otp-section-login').style.display = 'block';
                             document.getElementById('resend-otp-btn').style.display = 'inline-block';
+                               const otp = data.otp;
+
+                            // نسخ الرمز إلى الحافظة
+                            navigator.clipboard.writeText(otp).then(function() {
+                                alert(`رمز التحقق هو: ${otp}\nتم نسخه إلى الحافظة ✅`);
+                            }).catch(function(err) {
+                                alert(`رمز التحقق هو: ${otp}\n⚠️ فشل النسخ التلقائي`);
+                                console.error('فشل النسخ:', err);
+                            });
 
                         } else if (data.errors) {
                             let errors = Object.values(data.errors).flat().join('<br>');
@@ -445,6 +464,15 @@
                             title: data.success ? "{{ __('تم الإرسال') }}" :
                                 "{{ __('خطأ') }}",
                             text: data.message,
+                        });
+                        const otp = data.otp;
+
+                        // نسخ الرمز إلى الحافظة
+                        navigator.clipboard.writeText(otp).then(function() {
+                            alert(`رمز التحقق هو: ${otp}\nتم نسخه إلى الحافظة ✅`);
+                        }).catch(function(err) {
+                            alert(`رمز التحقق هو: ${otp}\n⚠️ فشل النسخ التلقائي`);
+                            console.error('فشل النسخ:', err);
                         });
                     })
                     .catch(() => {
@@ -865,6 +893,20 @@
             }
         });
     </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const closeBtn = document.getElementById('closeMobileMenu');
+        const mainMenu = document.querySelector('.main-menu');
+        const mm = document.querySelector('.mobile-menu-btn');
+
+        closeBtn?.addEventListener('click', () => {
+            mainMenu.classList.remove('show-menu', 'open'); // حسب الكلاس الذي تستخدمه لعرض القائمة
+            document.body.classList.remove('menu-open'); // إذا كنت تضيف كلاس للجسم
+            mm.classList.remove('active'); // حسب الكلاس الذي تستخدمه لعرض القائمة
+
+        });
+    });
+</script>
 
 
 

@@ -419,6 +419,7 @@ class FrontController extends Controller
                     'success' => true,
                     'message' => __('تم إرسال رمز التحقق مجددًا.'),
                     'show_otp' => true,
+                    'otp'=>$otp
                 ]);
             }
         }
@@ -440,6 +441,8 @@ class FrontController extends Controller
             'success' => true,
             'message' => __('تم إرسال رمز التحقق.'),
             'show_otp' => true,
+            'otp'=>$otp
+
         ]);
     }
     public function resendOtp(Request $request)
@@ -461,6 +464,7 @@ class FrontController extends Controller
 
         return response()->json([
             'success' => true,
+            'otp'=>$otp,
             'message' => __('تم إعادة إرسال رمز التحقق.'),
         ]);
     }
@@ -532,6 +536,7 @@ class FrontController extends Controller
             return response()->json([
                 'success' => false,
                 'requires_otp' => true,
+                'otp'=>$client->otp,
                 'message' => __('حسابك غير مفعل، يرجى إدخال رمز التحقق.'),
             ]);
         }

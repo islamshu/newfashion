@@ -54,9 +54,18 @@
 
         </div>
         <div class="main-menu">
+            <!-- زر إغلاق القائمة الجانبية للموبايل -->
+<div class="d-lg-none d-flex justify-content-end px-3">
+    <button type="button" id="closeMobileMenu" class="btn btn-light btn-sm rounded-circle mt-2 shadow-sm"
+        style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+
             <div class="mobile-logo-area d-lg-none d-flex justify-content-between align-items-center">
                 <div class="mobile-logo-wrap">
-                    <a href="index.html"><img alt="image" src="{{ asset('front/assets/img/logo.svg') }}"></a>
+                    <a href="{{route('home')}}"><img alt="image" src="{{ Storage::url(get_general_value('website_logo')) }}"></a>
                 </div>
             </div>
             <ul class="menu-list">
