@@ -184,10 +184,10 @@
                             aria-labelledby="v-pills-profile-tab">
                             <div class="dashboard-profile">
                                 <div class="table-title-area">
-                                    <h3>Edit Your Profile</h3>
-                                    <p>From your My Account Dashboard you have the ability to view a snapshot of your
-                                        recent account activity and update your account information. Select a link below
-                                        to view or edit information.</p>
+                                    <h3>{{ __('تعديل الملف الشخصي') }}</h3>
+                                    <p>{{ __('من خلال لوحة تحكم حسابي، يمكنك عرض لمحة عن نشاط حسابك الأخير وتحديث معلومات حسابك. اختر أحد الروابط أدناه لعرض أو تعديل المعلومات.') }}
+                                    </p>
+
                                 </div>
                                 <div class="form-wrapper">
                                     <form id="profileForm" action="{{ route('profile.update') }}" method="POST"
@@ -741,11 +741,11 @@
                                     <td>${order.subtotal} ₪</td>
                                 </tr>
                                 ${order.discount > 0 ? `
-                                                            <tr>
-                                                                <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
-                                                                <td>-${order.discount} ₪</td>
-                                                            </tr>
-                                                            ` : ''}
+                                                                <tr>
+                                                                    <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
+                                                                    <td>-${order.discount} ₪</td>
+                                                                </tr>
+                                                                ` : ''}
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
                                     <td>${order.tax} ₪</td>
@@ -759,11 +759,11 @@
                     </div>
                     
                     ${order.notes ? `
-                                                <div class="order-notes mt-3">
-                                                    <h5>{{ __('ملاحظات الطلب') }}</h5>
-                                                    <p>${order.notes}</p>
-                                                </div>
-                                                ` : ''}
+                                                    <div class="order-notes mt-3">
+                                                        <h5>{{ __('ملاحظات الطلب') }}</h5>
+                                                        <p>${order.notes}</p>
+                                                    </div>
+                                                    ` : ''}
                 </div>
             `;
 
