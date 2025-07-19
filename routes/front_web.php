@@ -13,6 +13,14 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 
 Route::get('/', [FrontController::class, 'index'])->name('home');
+Route::get('lang/{locale}', function ($locale) {
+    if (!in_array($locale, ['ar', 'he'])) {
+        abort(400);
+    }
+    session(['locale' => $locale]);
+    app()->setLocale($locale);
+    return redirect()->back();
+});
 
 Route::get('/ff', [FrontController::class, 'test_vue'])->name('test_vue');
 Route::get('/products/{id}/modal', [FrontController::class, 'modal'])->name('products.modal');

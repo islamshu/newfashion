@@ -211,7 +211,7 @@
                                                 </g>
                                             </svg>
                                         </span>
-                                        Add to wishlist
+                                        {{__('اضف الى المفضلة')}}
                                     </button>
                                 </li>
                             </ul>

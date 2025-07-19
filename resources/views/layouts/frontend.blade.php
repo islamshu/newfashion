@@ -35,7 +35,20 @@
 </head>
 
 <body>
+
     @include('frontend.top_bar')
+  <div class="lang-switcher-float">
+    <button class="lang-btn" onclick="toggleLangOptions()" title="{{ __('تغيير اللغة') }}">
+        <i class="fas fa-globe"></i> {{-- أيقونة العالم --}}
+    </button>
+
+    <a href="{{ url('lang/ar') }}" class="lang-option lang-ar" title="العربية">🇸🇦</a>
+    <a href="{{ url('lang/he') }}" class="lang-option lang-he" title="עברית">🇮🇱</a>
+</div>
+
+
+
+
     @include('frontend.login_register_model')
     @include('frontend.header')
     @yield('content')
@@ -250,7 +263,7 @@
                         document.getElementById('resend-otp-btn').style.display = 'inline-block';
                         const otp = data.otp;
 
-        // نسخ الرمز إلى الحافظة
+                        // نسخ الرمز إلى الحافظة
                         navigator.clipboard.writeText(otp).then(function() {
                             alert(`رمز التحقق هو: ${otp}\nتم نسخه إلى الحافظة ✅`);
                         }).catch(function(err) {
@@ -266,7 +279,7 @@
                         });
                     }
                 })
-                
+
 
                 .catch(error => {
                     console.error(error);
@@ -370,7 +383,7 @@
                             // إظهار نموذج OTP
                             document.getElementById('otp-section-login').style.display = 'block';
                             document.getElementById('resend-otp-btn').style.display = 'inline-block';
-                               const otp = data.otp;
+                            const otp = data.otp;
 
 
                             // نسخ الرمز إلى الحافظة
@@ -895,21 +908,36 @@
             }
         });
     </script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const closeBtn = document.getElementById('closeMobileMenu');
-        const mainMenu = document.querySelector('.main-menu');
-        const mm = document.querySelector('.mobile-menu-btn');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const closeBtn = document.getElementById('closeMobileMenu');
+            const mainMenu = document.querySelector('.main-menu');
+            const mm = document.querySelector('.mobile-menu-btn');
 
-        closeBtn?.addEventListener('click', () => {
-            mainMenu.classList.remove('show-menu', 'open'); // حسب الكلاس الذي تستخدمه لعرض القائمة
-            document.body.classList.remove('menu-open'); // إذا كنت تضيف كلاس للجسم
-            mm.classList.remove('active'); // حسب الكلاس الذي تستخدمه لعرض القائمة
+            closeBtn?.addEventListener('click', () => {
+                mainMenu.classList.remove('show-menu', 'open'); // حسب الكلاس الذي تستخدمه لعرض القائمة
+                document.body.classList.remove('menu-open'); // إذا كنت تضيف كلاس للجسم
+                mm.classList.remove('active'); // حسب الكلاس الذي تستخدمه لعرض القائمة
 
+            });
         });
+    </script>
+    <script>
+    function toggleLangOptions() {
+        document.querySelector('.lang-switcher-float').classList.toggle('active');
+    }
+
+    // إغلاق عند النقر خارج الشعاع
+    document.addEventListener("click", function (e) {
+        const container = document.querySelector('.lang-switcher-float');
+        if (!container.contains(e.target)) {
+            container.classList.remove('active');
+        }
     });
 </script>
 
+
+    
 
 
 
