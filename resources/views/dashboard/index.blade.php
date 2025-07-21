@@ -12,84 +12,87 @@
             </div>
 
             <div class="content-body">
-
-                <!-- إحصائيات -->
                 <div class="row match-height">
 
-                    <!-- المنتجات -->
+                    <!-- العملاء -->
                     <div class="col-xl-3 col-md-6 col-12">
                         <div class="card text-center">
                             <div class="card-body">
-                                <i class="la la-cube fa-3x text-primary mb-1 animate__animated animate__bounceIn"></i>
-                                <h5 class="mb-0">{{ $productsCount }}</h5>
-                                <p class="text-muted">{{ __('عدد المنتجات') }}</p>
-                                <div class="progress mt-1">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
-                                </div>
+                                <i class="la la-user fa-3x text-info mb-1 animate__animated animate__bounceIn"></i>
+                                <h5 class="mb-0">{{ $clientsCount }}</h5>
+                                <p class="text-muted">{{ __('عدد العملاء') }}</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- التصنيفات -->
+                    <!-- الطلبات -->
                     <div class="col-xl-3 col-md-6 col-12">
                         <div class="card text-center">
                             <div class="card-body">
                                 <i
-                                    class="la la-folder-open fa-3x text-success mb-1 animate__animated animate__bounceIn"></i>
-                                <h5 class="mb-0">{{ $categoriesCount }}</h5>
-                                <p class="text-muted">{{ __('عدد التصنيفات') }}</p>
-                                <div class="progress mt-1">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 55%"></div>
+                                    class="la la-shopping-cart fa-3x text-primary mb-1 animate__animated animate__bounceIn"></i>
+                                <h5 class="mb-0">{{ $ordersCount }}</h5>
+                                <p class="text-muted">{{ __('عدد الطلبات') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- الطلبات حسب الحالة -->
+                    @php
+                        $statuses = [
+                            'pending' => 'قيد المراجعة',
+                            'processing' => 'قيد التنفيذ',
+                            'completed' => 'مكتملة',
+                            'cancelled' => 'ملغاة',
+                        ];
+
+                        $colors = [
+                            'pending' => 'warning',
+                            'processing' => 'info',
+                            'completed' => 'success',
+                            'cancelled' => 'danger',
+                        ];
+                    @endphp
+
+                    @foreach ($statuses as $status => $label)
+                        <div class="col-xl-3 col-md-6 col-12">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i
+                                        class="la la-list fa-3x text-{{ $colors[$status] }} mb-1 animate__animated animate__bounceIn"></i>
+                                    <h5 class="mb-0">{{ $ordersByStatus[$status] ?? 0 }}</h5>
+                                    <p class="text-muted">{{ __($label) }}</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- المستخدمين -->
-                    <div class="col-xl-3 col-md-6 col-12">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <i class="la la-users fa-3x text-danger mb-1 animate__animated animate__bounceIn"></i>
-                                <h5 class="mb-0">{{ $usersCount }}</h5>
-                                <p class="text-muted">{{ __('عدد المستخدمين') }}</p>
-                                <div class="progress mt-1">
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 90%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- إشعار ثابت -->
-                    <div class="col-xl-3 col-md-6 col-12">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body text-center">
-                                <i class="la la-bell fa-2x mb-1"></i>
-
-                                @if ($latestProductToday)
-                                    <p>{{ __('تمت إضافة منتج جديد اليوم:') }}</p>
-                                    <strong>{{ $latestProductToday->name }}</strong>
-                                    <br>
-                                    <small>{{ $latestProductToday->created_at->format('H:i') }} -
-                                        {{ $latestProductToday->created_at->format('Y-m-d') }}</small>
-                                @else
-                                    <p>{{ __('لم يتم إضافة أي منتج اليوم.') }}</p>
-                                    <small>{{ now()->format('Y-m-d') }}</small>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
 
                 </div>
 
-                <!-- مخطط دائري ثابت -->
+                <!-- الرسم البياني وإجمالي الأرباح -->
                 <div class="row">
+                    <!-- رسم بياني -->
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">{{ __('نسبة التوزيع') }}</h4>
+                                <h4 class="card-title">{{ __('عدد الطلبات خلال هذا الأسبوع') }}</h4>
                             </div>
                             <div class="card-body">
-                                <canvas id="pieChart" style="width: 150px; height: 150px;"></canvas>
+                                <canvas id="weeklyOrdersBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- إجمالي الأرباح -->
+                    <div class="col-md-6">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4>{{ __('إجمالي الأرباح') }}</h4>
+                                <p>{{ __('هذا الشهر') }}:
+                                    <strong>{{ number_format($totalEarningsCurrentMonth, 2) }} ₪</strong>
+                                </p>
+                                <p>{{ __('الشهر السابق') }}:
+                                    <strong>{{ number_format($totalEarningsLastMonth, 2) }} ₪</strong>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -103,30 +106,49 @@
 @section('script')
     <!-- مكتبة الرسوم البيانية -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- أنميشن -->
+    <!-- مكتبة الأنيميشن -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('pieChart').getContext('2d');
-        ctx.canvas.width = 150;
-ctx.canvas.height = 150;
-        new Chart(ctx, {
-            type: 'doughnut',
+        const ctx = document.getElementById('weeklyOrdersBarChart').getContext('2d');
+        const weeklyOrdersBarChart = new Chart(ctx, {
+            type: 'bar',
             data: {
-                labels: ['منتجات', 'تصنيفات', 'مستخدمين'],
+                labels: {!! json_encode(array_keys($ordersPerDay->toArray())) !!}, // مثل ['2025-07-18', '2025-07-19', ...]
                 datasets: [{
-                    data: [{{ $productsCount }}, {{ $categoriesCount }}, {{ $usersCount }}],
-                    backgroundColor: ['#007bff', '#28a745', '#dc3545']
+                    label: '{{ __('عدد الطلبات') }}',
+                    data: {!! json_encode(array_values($ordersPerDay->toArray())) !!}, // مثل [5, 2, 0, 3, ...]
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5
                 }]
             },
             options: {
                 responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'عدد الطلبات: ' + context.parsed.y;
+                            }
+                        }
                     }
                 }
             }
         });
     </script>
+
 @endsection

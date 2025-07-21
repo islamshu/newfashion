@@ -1,4 +1,4 @@
-<table class="table table-bordered">
+<table class="table table-bordered" id="storestable">
     <thead>
         <tr>
             <th>#</th>
@@ -20,34 +20,74 @@
                 <td>{{ $product->price }}</td>
                 <td>{{ $product->category->name ?? '-' }}</td>
                 <td>
-                    @if ($product->status)
-                        <span class="badge badge-success">{{ __('نشط') }}</span>
-                    @else
-                        <span class="badge badge-danger">{{ __('غير نشط') }}</span>
-                    @endif
+                    <input type="checkbox" data-id="{{ $product->id }}" name="status" class="js-switch status"
+                        {{ $product->status == 1 ? 'checked' : '' }}>
                 </td>
                 <td>
-                    @if ($product->is_featured)
-                        <span class="badge badge-success">{{ __('مميز') }}</span>
-                    @else
-                        <span class="badge badge-danger">{{ __('غير مميز') }}</span>
-                    @endif
+                    <input type="checkbox" data-id="{{ $product->id }}" name="is_featured" class="js-switch featured"
+                        {{ $product->is_featured == 1 ? 'checked' : '' }}>
                 </td>
                 <td>
-                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-info"><i class="ft-eye"></i></a>
-                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-warning"><i class="ft-edit"></i></a>
-                    <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline-block">
+                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-info"><i
+                            class="ft-eye"></i></a>
+                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-warning"><i
+                            class="ft-edit"></i></a>
+                    <form action="{{ route('products.destroy', $product->id) }}" method="POST"
+                        style="display:inline-block">
                         @csrf @method('DELETE')
-                        <button onclick="return confirm('هل أنت متأكد من الحذف؟')" class="btn btn-sm btn-danger"><i class="ft-trash"></i></button>
+                        <button onclick="return confirm('هل أنت متأكد من الحذف؟')" class="btn btn-sm btn-danger"><i
+                                class="ft-trash"></i></button>
                     </form>
                 </td>
             </tr>
         @empty
-            <tr><td colspan="8" class="text-center">{{ __('لا توجد بيانات') }}</td></tr>
+            <tr>
+                <td colspan="8" class="text-center">{{ __('لا توجد بيانات') }}</td>
+            </tr>
         @endforelse
     </tbody>
 </table>
 
 <div class="d-flex justify-content-center mt-3">
-    {!! $products->links() !!}
+{{ $products->appends(request()->except('page'))->links('pagination::bootstrap-4') }}
 </div>
+<script>
+        $("#storestable").on("change", ".status", function() {
+            let status = $(this).prop('checked') === true ? 1 : 0;
+            let product_id = $(this).data('id');
+
+
+
+            $.ajax({
+                type: "get",
+                dataType: "json",
+                url: '{{ route('update_status_product') }}',
+                data: {
+                    'status': status,
+                    'product_id': product_id
+                },
+                success: function(data) {
+                    toastr.success(data.message);
+                }
+            });
+        });
+        $("#storestable").on("change", ".featured", function() {
+            let is_featured = $(this).prop('checked') === true ? 1 : 0;
+            let product_id = $(this).data('id');
+
+
+
+            $.ajax({
+                type: "get",
+                dataType: "json",
+                url: '{{ route('update_featured_product') }}',
+                data: {
+                    'is_featured': is_featured,
+                    'product_id': product_id
+                },
+                success: function(data) {
+                    toastr.success(data.message);
+                }
+            });
+        });
+    </script>

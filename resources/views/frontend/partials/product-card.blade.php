@@ -1,6 +1,6 @@
 <div class="product-card hover-btn">
     <div class="product-card-img {{ $product->thumbnails->count() > 1 ? 'double-img' : '' }}">
-        <a href="{{route('product.show',$product->id)}}">
+        <a href="{{ route('product.show', $product->id) }}">
             @if ($product->thumbnails->count() > 0)
                 @foreach ($product->thumbnails->take(2) as $key => $image)
                     <img src="{{ asset('storage/' . $image->image) }}" alt="{{ $product->name }}"
@@ -35,29 +35,33 @@
                                     </div>
                                 </div> --}}
         @endif
+        @if (!request()->routeIs('product.show'))
+            <div class="view-and-favorite-area">
+                <ul>
+                    <li>
+                        <button
+                            class="add-to-wishlist btn view-wishlist-btn   {{ $product->isInWishlist() ? 'active' : '' }}"
+                            data-product-id="{{ $product->id }}" title="{{ __('أضف إلى المفضلة') }}">
+                            <i class="fa fa-heart"></i>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="btn  view-product-btn" data-id="{{ $product->id }}" data-bs-toggle="modal"
+                            data-bs-target="#product-view-modal">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        @endif
 
-        <div class="view-and-favorite-area">
-            <ul>
-                <li>
-                    <button
-                        class="add-to-wishlist btn view-wishlist-btn   {{ $product->isInWishlist() ? 'active' : '' }}"
-                        data-product-id="{{ $product->id }}" title="{{ __('أضف إلى المفضلة') }}">
-                        <i class="fa fa-heart"></i>
-                    </button>
-                </li>
-                <li>
-                    <button class="btn  view-product-btn"  data-id="{{ $product->id }}" data-bs-toggle="modal"
-                        data-bs-target="#product-view-modal">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                </li>
-            </ul>
-        </div>
     </div>
 
     <div class="product-card-content">
-        <h6><a href="{{route('product.show',$product->id)}}" class="hover-underline">{{ $product->name }}</a></h6>
-        <p><a href="shop-list.html">{{ $product->category->name }}</a></p>
+        <h6><a href="{{ route('product.show', $product->id) }}" class="hover-underline">{{ $product->name }}</a></h6>
+        <p><a
+                href="{{ route('products.all', ['category_id' => $product->category->id]) }}">{{ $product->category->name }}</a>
+        </p>
 
 
         <p class="price">

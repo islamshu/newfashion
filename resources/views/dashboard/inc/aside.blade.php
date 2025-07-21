@@ -161,12 +161,12 @@
                             <i class="la la-sliders"></i> {{ __('السلايدرز') }}
                         </a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a class="dropdown-item {{ request()->routeIs('features.index') ? 'active' : '' }}"
                             href="{{ route('features.index') }}">
                             <i class="la la-star"></i> {{ __('المميزات') }}
                         </a>
-                    </li>
+                    </li> --}}
                     <li>
                         <a class="dropdown-item {{ request()->routeIs('banners.index') ? 'active' : '' }}"
                             href="{{ route('banners.index') }}">

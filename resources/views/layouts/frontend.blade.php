@@ -159,7 +159,7 @@
                         text: swalText,
                         confirmButtonText: swalConfirm
                     });
-                    return;
+                    return ;
                 }
 
                 $.ajax({

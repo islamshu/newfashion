@@ -165,15 +165,12 @@
 
 
 <script>
-    $(document).ready(function() {
-        @if (
-            !Route::is('products.index') &&
-                !Route::is('categories.index') &&
-                !Route::is('coupons.index') &&
-                !Route::is('orders.index') &&
-                !Route::is('products.show'))
-                !Route::is('clients.show'))
+    $(document).ready(function () {
+        @php
+            $excludedRoutes = ['products.index', 'categories.index', 'coupons.index', 'orders.index', 'products.show', 'clients.show'];
+        @endphp
 
+        @if (!in_array(Route::currentRouteName(), $excludedRoutes))
             @if (app()->getLocale() == 'ar')
                 $('table').DataTable({
                     language: {
@@ -191,10 +188,8 @@
                             "sPrevious": "السابق",
                             "sNext": "التالي",
                             "sLast": "الأخير"
-                        },
-
+                        }
                     },
-
                     direction: 'rtl'
                 });
             @else
@@ -220,13 +215,13 @@
                             "sSortDescending": ": הפעל למיון יורד"
                         }
                     },
-                    direction: 'rtl' // يمكن تغييرها إلى 'ltr' إذا كنت تفضل الاتجاه من اليسار لليمين
+                    direction: 'rtl'
                 });
             @endif
         @endif
-
     });
 </script>
+
 
 <!-- END PAGE LEVEL JS-->
 </body>

@@ -2,25 +2,24 @@
 @section('title', __('العملاء'))
 
 @section('style')
-<style>
-    .badge-success {
-        background-color: #28c76f;
-        color: white;
-        font-size: 0.8rem;
-        padding: 3px 8px;
-        border-radius: 5px;
-    }
+    <style>
+        .badge-success {
+            background-color: #28c76f;
+            color: white;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 5px;
+        }
 
-    .badge-warning {
-        background-color: #ff9f43;
-        color: white;
-        font-size: 0.8rem;
-        padding: 3px 8px;
-        border-radius: 5px;
-    }
-    
-</style>
-  <style>
+        .badge-warning {
+            background-color: #ff9f43;
+            color: white;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 5px;
+        }
+    </style>
+    <style>
         /* تنسيقات عامة للفلتر */
         .filter-box {
             background-color: #fff;
@@ -203,140 +202,167 @@
 @endsection
 
 @section('content')
-<div class="app-content content">
-    <div class="content-wrapper">
-        <div class="content-header row">
-            <div class="content-header-left col-md-6 col-12 mb-2">
-                <h3 class="content-header-title">{{ __('قائمة العملاء') }}</h3>
-                <div class="row breadcrumbs-top">
-                    <div class="breadcrumb-wrapper col-12">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('الرئيسية') }}</a></li>
-                            <li class="breadcrumb-item active">{{ __('العملاء') }}</li>
-                        </ol>
+    <div class="app-content content">
+        <div class="content-wrapper">
+            <div class="content-header row">
+                <div class="content-header-left col-md-6 col-12 mb-2">
+                    <h3 class="content-header-title">{{ __('قائمة العملاء') }}</h3>
+                    <div class="row breadcrumbs-top">
+                        <div class="breadcrumb-wrapper col-12">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('الرئيسية') }}</a></li>
+                                <li class="breadcrumb-item active">{{ __('العملاء') }}</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="content-body">
-            <section class="card">
-                <div class="card-header">
-                    <h4 class="card-title">{{ __('كل العملاء') }}</h4>
-                </div>
+            <div class="content-body">
+                <section class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">{{ __('كل العملاء') }}</h4>
+                    </div>
 
-                <div class="card-content collapse show">
-                    <div class="card-body">
-                        <!-- فلتر العملاء -->
-                        <div class="filter-box filter-expanded">
-                            <div class="filter-header">
-                                <h5 class="filter-title">
-                                    <i class="ft-filter"></i> {{ __('تصفية العملاء') }}
-                                </h5>
-                                <button type="button" class="filter-toggle">
-                                    {{ __('إخفاء') }} <i class="ft-chevron-up"></i>
-                                </button>
+                    <div class="card-content collapse show">
+                        <div class="card-body">
+                            <!-- فلتر العملاء -->
+                            <div class="filter-box filter-expanded">
+                                <div class="filter-header">
+                                    <h5 class="filter-title">
+                                        <i class="ft-filter"></i> {{ __('تصفية العملاء') }}
+                                    </h5>
+                                    <button type="button" class="filter-toggle">
+                                        {{ __('إخفاء') }} <i class="ft-chevron-up"></i>
+                                    </button>
+                                </div>
+
+                                <div class="filter-body">
+                                    <form id="filter-form" class="row">
+                                        <div class="col-md-6 col-lg-3">
+                                            <div class="filter-group">
+                                                <label>{{ __('الاسم') }}</label>
+                                                <input type="text" name="name" class="filter-control"
+                                                    placeholder="ابحث باسم العميل">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 col-lg-3">
+                                            <div class="filter-group">
+                                                <label>{{ __('رقم الجوال') }}</label>
+                                                <input type="text" name="phone_number" class="filter-control"
+                                                    placeholder="ابحث برقم الجوال">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 col-lg-3">
+                                            <div class="filter-group">
+                                                <label>{{ __('حالة التحقق') }}</label>
+                                                <select name="verified" class="filter-control">
+                                                    <option value="">{{ __('الكل') }}</option>
+                                                    <option value="1">{{ __('تم التحقق') }}</option>
+                                                    <option value="0">{{ __('غير محقق') }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-lg-3">
+                                            <div class="filter-group">
+                                                <label>{{ __('حالة عميل') }}</label>
+                                                <select name="is_active" class="filter-control">
+                                                    <option value="">{{ __('الكل') }}</option>
+                                                    <option value="1">{{ __('مفعل') }}</option>
+                                                    <option value="0">{{ __('معطل') }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 col-lg-3 pt-1">
+                                            <div class="filter-actions">
+                                                <button type="submit" class="filter-btn filter-btn-primary">
+                                                    <i class="ft-search"></i> {{ __('بحث') }}
+                                                </button>
+                                                <button type="button" class="filter-btn filter-btn-secondary"
+                                                    id="reset-filters">
+                                                    <i class="ft-refresh-cw"></i> {{ __('إعادة تعيين') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
 
-                            <div class="filter-body">
-                                <form id="filter-form" class="row">
-                                    <div class="col-md-6 col-lg-3">
-                                        <div class="filter-group">
-                                            <label>{{ __('الاسم') }}</label>
-                                            <input type="text" name="name" class="filter-control" placeholder="ابحث باسم العميل">
-                                        </div>
-                                    </div>
+                            <!-- جدول العملاء -->
+                            @include('dashboard.inc.alerts')
 
-                                    <div class="col-md-6 col-lg-3">
-                                        <div class="filter-group">
-                                            <label>{{ __('رقم الجوال') }}</label>
-                                            <input type="text" name="phone_number" class="filter-control" placeholder="ابحث برقم الجوال">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 col-lg-3">
-                                        <div class="filter-group">
-                                            <label>{{ __('حالة التحقق') }}</label>
-                                            <select name="verified" class="filter-control">
-                                                <option value="">{{ __('الكل') }}</option>
-                                                <option value="1">{{ __('تم التحقق') }}</option>
-                                                <option value="0">{{ __('غير محقق') }}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 col-lg-3 pt-1">
-                                        <div class="filter-actions">
-                                            <button type="submit" class="filter-btn filter-btn-primary">
-                                                <i class="ft-search"></i> {{ __('بحث') }}
-                                            </button>
-                                            <button type="button" class="filter-btn filter-btn-secondary" id="reset-filters">
-                                                <i class="ft-refresh-cw"></i> {{ __('إعادة تعيين') }}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
+                            <div id="clients-container">
+                                @include('dashboard.clients._table', ['clients' => $clients])
                             </div>
-                        </div>
-
-                        <!-- جدول العملاء -->
-                        @include('dashboard.inc.alerts')
-
-                        <div id="clients-container">
-                            @include('dashboard.clients._table', ['clients' => $clients])
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
         </div>
     </div>
-</div>
 @endsection
 
 @section('script')
-<script>
-    $(document).ready(function () {
-        // فلترة العملاء
-        $('#filter-form').on('submit', function (e) {
-            e.preventDefault();
-            fetchClients();
-        });
-
-        $('#reset-filters').on('click', function () {
-            $('#filter-form')[0].reset();
-            fetchClients();
-        });
-
-        $(document).on('click', '.pagination a', function (e) {
-            e.preventDefault();
-            let page = $(this).attr('href').split('page=')[1];
-            fetchClients(page);
-        });
-
-        $('.filter-toggle').on('click', function () {
-            const filterBox = $(this).closest('.filter-box');
-            filterBox.toggleClass('filter-expanded filter-collapsed');
-
-            if (filterBox.hasClass('filter-expanded')) {
-                $(this).html('{{ __('إخفاء') }} <i class="ft-chevron-up"></i>');
-            } else {
-                $(this).html('{{ __('عرض') }} <i class="ft-chevron-down"></i>');
+    <script>
+        $(document).ready(function() {
+            function initSwitches() {
+                // تدمير أي Switches موجودة سابقاً
+                if (window.switches) {
+                    window.switches.forEach(s => s.destroy());
+                }
+                window.switches = [];
+                $('.js-switch').each(function() {
+                    let switchery = new Switchery(this, {
+                        size: 'small'
+                    });
+                    window.switches.push(switchery);
+                });
             }
-        });
+            $('#filter-form').on('submit', function(e) {
+                e.preventDefault();
+                fetchClients();
+            });
 
-        function fetchClients(page = 1) {
-            $.ajax({
-                url: '{{ route('clients.ajax') }}?page=' + page,
-                method: 'GET',
-                data: $('#filter-form').serialize(),
-                success: function (res) {
-                    $('#clients-container').html(res.html);
-                },
-                error: function (xhr) {
-                    console.error(xhr.responseText);
+            $('#reset-filters').on('click', function() {
+                $('#filter-form')[0].reset();
+                fetchClients();
+            });
+
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+                let page = $(this).attr('href').split('page=')[1];
+                fetchClients(page);
+            });
+
+            $('.filter-toggle').on('click', function() {
+                const filterBox = $(this).closest('.filter-box');
+                filterBox.toggleClass('filter-expanded filter-collapsed');
+
+                if (filterBox.hasClass('filter-expanded')) {
+                    $(this).html('{{ __('إخفاء') }} <i class="ft-chevron-up"></i>');
+                } else {
+                    $(this).html('{{ __('عرض') }} <i class="ft-chevron-down"></i>');
                 }
             });
-        }
-    });
-</script>
+
+            function fetchClients(page = 1) {
+                $.ajax({
+                    url: '{{ route('clients.ajax') }}?page=' + page,
+                    method: 'GET',
+                    data: $('#filter-form').serialize(),
+                    success: function(res) {
+                        $('#clients-container').html(res.html);
+                        initSwitches();
+
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        });
+    </script>
 @endsection

@@ -1,4 +1,4 @@
- <div class="choose-product-section mb-110">
+ <div class="choose-product-section mb-110 mt-15">
      <div class="container">
          <div class="section-title2">
             <h3>{{__('التصنيفات المميزة')}}</h3>

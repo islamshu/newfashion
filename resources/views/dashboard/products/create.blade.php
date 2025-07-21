@@ -321,25 +321,7 @@
                                                 </div>
                                             </div>
 
-                                            <!-- الوصف الكامل -->
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label
-                                                            for="description_ar">{{ __('الوصف الكامل (عربي)') }}</label>
-                                                        <textarea id="description_ar" name="description[ar]" class="form-control" rows="5"
-                                                            placeholder="{{ __('وصف تفصيلي للمنتج') }}"></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label
-                                                            for="description_he">{{ __('الوصف الكامل (عبري)') }}</label>
-                                                        <textarea id="description_he" name="description[he]" class="form-control text-right" dir="rtl" rows="5"
-                                                            placeholder="{{ __('وصف تفصيلي للمنتج') }}"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                          
 
                                             <!-- الخيارات -->
                                             <div class="form-section mb-4">

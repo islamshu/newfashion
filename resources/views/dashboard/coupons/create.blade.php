@@ -1,9 +1,9 @@
 @extends('layouts.master')
 @section('title', __('إضافة كوبون جديد'))
 @section('content')
-@php
-    $mode = isset($coupon) ? 'edit' : 'create';
-@endphp
+    @php
+        $mode = isset($coupon) ? 'edit' : 'create';
+    @endphp
     <div class="app-content content">
         <div class="content-wrapper">
             <div class="content-header row">
@@ -80,6 +80,15 @@
                                             value="{{ old('min_order_amount', $coupon->min_order_amount ?? '') }}">
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{ __('الحد المسموح به لكل مستخدم') }} ({{ __('اختياري') }})</label>
+                                        <input type="number" name="per_user_limit" class="form-control"
+                                            value="{{ old('per_user_limit', $coupon->per_user_limit ?? '') }}">
+                                        <small class="text-muted">{{ __('اتركه فارغاً ليكون غير محدود') }}</small>
+                                    </div>
+                                </div>
+
 
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -128,15 +137,15 @@
 
                                         <!-- Option 2: Select Dropdown -->
                                         <!--
-                                                <select name="is_active" class="form-control">
-                                                    <option value="1" {{ old('is_active', $coupon->is_active ?? true) ? 'selected' : '' }}>
-                                                        {{ __('مفعل') }}
-                                                    </option>
-                                                    <option value="0" {{ !old('is_active', $coupon->is_active ?? true) ? 'selected' : '' }}>
-                                                        {{ __('غير مفعل') }}
-                                                    </option>
-                                                </select>
-                                                -->
+                                                    <select name="is_active" class="form-control">
+                                                        <option value="1" {{ old('is_active', $coupon->is_active ?? true) ? 'selected' : '' }}>
+                                                            {{ __('مفعل') }}
+                                                        </option>
+                                                        <option value="0" {{ !old('is_active', $coupon->is_active ?? true) ? 'selected' : '' }}>
+                                                            {{ __('غير مفعل') }}
+                                                        </option>
+                                                    </select>
+                                                    -->
                                     </div>
                                 </div>
 

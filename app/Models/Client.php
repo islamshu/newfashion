@@ -16,6 +16,7 @@ class Client extends Authenticatable
         'phone_number',
         'password',
         'otp',
+        'is_active',
     ];
 
 

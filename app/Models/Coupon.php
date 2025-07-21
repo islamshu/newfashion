@@ -19,8 +19,10 @@ class Coupon extends Model
         'is_active',
         'is_global',
         'applicable_categories',
-        'applicable_products'
+        'applicable_products',
+        'per_user_limit', 
     ];
+
 
     protected $casts = [
         'start_date' => 'datetime',

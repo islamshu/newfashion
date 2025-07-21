@@ -8,6 +8,8 @@
                 <th>{{ __('الحالة') }}</th>
                 <th width="20%">{{ __('الفترة') }}</th>
                 <th>{{ __('المستخدم') }}</th>
+                <th>{{ __('الحد المسموح به لكل مستخدم') }}</th>
+
                 <th width="15%">{{ __('الإجراءات') }}</th>
             </tr>
         </thead>
@@ -38,7 +40,11 @@
                         {{ __('إلى') }} {{ $coupon->end_date->format('Y-m-d') }}
                     </td>
                     <td>
-                     <a href="{{ route('coupons.usages', $coupon->id) }}"> {{ $coupon->used_count }} / {{ $coupon->usage_limit ?? '∞' }}</a>
+                        <a href="{{ route('coupons.usages', $coupon->id) }}"> {{ $coupon->used_count }} /
+                            {{ $coupon->usage_limit ?? '∞' }}</a>
+                    </td>
+                     <td>
+                        <a > {{ $coupon->per_user_limit }}</a>
                     </td>
                     <td>
                         <div class="btn-group" role="group">
@@ -68,4 +74,3 @@
 <div class="d-flex justify-content-center mt-3">
     {!! $coupons->links() !!}
 </div>
-

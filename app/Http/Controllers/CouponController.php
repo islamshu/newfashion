@@ -68,7 +68,7 @@ class CouponController extends Controller
         $data = $request->validated();
         $data['applicable_categories'] = json_decode($data['applicable_categories'] ?? '[]', true);
         $data['applicable_products'] = json_decode($data['applicable_products'] ?? '[]', true);
-
+        
         $coupon->update($data);
 
         return redirect()->route('coupons.index')

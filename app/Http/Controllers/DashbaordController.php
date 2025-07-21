@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Client;
 use App\Models\GeneralInfo;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Carbon\Carbon;
@@ -14,31 +16,52 @@ use Illuminate\Support\Facades\Validator;
 class DashbaordController extends Controller
 {
 
-    public function about_page(){
+    public function about_page()
+    {
         return view('dashboard.about_page');
     }
-    public function trake_page(){
+    public function trake_page()
+    {
         return view('dashboard.trackOrder');
     }
-    
+
     public function dashboard()
     {
-        $productsCount = Product::count();
-        $categoriesCount = Category::count();
-        $usersCount = User::count();
+        $startOfWeek = Carbon::now()->subWeek()->startOfWeek(Carbon::FRIDAY); // 2025-07-11
+        $endOfWeek = $startOfWeek->copy()->addDays(6)->endOfDay(); // 2025-07-17 23:59:59
 
-        // جلب أحدث منتج أُضيف اليوم
-        $latestProductToday = Product::whereDate('created_at', Carbon::today())
-            ->latest()
-            ->first();
+        $orders = Order::whereBetween('created_at', [$startOfWeek, $endOfWeek])->get();
 
+        $clientsCount = Client::count();
+        $ordersCount = Order::count();
+
+        $ordersByStatus = Order::selectRaw("status, COUNT(*) as count")
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        $ordersPerDay = Order::whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            ->selectRaw("DATE(created_at) as date, COUNT(*) as count")
+            ->groupBy('date')
+            ->pluck('count', 'date');
+
+        $totalEarningsCurrentMonth = Order::where('status', 'completed')
+            ->whereMonth('created_at', now()->month)
+            ->sum('total');
+
+        $totalEarningsLastMonth = Order::where('status', 'completed')
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->sum('total');
         return view('dashboard.index', compact(
-            'productsCount',
-            'categoriesCount',
-            'usersCount',
-            'latestProductToday'
+            'clientsCount',
+            'ordersCount',
+            'ordersByStatus',
+            'ordersPerDay',
+            'totalEarningsCurrentMonth',
+            'totalEarningsLastMonth'
         ));
     }
+
+
 
     public function setting()
     {
@@ -156,7 +179,8 @@ class DashbaordController extends Controller
         saveJSONFile($request->id, $data);
         return back();
     }
-    public function popup_model(){
+    public function popup_model()
+    {
         return view('dashboard.popup_model');
     }
 }

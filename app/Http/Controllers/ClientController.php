@@ -32,12 +32,27 @@ class ClientController extends Controller
                 $query->whereNotNull('otp');
             }
         }
+        if ($request->filled('is_active')) {
+            if ($request->is_active == 1) {
+                $query->where('is_active',1);
+            } else {
+                 $query->where('is_active',0);
+            }
+        }
 
         $clients = $query->latest()->paginate(10);
 
         return response()->json([
             'html' => view('dashboard.clients._table', compact('clients'))->render()
         ]);
+    }
+     public function update_status_client(Request $request)
+    {
+        $client = Client::findOrFail($request->client_id);
+        $client->is_active  = $request->is_active ; // Toggle status
+        $client->save();
+
+        return response()->json(['success' => true, 'status' => $client->is_active,'message'=>__('تم تحديث حالة العميل')]);
     }
 
     public function show(Client $client)

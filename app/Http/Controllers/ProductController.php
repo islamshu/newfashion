@@ -19,10 +19,8 @@ class ProductController extends Controller
     public function ajaxIndex(Request $request)
     {
         $query = Product::with('category');
-
         if ($request->filled('name')) {
             $locale = app()->getLocale();
-
             $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
         }
         if ($request->filled('price_min')) {
@@ -62,6 +60,23 @@ class ProductController extends Controller
 
         return view('dashboard.products.create', compact('categories', 'colors', 'sizes'));
     }
+    public function update_status_product(Request $request)
+    {
+        $product = Product::findOrFail($request->product_id);
+        $product->status = $request->status; // Toggle status
+        $product->save();
+
+        return response()->json(['success' => true, 'status' => $product->status,'message'=>__('تم تحديث حالة المنتج')]);
+    }
+    
+    public function update_featured_product(Request $request)
+    {
+        $product = Product::findOrFail($request->product_id);
+        $product->is_featured = $request->is_featured; // Toggle status
+        $product->save();
+
+        return response()->json(['success' => true, 'status' => $product->is_featured,'message'=>__('تم تحديث المنتج')]);
+    }
 
     public function store(Request $request)
     {
@@ -78,7 +93,6 @@ class ProductController extends Controller
 
         $product = new Product();
         $product->setTranslations('name', $request->input('name'));
-        $product->setTranslations('description', $request->input('description'));
         $product->setTranslations('short_description', $request->input('short_description'));
 
         $product->price = $request->price;
@@ -89,6 +103,7 @@ class ProductController extends Controller
         $product->category_id = $request->category_id;
         $product->is_featured = $request->has('is_featured');
         $product->status = $request->has('status');
+        $product->tags = $this->add_tage($request->input('short_description', []));
 
         // تعيين أول صورة من الثامب كـ صورة رئيسية للمنتج
         if ($request->hasFile('thumbnails') && count($request->file('thumbnails')) > 0) {
@@ -142,89 +157,89 @@ class ProductController extends Controller
     }
 
 
-public function update(Request $request, Product $product)
-{
-    $request->validate([
-        'name.ar' => 'required',
-        'name.he' => 'required',
-        'price' => 'required|numeric|min:0',
-        'category_id' => 'required|exists:categories,id',
-        'variations' => 'required|array|min:1',
-        'variations.*.stock' => 'required|integer|min:0',
-    ]);
+    public function update(Request $request, Product $product)
+    {
+        $request->validate([
+            'name.ar' => 'required',
+            'name.he' => 'required',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'variations' => 'required|array|min:1',
+            'variations.*.stock' => 'required|integer|min:0',
+        ]);
 
-    // تحديث البيانات الأساسية
-    $product->setTranslations('name', $request->input('name'));
-    $product->setTranslations('description', $request->input('description', []));
-    $product->setTranslations('short_description', $request->input('short_description', []));
+        // تحديث البيانات الأساسية
+        $product->setTranslations('name', $request->input('name'));
+        $product->setTranslations('short_description', $request->input('short_description', []));
 
-    $product->price = $request->price;
-    $product->sku = $request->sku ?? $product->sku;
-    $product->category_id = $request->category_id;
-    $product->is_featured = $request->has('is_featured');
-    $product->status = $request->has('status');
-    $product->save();
+        $product->price = $request->price;
+        $product->sku = $request->sku ?? $product->sku;
+        $product->category_id = $request->category_id;
+        $product->is_featured = $request->has('is_featured');
+        $product->status = $request->has('status');
+        $product->tags = $this->add_tage($request->input('short_description', []));
+        $product->save();
 
-    // إدارة الصور المحذوفة (القديمة)
-    if ($request->has('deleted_images')) {
-        foreach ($request->deleted_images as $imageId) {
-            $image = $product->images()->find($imageId);
-            if ($image) {
-                Storage::disk('public')->delete($image->image);
-                $image->delete();
+        // إدارة الصور المحذوفة (القديمة)
+        if ($request->has('deleted_images')) {
+            foreach ($request->deleted_images as $imageId) {
+                $image = $product->images()->find($imageId);
+                if ($image) {
+                    Storage::disk('public')->delete($image->image);
+                    $image->delete();
+                }
             }
         }
-    }
 
-    // إضافة الصور الإضافية الجديدة
-    if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $imageFile) {
-            $path = $imageFile->store('products/images', 'public');
-            $product->images()->create(['image' => $path]);
-        }
-    }
-
-    // إدارة الصور المصغرة المحذوفة (القديمة)
-    if ($request->has('deleted_thumbnails')) {
-        foreach ($request->deleted_thumbnails as $thumbnailId) {
-            $thumbnail = $product->thumbnails()->find($thumbnailId);
-            if ($thumbnail) {
-                Storage::disk('public')->delete($thumbnail->image);
-                $thumbnail->delete();
+        // إضافة الصور الإضافية الجديدة
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $imageFile) {
+                $path = $imageFile->store('products/images', 'public');
+                $product->images()->create(['image' => $path]);
             }
         }
-    }
 
-    // إضافة الصور المصغرة الجديدة
-    if ($request->hasFile('thumbnails')) {
-        foreach ($request->file('thumbnails') as $thumbFile) {
-            $path = $thumbFile->store('products/thumbnails', 'public');
-            $product->thumbnails()->create(['image' => $path]);
+        // إدارة الصور المصغرة المحذوفة (القديمة)
+        if ($request->has('deleted_thumbnails')) {
+            foreach ($request->deleted_thumbnails as $thumbnailId) {
+                $thumbnail = $product->thumbnails()->find($thumbnailId);
+                if ($thumbnail) {
+                    Storage::disk('public')->delete($thumbnail->image);
+                    $thumbnail->delete();
+                }
+            }
         }
-    }
 
-    // إدارة المتغيرات
-    $product->variations()->delete(); // حذف القديمة
-    foreach ($request->variations as $variation) {
-        // التحقق من وجود اللون والمقاس قبل الإضافة
-        if (!empty($variation['color_id']) || !empty($variation['size_id'])) {
-            $product->variations()->create([
-                'color_id' => $variation['color_id'] ?? null,
-                'size_id' => $variation['size_id'] ?? null,
-                'stock' => $variation['stock']
-            ]);
+        // إضافة الصور المصغرة الجديدة
+        if ($request->hasFile('thumbnails')) {
+            foreach ($request->file('thumbnails') as $thumbFile) {
+                $path = $thumbFile->store('products/thumbnails', 'public');
+                $product->thumbnails()->create(['image' => $path]);
+            }
         }
-        if (empty($variation['color_id']) || empty($variation['size_id'])) {
-            $product->variations()->create([
-                'color_id' => $variation['color_id'] ?? null,
-                'size_id' => $variation['size_id'] ?? null,
-                'stock' => $variation['stock']
-            ]);
-        }
-    }
 
-    return redirect()->route('products.index')->with('success', __('تم تحديث المنتج بنجاح'));
-}
+        // إدارة المتغيرات
+        $product->variations()->delete(); // حذف القديمة
+        foreach ($request->variations as $variation) {
+            // التحقق من وجود اللون والمقاس قبل الإضافة
+            if (!empty($variation['color_id']) || !empty($variation['size_id'])) {
+                $product->variations()->create([
+                    'color_id' => $variation['color_id'] ?? null,
+                    'size_id' => $variation['size_id'] ?? null,
+                    'stock' => $variation['stock']
+                ]);
+            }
+            if (empty($variation['color_id']) || empty($variation['size_id'])) {
+                $product->variations()->create([
+                    'color_id' => $variation['color_id'] ?? null,
+                    'size_id' => $variation['size_id'] ?? null,
+                    'stock' => $variation['stock']
+                ]);
+            }
+        }
+
+        return redirect()->route('products.index')->with('success', __('تم تحديث المنتج بنجاح'));
+    }
 
 
     public function destroy(Product $product)
@@ -232,5 +247,23 @@ public function update(Request $request, Product $product)
         Storage::delete($product->image);
         $product->delete();
         return back()->with('success', 'تم الحذف بنجاح');
+    }
+    private function add_tage($description)
+    {
+        $allWords = collect();
+
+        foreach ($description as $lang => $desc) {
+            $cleanText = preg_replace('/[^\p{L}\p{N}\s]/u', '', $desc); // إزالة الترقيم
+            $words = explode(' ', $cleanText);
+            $allWords = $allWords->merge($words);
+        }
+
+        $tags = $allWords
+            ->filter()        // إزالة الكلمات الفارغة
+            ->unique()        // إزالة الكلمات المكررة
+            ->values()
+            ->implode(',');   // حفظها كنص مفصول بفواصل
+
+        return $tags;
     }
 }

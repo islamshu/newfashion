@@ -41,7 +41,7 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 
   Route::resource('categories', CategoryController::class)->except(['show']);
   Route::resource('products', ProductController::class);
-  Route::get('/products/ajax', [ProductController::class, 'ajaxIndex'])->name('products.ajax');
+  Route::get('/products_ajax', [ProductController::class, 'ajaxIndex'])->name('products.ajax');
   Route::get('/categories/ajax', [CategoryController::class, 'ajaxIndex'])->name('categories.ajax');
   Route::get('/coupons/ajax', [CouponController::class, 'ajaxIndex'])->name('coupons.ajax');
   Route::resource('product_attributes', ProductAttributeController::class)->except(['show']);
@@ -55,6 +55,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
   Route::post('/sliders/update-order', [SliderController::class, 'updateOrder'])->name('sliders.updateOrder');
   Route::get('update_status_slider', [SliderController::class, 'update_status_slider'])->name('update_status_slider');
   Route::get('update_status_category', [CategoryController::class, 'update_status_category'])->name('update_status_category');
+  Route::get('update_status_product', [ProductController::class, 'update_status_product'])->name('update_status_product');
+  Route::get('update_featured_product', [ProductController::class, 'update_featured_product'])->name('update_featured_product');
   Route::resource('coupons', CouponController::class)->except(['show']);
   Route::get('language_translate/{local}', [DashbaordController::class, 'show_translate'])->name('show_translate');
   Route::post('/languages/key_value_store', [DashbaordController::class, 'key_value_store'])->name('languages.key_value_store');
@@ -68,9 +70,11 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     'edit',
     'update'
   ]);
+  Route::get('update_status_client', [ClientController::class, 'update_status_client'])->name('update_status_client');
+
   Route::get('client_ajax', [ClientController::class, 'ajax'])->name('clients.ajax');
   Route::get('/coupons/{coupon}/usages', [CouponController::class, 'usages'])->name('coupons.usages');
-Route::resource('reviews', ReviewController::class);
+  Route::resource('reviews', ReviewController::class);
 
 
   Route::post('/orders/{order}/change-status', [OrderController::class, 'changeStatus'])

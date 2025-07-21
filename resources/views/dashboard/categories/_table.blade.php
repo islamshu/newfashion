@@ -100,33 +100,32 @@
             $('.children-row-' + id).toggle();
         });
     });
-      $("#storestable").on("change", ".js-switch", function() {
-            let is_featured = $(this).prop('checked') === true ? 1 : 0;
-            let category_id = $(this).data('id');
+    $("#storestable").on("change", ".js-switch", function() {
+        let is_featured = $(this).prop('checked') === true ? 1 : 0;
+        let category_id = $(this).data('id');
 
-            // تحقق من عدد العناصر المفعل بها is_featured
-            let featuredCount = $(".js-switch:checked").length;
+        // تحقق من عدد العناصر المفعل بها is_featured
+        let featuredCount = $(".js-switch:checked").length;
 
-            // إذا كان عددهم >= 3 وأنت تحاول تفعيل رابع
-            if (is_featured && featuredCount > 3) {
-                $(this).prop("checked", false); // رجع التشيك
-                toastr.error("لا يمكنك اختيار أكثر من 3 تصنيفات كمميزة");
-                return;
+        // إذا كان عددهم >= 3 وأنت تحاول تفعيل رابع
+        if (is_featured && featuredCount > 3) {
+            $(this).prop("checked", false); // رجع التشيك
+            toastr.error("لا يمكنك اختيار أكثر من 3 تصنيفات كمميزة");
+            return;
+        }
+
+        // استمر في الإرسال للسيرفر
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '{{ route('update_status_category') }}',
+            data: {
+                'is_featcher': is_featured,
+                'category_id': category_id
+            },
+            success: function(data) {
+                toastr.success("تم تعديل الحالة بنجاح");
             }
-
-            // استمر في الإرسال للسيرفر
-            $.ajax({
-                type: "get",
-                dataType: "json",
-                url: '{{ route('update_status_category') }}',
-                data: {
-                    'is_featcher': is_featured,
-                    'category_id': category_id
-                },
-                success: function(data) {
-                    toastr.success("تم تعديل الحالة بنجاح");
-                }
-            });
         });
-        
+    });
 </script>

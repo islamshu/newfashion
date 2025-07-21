@@ -21,10 +21,11 @@ class Product extends Model
         'image',
         'category_id',
         'is_featured',
-        'status'
+        'status',
+        'tags'
     ];
 
-    public $translatable = ['name', 'description', 'short_description'];
+    public $translatable = ['name', 'short_description'];
 
     public function category()
     {

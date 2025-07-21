@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureClientIsActive;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\LocalizationMiddleware;
 use App\Http\Middleware\RedirectIfUnauthenticatedClient;
@@ -21,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
          $middleware->alias([
         'auth.client' => RedirectIfUnauthenticatedClient::class,
+        'client.active' => EnsureClientIsActive::class,
+
     ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

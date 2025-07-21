@@ -1,4 +1,4 @@
-<div class="best-selling-section mb-110">
+<div class="best-selling-section mb-110 ">
     <div class="container">
         <div class="section-title2">
             <h3>{{__('المنتجات المميزة')}}</h3>

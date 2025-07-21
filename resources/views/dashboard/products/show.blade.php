@@ -355,22 +355,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="info-group">
-                                                        <label class="info-label">{{ __('الوصف الكامل (عربي)') }}</label>
-                                                        <p class="info-value">
-                                                            {{ $product->getTranslation('description', 'ar') ?? '--' }}</p>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="info-group">
-                                                        <label class="info-label">{{ __('الوصف الكامل (عبري)') }}</label>
-                                                        <p class="info-value" dir="rtl">
-                                                            {{ $product->getTranslation('description', 'he') ?? '--' }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                           
                                         </div>
 
                                         <!-- المتغيرات -->

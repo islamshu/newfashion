@@ -305,8 +305,23 @@
 
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.0/dist/nouislider.min.js"></script>
+
     <script>
         $(document).ready(function() {
+            function initSwitches() {
+                // تدمير أي Switches موجودة سابقاً
+                if (window.switches) {
+                    window.switches.forEach(s => s.destroy());
+                }
+                window.switches = [];
+                $('.js-switch').each(function() {
+                    let switchery = new Switchery(this, {
+                        size: 'small'
+                    });
+                    window.switches.push(switchery);
+                });
+            }
+
             // تهيئة سلايدر السعر
             const priceSlider = document.getElementById('price-slider');
             noUiSlider.create(priceSlider, {
@@ -349,9 +364,29 @@
             // التنقل بين صفحات الجدول
             $(document).on('click', '.pagination a', function(e) {
                 e.preventDefault();
-                let page = $(this).attr('href').split('page=')[1];
-                fetchProducts(page);
+
+                let url = $(this).attr('href');
+                if (!url) return;
+
+                fetchProducts(url);
             });
+
+            function fetchProducts(url = '{{ route('products.ajax') }}') {
+                // نستخدم serialize() لجلب قيم الفلتر
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    data: $('#filter-form').serialize(),
+                    success: function(res) {
+                        $('#products-container').html(res.html);
+                        initSwitches();
+
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
 
             // تبديل عرض/إخفاء الفلتر
             $('.filter-toggle').on('click', function() {
@@ -373,6 +408,8 @@
                     data: $('#filter-form').serialize(),
                     success: function(res) {
                         $('#products-container').html(res.html);
+                        initSwitches();
+
                     },
                     error: function(xhr) {
                         console.error(xhr.responseText);
@@ -381,4 +418,5 @@
             }
         });
     </script>
+
 @endsection

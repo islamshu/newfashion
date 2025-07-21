@@ -408,6 +408,8 @@ class FrontController extends Controller
         }
 
         $existing = Client::where('phone_number', $request->phone_number)->first();
+    
+       
 
         if ($existing) {
             if (empty($existing->otp)) { // otp فارغ → تم التحقق
@@ -435,6 +437,12 @@ class FrontController extends Controller
                     'otp' => $otp
                 ]);
             }
+             if (!$existing->is_active) {
+        return response()->json([
+            'success' => false,
+            'errors' => ['phone_number' => [__('تم تعطيل حسابك. يرجى التواصل مع الدعم.')]],
+        ], 403);
+    }
         }
 
 
@@ -543,6 +551,11 @@ class FrontController extends Controller
                 'message' => __('كلمة المرور غير صحيحة.'),
             ]);
         }
+        if (!$client->is_active) {
+              return response()->json([
+                'success' => false,
+                'message' => __('هذا الحساب معطل'),
+            ]);        }
 
         if (!empty($client->otp)) {
             session(['pending_client_id' => $client->id]);

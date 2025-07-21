@@ -5,7 +5,7 @@
     @include('frontend.model_when_open')
 
     @include('frontend.sliders')
-    @include('frontend.featchers')
+    {{-- @include('frontend.featchers') --}}
     @include('frontend.categorires')
     @include('frontend.best_sellling')
     {{-- @include('frontend.product_with_category') --}}

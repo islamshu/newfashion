@@ -22,6 +22,8 @@ class StoreCouponRequest extends FormRequest
             'is_global' => 'boolean',
             'applicable_categories' => 'nullable|json',
             'applicable_products' => 'nullable|json',
+            'per_user_limit' => 'integer',
+
         ];
     }
 }

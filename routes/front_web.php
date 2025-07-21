@@ -57,7 +57,7 @@ Route::post('/dashboard/orders/fetch', [FrontController::class, 'fetchOrders'])-
 Route::post('/password/email', [FrontController::class, 'sendResetLinkEmail'])->name('password.email.ajax');
 // عرض تفاصيل الطلب
 Route::get('/orders/{order}/details', [FrontController::class, 'details'])->name('orders.details');
-Route::middleware(['auth.client'])->group(function () {
+Route::middleware(['client.active','auth.client'])->group(function () {
     Route::get('/client/dashboard', [FrontController::class, 'dashboard'])->name('client.dashboard');
     Route::post('/wishlist/add', [FrontController::class, 'addWishlist']);
     Route::get('/client/wishlist', [FrontController::class, 'wishlist'])->name('client.wishlist');
