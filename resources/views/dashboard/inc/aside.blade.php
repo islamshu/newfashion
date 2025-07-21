@@ -66,7 +66,7 @@
             </li>
 
             <!-- المنتجات -->
-            <li class="dropdown nav-item {{ request()->routeIs('products.index') || request()->routeIs('products.create') ? 'active' : '' }}"
+            <li class="dropdown nav-item {{ request()->routeIs('products.index') || request()->routeIs('products.create') || request()->routeIs('products.trashed') ? 'active' : '' }}"
                 data-menu="dropdown">
                 <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
                     <i class="la la-box"></i>
@@ -85,6 +85,13 @@
                             <i class="la la-plus-circle"></i> {{ __('إضافة منتج جديد') }}
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('products.trashed') ? 'active' : '' }}"
+                            href="{{ route('products.trashed') }}">
+                            <i class="la la-trash"></i> {{ __('المنتجات المحذوفة') }}
+                        </a>
+                    </li>
+
                 </ul>
             </li>
 
@@ -126,7 +133,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="dropdown nav-item {{ request()->routeIs('clients.index') || request()->routeIs('clients.show') ? 'active' : '' }}"
+            <li class="dropdown nav-item {{ request()->routeIs('clients.index') || request()->routeIs('clients.show') ||  request()->routeIs('clients.trashed') ? 'active' : '' }}"
                 data-menu="dropdown">
                 <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
                     <i class="la la-users"></i>
@@ -137,6 +144,12 @@
                         <a class="dropdown-item {{ request()->routeIs('clients.index') ? 'active' : '' }}"
                             href="{{ route('clients.index') }}">
                             <i class="la la-list"></i> {{ __('جميع العملاء') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('clients.trashed') ? 'active' : '' }}"
+                            href="{{ route('clients.trashed') }}">
+                            <i class="la la-trash"></i> {{ __('العملاء المحذوفة') }}
                         </a>
                     </li>
                 </ul>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Coupon;
+use App\Models\CouponUsage;
 use App\Models\Product;
+use DragonCode\Contracts\Cashier\Auth\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -88,6 +90,24 @@ class CartController extends Controller
         if (!$coupon || !$coupon->isValid()) {
             return response()->json(['error' => __('الكوبون غير صالح أو منتهي.')], 422);
         }
+        if ($coupon->per_user_limit) {
+            $userId = auth('client')->id();
+
+            $usageCount = CouponUsage::where('coupon_id', $coupon->id)
+                ->where('client_id', $userId)
+                ->count();
+
+            if ($usageCount >= $coupon->per_user_limit) {
+                return response()->json(['error' => __('لقد تجاوزت الحد المسموح لهذا الكوبون.')], 422);
+            }
+        }
+      
+        if ($coupon->min_order_amount != null && $coupon->min_order_amount > $subtotal) {
+            return response()->json(['error' => __('يجب ان يتجاوز حد الشراء اكثر من ' . $coupon->min_order_amount . '₪')], 422);
+        }
+
+
+
 
         $discount = $coupon->calculateDiscount($subtotal);
         $tax = 0; // أو حسب إعداداتك

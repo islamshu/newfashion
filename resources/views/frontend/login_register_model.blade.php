@@ -154,8 +154,10 @@
                                         class="forget-pass hover-underline">{{ __('نسيت كلمة المرور؟') }}</a>
                                 </div>
 
-                                <button type="submit"
-                                    class="primary-btn1 hover-btn3 w-100">{{ __('تسجيل الدخول') }}</button>
+                                <button type="submit" class="primary-btn1 hover-btn3 w-100 btn-with-loader">
+                                    <span class="btn-text">{{ __('تسجيل الدخول') }}</span>
+                                    <div class="btn-loader"></div>
+                                </button>
 
                                 <p class="member mt-3">{{ __('ليس لديك حساب؟') }}
                                     <a href="#" data-bs-toggle="tab" data-bs-target="#register" role="tab"
@@ -230,8 +232,11 @@
                                         data-target="password_confirmation"></i>
                                 </div>
 
-                                <button type="submit"
-                                    class="primary-btn1 hover-btn3 w-100">{{ __('التسجيل') }}</button>
+                                <button type="submit" class="primary-btn1 hover-btn3 w-100 btn-with-loader">
+                                    <span class="btn-text">{{ __('التسجيل') }}</span>
+                                    <div class="btn-loader"></div>
+                                </button>
+
                             </form>
                         </div>
                         <div id="otp-section-register" style="display: none;">
@@ -244,10 +249,15 @@
                                     <input type="text" name="otp_code" placeholder="{{ __('رمز التحقق') }} *"
                                         required maxlength="6">
                                 </div>
-                                <button type="submit" class="primary-btn1 w-100">{{ __('تحقق') }}</button>
+                                <button type="submit" class="primary-btn1 w-100 btn-with-loader">
+                                    <span class="btn-text">{{ __('تحقق') }}</span>
+                                    <div class="btn-loader"></div>
+                                </button>
                             </form>
-                            <button type="button" id="resend-otp-btn" style="display: none;">
-                                🔁 {{ __('إعادة إرسال الرمز') }}
+                            <button type="button" id="resend-otp-btn" class="btn-with-loader"
+                                style="display: none;">
+                                <span class="btn-text">🔁 {{ __('إعادة إرسال الرمز') }}</span>
+                                <div class="btn-loader"></div>
                             </button>
                         </div>
 

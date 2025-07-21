@@ -51,6 +51,31 @@ class ProductController extends Controller
         ]);
     }
 
+    public function trashed()
+    {
+        // جلب المنتجات المحذوفة فقط باستخدام withTrashed() أو onlyTrashed()
+        $products = Product::onlyTrashed()->with('category')->latest()->paginate(10);
+
+        return view('dashboard.products.trashed', compact('products'));
+    }
+    // استرجاع منتج
+    public function restore($id)
+    {
+        $product = Product::onlyTrashed()->findOrFail($id);
+        $product->restore();
+
+        return redirect()->route('products.trashed')->with('success', 'تم استرجاع المنتج بنجاح.');
+    }
+
+    // حذف نهائي
+    public function forceDelete($id)
+    {
+        $product = Product::onlyTrashed()->findOrFail($id);
+        $product->forceDelete();
+
+        return redirect()->route('products.trashed')->with('success', 'تم حذف المنتج نهائيًا.');
+    }
+
 
     public function create()
     {
@@ -66,16 +91,16 @@ class ProductController extends Controller
         $product->status = $request->status; // Toggle status
         $product->save();
 
-        return response()->json(['success' => true, 'status' => $product->status,'message'=>__('تم تحديث حالة المنتج')]);
+        return response()->json(['success' => true, 'status' => $product->status, 'message' => __('تم تحديث حالة المنتج')]);
     }
-    
+
     public function update_featured_product(Request $request)
     {
         $product = Product::findOrFail($request->product_id);
         $product->is_featured = $request->is_featured; // Toggle status
         $product->save();
 
-        return response()->json(['success' => true, 'status' => $product->is_featured,'message'=>__('تم تحديث المنتج')]);
+        return response()->json(['success' => true, 'status' => $product->is_featured, 'message' => __('تم تحديث المنتج')]);
     }
 
     public function store(Request $request)
@@ -147,14 +172,24 @@ class ProductController extends Controller
 
         return view('dashboard.products.edit', compact('product', 'categories', 'colors', 'sizes'));
     }
-    public function show(Product $product)
+    public function show($id)
     {
+        // جلب المنتج بما في ذلك المحذوفات
+        $product = Product::withTrashed()->find($id);
+
+        // إذا لم يتم العثور على المنتج نهائياً (حتى في المحذوفات)
+        if (!$product) {
+            abort(404);
+        }
+
         $categories = Category::active()->get();
         $colors = ProductAttribute::where('type', 'color')->get();
         $sizes = ProductAttribute::where('type', 'size')->get();
 
         return view('dashboard.products.show', compact('product', 'categories', 'colors', 'sizes'));
     }
+
+
 
 
     public function update(Request $request, Product $product)

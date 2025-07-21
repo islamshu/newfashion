@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class FrontController extends Controller
@@ -64,7 +65,8 @@ class FrontController extends Controller
             ]
         ]);
     }
-    public function LoginRegister(){
+    public function LoginRegister()
+    {
         return view('frontend.login_register');
     }
 
@@ -396,7 +398,11 @@ class FrontController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'phone_number' => 'required|digits:10',
+            'phone_number' => [
+                'required',
+                'digits:10',
+                Rule::unique('clients')->whereNull('deleted_at')
+            ],
             'password' => 'required|confirmed|min:6',
         ]);
 
@@ -407,18 +413,42 @@ class FrontController extends Controller
             ], 422);
         }
 
-        $existing = Client::where('phone_number', $request->phone_number)->first();
-    
-       
+        // البحث عن العميل بما في ذلك المحذوفين
+        $existing = Client::withTrashed()
+            ->where('phone_number', $request->phone_number)
+            ->first();
 
         if ($existing) {
-            if (empty($existing->otp)) { // otp فارغ → تم التحقق
+            // الحالة 1: العميل محذوف (Soft Deleted)
+            if ($existing->trashed()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['phone_number' => [__('رقم الهاتف مستخدم بالفعل.')]],
+                    'errors' => ['phone_number' => [
+                        __('هذا الحساب محذوف. يرجى التواصل مع الدعم لاستعادته.')
+                    ]],
+                ], 403);
+            }
+
+            // الحالة 2: العميل غير محذوف ولكن غير نشط
+            if (!$existing->is_active) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['phone_number' => [
+                        __('تم تعطيل حسابك. يرجى التواصل مع الدعم.')
+                    ]],
+                ], 403);
+            }
+
+            // الحالة 3: العميل موجود ولم يتم التحقق من OTP
+            if (empty($existing->otp)) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['phone_number' => [
+                        __('رقم الهاتف مستخدم بالفعل.')
+                    ]],
                 ]);
             } else {
-                // العميل موجود لكن لم يتم التحقق من الـ OTP بعد
+                // العميل موجود ولم يتم التحقق بعد
                 $otp = rand(100000, 999999);
                 $existing->update([
                     'otp' => $otp,
@@ -429,7 +459,6 @@ class FrontController extends Controller
                 session(['pending_client_id' => $existing->id]);
 
                 // إرسال OTP (اختياري)
-
                 return response()->json([
                     'success' => true,
                     'message' => __('تم إرسال رمز التحقق مجددًا.'),
@@ -437,16 +466,9 @@ class FrontController extends Controller
                     'otp' => $otp
                 ]);
             }
-             if (!$existing->is_active) {
-        return response()->json([
-            'success' => false,
-            'errors' => ['phone_number' => [__('تم تعطيل حسابك. يرجى التواصل مع الدعم.')]],
-        ], 403);
-    }
         }
 
-
-        // إنشاء جديد
+        // إنشاء حساب جديد
         $otp = rand(100000, 999999);
         $client = Client::create([
             'name' => $request->name,
@@ -463,7 +485,6 @@ class FrontController extends Controller
             'message' => __('تم إرسال رمز التحقق.'),
             'show_otp' => true,
             'otp' => $otp
-
         ]);
     }
     public function resendOtp(Request $request)
@@ -552,10 +573,11 @@ class FrontController extends Controller
             ]);
         }
         if (!$client->is_active) {
-              return response()->json([
+            return response()->json([
                 'success' => false,
                 'message' => __('هذا الحساب معطل'),
-            ]);        }
+            ]);
+        }
 
         if (!empty($client->otp)) {
             session(['pending_client_id' => $client->id]);

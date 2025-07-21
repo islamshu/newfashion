@@ -103,8 +103,15 @@
                                     </div>
                                 </div>
                                 <div class="col-12 mt-3">
-                                    <button type="submit" class="btn btn-primary w-100">{{ __('إتمام الطلب') }}</button>
+                                    <div id="loadingSpinner" style="display:none; text-align:center; margin-bottom:10px;">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">جاري المعالجة...</span>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100"
+                                        id="submitOrderBtn">{{ __('إتمام الطلب') }}</button>
                                 </div>
+
                             </div>
                         </form>
                     </div>
@@ -172,6 +179,7 @@
             </div>
         </div>
     </div>
+
 
 @endsection
 @section('scripts')
@@ -296,39 +304,53 @@
             }
         });
     </script>
-     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
             const checkoutForm = document.getElementById('checkoutForm');
-            checkoutForm.addEventListener('submit', function (e) {
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const submitBtn = document.getElementById('submitOrderBtn');
+
+            checkoutForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+
+                // إظهار اللودر وتعطيل الزر
+                loadingSpinner.style.display = 'block';
+                submitBtn.disabled = true;
+
                 const formData = new FormData(this);
 
                 fetch("{{ route('checkout.placeOrder') }}", {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'تم الطلب!',
-                            text: data.message,
-                            icon: 'success'
-                        }).then(() => {
-                          const orderCode = data.order_code; // يجب أن ترسله من السيرفر
-                          window.location.href = "/order/" + orderCode;
-                        });
-                    } else {
-                        Swal.fire('خطأ!', data.message || 'حدث خطأ ما', 'error');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Swal.fire('خطأ!', 'فشل إرسال الطلب.', 'error');
-                });
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        // إخفاء اللودر وتفعيل الزر
+                        loadingSpinner.style.display = 'none';
+                        submitBtn.disabled = false;
+
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'تم الطلب!',
+                                text: data.message,
+                                icon: 'success'
+                            }).then(() => {
+                                const orderCode = data.order_code;
+                                window.location.href = "/order/" + orderCode;
+                            });
+                        } else {
+                            Swal.fire('خطأ!', data.message || 'حدث خطأ ما', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        loadingSpinner.style.display = 'none';
+                        submitBtn.disabled = false;
+                        Swal.fire('خطأ!', 'فشل إرسال الطلب.', 'error');
+                    });
             });
         });
     </script>

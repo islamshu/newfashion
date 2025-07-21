@@ -54,6 +54,31 @@ class ClientController extends Controller
 
         return response()->json(['success' => true, 'status' => $client->is_active,'message'=>__('تم تحديث حالة العميل')]);
     }
+       public function trashed()
+    {
+        // جلب العميلات المحذوفة فقط باستخدام withTrashed() أو onlyTrashed()
+        $clients = Client::onlyTrashed()->latest()->paginate(10);
+
+        return view('dashboard.clients.trashed', compact('clients'));
+    }
+    // استرجاع منتج
+    public function restore($id)
+    {
+        $client = Client::onlyTrashed()->findOrFail($id);
+        $client->restore();
+
+        return redirect()->route('clients.trashed')->with('success',__( 'تم استرجاع العميل بنجاح.'));
+    }
+
+    // حذف نهائي
+    public function forceDelete($id)
+    {
+        $client = Client::onlyTrashed()->findOrFail($id);
+        $client->forceDelete();
+
+        return redirect()->route('clients.trashed')->with('success', __('تم حذف العميل نهائيًا.'));
+    }
+
 
     public function show(Client $client)
     {
@@ -81,6 +106,11 @@ class ClientController extends Controller
 
         $client->update($validated);
 
-        return redirect()->route('clients.index')->with('success', 'تم تحديث بيانات العميل بنجاح');
+        return redirect()->route('clients.index')->with('success', __('تم تحديث بيانات العميل بنجاح'));
+    }
+    public function destroy($id){
+        $client = Client::find($id)->delete();
+        return redirect()->route('clients.index')->with('success', __('تم حذف العميل بنجاح'));
+
     }
 }

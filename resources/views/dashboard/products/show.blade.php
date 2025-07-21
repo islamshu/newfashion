@@ -1,6 +1,39 @@
 @extends('layouts.master')
 @section('style')
     <style>
+        .badge-deleted {
+            background-color: #e53e3e;
+            /* لون أحمر */
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .d-flex>*:not(:last-child) {
+            margin-right: 10px;
+        }
+
+        .badge-deleted i {
+            margin-right: 6px;
+        }
+
+        /* زر الاستعادة */
+        .btn-success {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-success i {
+            margin-right: 5px;
+        }
+
         /* Card styling */
         .card {
             box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.1);
@@ -224,14 +257,34 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center">
                                     <h4 class="card-title"><i class="ft-eye"></i> {{ __('بيانات المنتج') }}</h4>
+
+                                    @if ($product->trashed())
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge badge-deleted">
+                                                <i class="ft-trash-2"></i>
+                                                <strong style="font-size: 1.3rem;">{{ __('محذوف') }}</strong>
+                                            </span>
+
+                                            <form action="{{ route('products.restore', $product->id) }}" method="POST"
+                                                style="margin: 0;">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="ft-refresh-cw"></i> {{ __('استعادة') }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
+
                                 <div class="card-content collapse show">
                                     <div class="card-body">
                                         <!-- المعلومات الأساسية -->
                                         <div class="info-section">
-                                            <h5 class="section-title"><i class="ft-info"></i> {{ __('المعلومات الأساسية') }}
+                                            <h5 class="section-title"><i class="ft-info"></i>
+                                                {{ __('المعلومات الأساسية') }}
                                             </h5>
 
                                             <div class="row">
@@ -355,7 +408,7 @@
                                                 </div>
                                             </div>
 
-                                           
+
                                         </div>
 
                                         <!-- المتغيرات -->

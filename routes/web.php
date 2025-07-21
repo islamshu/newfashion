@@ -68,7 +68,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     'index',
     'show',
     'edit',
-    'update'
+    'update',
+    'destroy'
   ]);
   Route::get('update_status_client', [ClientController::class, 'update_status_client'])->name('update_status_client');
 
@@ -79,4 +80,10 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 
   Route::post('/orders/{order}/change-status', [OrderController::class, 'changeStatus'])
     ->name('orders.change_status');
+  Route::get('client/trashed', [ClientController::class, 'trashed'])->name('clients.trashed');
+  Route::put('client/{id}/restore', [ClientController::class, 'restore'])->name('clients.restore');
+  Route::delete('client/{id}/force-delete', [ClientController::class, 'forceDelete'])->name('clients.forceDelete');
+  Route::get('product/trashed', [ProductController::class, 'trashed'])->name('products.trashed');
+  Route::put('product/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
+  Route::delete('product/{id}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
 });

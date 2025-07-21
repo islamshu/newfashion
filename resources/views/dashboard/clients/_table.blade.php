@@ -29,6 +29,12 @@
                 <td>
                     <a href="{{ route('clients.show', $client) }}" class="btn btn-sm btn-info"><i class="ft-eye"></i></a>
                     <a href="{{ route('clients.edit', $client) }}" class="btn btn-sm btn-warning"><i class="ft-edit"></i></a>
+                 <form action="{{ route('clients.destroy', $client->id) }}" method="POST"
+                        style="display:inline-block">
+                        @csrf @method('DELETE')
+                        <button onclick="return confirm('هل أنت متأكد من الحذف؟')" class="btn btn-sm btn-danger"><i
+                                class="ft-trash"></i></button>
+                    </form>
                 </td>
             </tr>
         @empty

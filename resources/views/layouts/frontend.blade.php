@@ -37,14 +37,14 @@
 <body>
 
     @include('frontend.top_bar')
-  <div class="lang-switcher-float">
-    <button class="lang-btn" onclick="toggleLangOptions()" title="{{ __('تغيير اللغة') }}">
-        <i class="fas fa-globe"></i> {{-- أيقونة العالم --}}
-    </button>
+    <div class="lang-switcher-float">
+        <button class="lang-btn" onclick="toggleLangOptions()" title="{{ __('تغيير اللغة') }}">
+            <i class="fas fa-globe"></i> {{-- أيقونة العالم --}}
+        </button>
 
-    <a href="{{ url('lang/ar') }}" class="lang-option lang-ar" title="العربية">🇸🇦</a>
-    <a href="{{ url('lang/he') }}" class="lang-option lang-he" title="עברית">🇮🇱</a>
-</div>
+        <a href="{{ url('lang/ar') }}" class="lang-option lang-ar" title="العربية">🇸🇦</a>
+        <a href="{{ url('lang/he') }}" class="lang-option lang-he" title="עברית">🇮🇱</a>
+    </div>
 
 
 
@@ -85,6 +85,47 @@
     <!-- main js  -->
     <script src="{{ asset('front/assets/js/main.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // دالة لتعطيل الزر وإظهار اللودر
+        // دالة لتعطيل الزر وإظهار spinner متحرك
+        function disableButton(button) {
+            // إذا كان الزر يحتوي بالفعل على spinner، لا نعيد إنشاءه
+            let loader = button.querySelector('.btn-loader');
+            if (!loader) {
+                loader = document.createElement('span');
+                loader.className = 'btn-loader';
+                button.appendChild(loader);
+            }
+
+            const btnText = button.querySelector('.btn-text');
+            if (btnText) {
+                btnText.style.opacity = '0.7';
+            }
+
+            loader.style.display = 'inline-block';
+            button.disabled = true;
+
+            // إضافة كلاس للزر للإشارة إلى حالة التحميل
+            button.classList.add('btn-loading');
+        }
+
+        // دالة لتمكين الزر وإخفاء spinner
+        function enableButton(button) {
+            const loader = button.querySelector('.btn-loader');
+            const btnText = button.querySelector('.btn-text');
+
+            if (btnText) {
+                btnText.style.opacity = '1';
+            }
+
+            if (loader) {
+                loader.style.display = 'none';
+            }
+
+            button.disabled = false;
+            button.classList.remove('btn-loading');
+        }
+    </script>
     @if (session('login_required'))
         <script>
             Swal.fire({
@@ -159,7 +200,7 @@
                         text: swalText,
                         confirmButtonText: swalConfirm
                     });
-                    return ;
+                    return;
                 }
 
                 $.ajax({
@@ -205,35 +246,39 @@
             });
         });
     </script>
-    <script>
-        // لمنع إدخال أي شيء غير الأرقام في حقول الهاتف
-        document.querySelectorAll('input[type="tel"]').forEach(function(input) {
-            input.addEventListener('keypress', function(e) {
-                if (isNaN(String.fromCharCode(e.which))) {
-                    e.preventDefault();
-                }
-            });
-        });
+    <style>
+    .fa-spinner {
+        margin-left: 8px;
+        display: none;
+    }
+    .btn-loading .fa-spinner {
+        display: inline-block;
+    }
+</style>
 
-        // سكربت لإظهار وإخفاء كلمة المرور
-        document.querySelectorAll('.toggle-password').forEach(function(icon) {
-            icon.addEventListener('click', function() {
-                const input = document.getElementById(this.dataset.target);
-                if (input.type === "password") {
-                    input.type = "text";
-                    this.classList.remove('bi-eye-slash');
-                    this.classList.add('bi-eye');
-                } else {
-                    input.type = "password";
-                    this.classList.remove('bi-eye');
-                    this.classList.add('bi-eye-slash');
-                }
-            });
-        });
-    </script>
+<script>
+    function disableButton(button) {
+        if (!button.querySelector('.fa-spinner')) {
+            button.innerHTML += ' <i class="fas fa-spinner fa-spin"></i>';
+        }
+        button.classList.add('btn-loading');
+        button.disabled = true;
+    }
+
+    function enableButton(button) {
+        const spinner = button.querySelector('.fa-spinner');
+        if (spinner) {
+            spinner.remove();
+        }
+        button.classList.remove('btn-loading');
+        button.disabled = false;
+    }
+</script>
 
     <script>
         document.getElementById('register-form').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            disableButton(submitBtn);
             e.preventDefault();
 
             let form = this;
@@ -288,14 +333,17 @@
                         title: "{{ __('خطأ غير متوقع') }}",
                         text: "{{ __('يرجى المحاولة لاحقاً.') }}",
                     });
+                }).finally(() => {
+                    enableButton(submitBtn);
                 });
         });
     </script>
 
     <script>
         document.getElementById('otp-form-register').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            toggleLoader(submitBtn, true);
             e.preventDefault();
-
             let form = this;
             let formData = new FormData(form);
 
@@ -344,6 +392,9 @@
             // إرسال نموذج تسجيل الدخول
             document.getElementById('login-form').addEventListener('submit', function(e) {
                 e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                disableButton(submitBtn);
+
 
                 let form = this;
                 let formData = new FormData(form);
@@ -415,11 +466,15 @@
                             title: "{{ __('خطأ غير متوقع') }}",
                             text: "{{ __('يرجى المحاولة لاحقاً.') }}",
                         });
+                    }).finally(() => {
+                        enableButton(submitBtn); // هذا السطر يضمن إعادة الزر لحالته الأصلية
                     });
             });
 
             // إرسال نموذج التحقق من OTP
             document.getElementById('otp-form-login').addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                toggleLoader(submitBtn, true);
                 e.preventDefault();
 
                 let form = this;
@@ -465,6 +520,8 @@
 
             // زر إعادة إرسال رمز التحقق
             document.getElementById('resend-otp-btn').addEventListener('click', function() {
+                disableButton(this);
+
                 fetch("{{ route('resend.otp') }}", {
                         method: 'POST',
                         headers: {
@@ -496,6 +553,8 @@
                             title: "{{ __('خطأ') }}",
                             text: "{{ __('تعذر إعادة إرسال الرمز.') }}",
                         });
+                    }).finally(() => {
+                        enableButton(this);
                     });
             });
 
@@ -923,21 +982,21 @@
         });
     </script>
     <script>
-    function toggleLangOptions() {
-        document.querySelector('.lang-switcher-float').classList.toggle('active');
-    }
-
-    // إغلاق عند النقر خارج الشعاع
-    document.addEventListener("click", function (e) {
-        const container = document.querySelector('.lang-switcher-float');
-        if (!container.contains(e.target)) {
-            container.classList.remove('active');
+        function toggleLangOptions() {
+            document.querySelector('.lang-switcher-float').classList.toggle('active');
         }
-    });
-</script>
+
+        // إغلاق عند النقر خارج الشعاع
+        document.addEventListener("click", function(e) {
+            const container = document.querySelector('.lang-switcher-float');
+            if (!container.contains(e.target)) {
+                container.classList.remove('active');
+            }
+        });
+    </script>
 
 
-    
+
 
 
 

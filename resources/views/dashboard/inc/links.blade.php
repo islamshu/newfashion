@@ -167,7 +167,7 @@
 <script>
     $(document).ready(function () {
         @php
-            $excludedRoutes = ['products.index', 'categories.index', 'coupons.index', 'orders.index', 'products.show', 'clients.show'];
+            $excludedRoutes = ['products.index', 'categories.index', 'coupons.index', 'orders.index', 'products.show', 'clients.show','orders.show'];
         @endphp
 
         @if (!in_array(Route::currentRouteName(), $excludedRoutes))

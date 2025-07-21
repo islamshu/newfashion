@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 class CheckoutController extends Controller
 {
 
-
     public function placeOrder(Request $request)
     {
         $validated = $request->validate([
@@ -25,22 +24,59 @@ class CheckoutController extends Controller
             'message' => 'nullable|string',
         ]);
 
-        $cart = session()->get('cart', []);
-        $subtotal = 0;
+        $cart = session('cart', []);
+        if (empty($cart)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('السلة فارغة.'),
+            ], 422);
+        }
 
+        $subtotal = 0;
         foreach ($cart as $item) {
-            $product = \App\Models\Product::find($item['product_id']);
+            $product = Product::find($item['product_id']);
+            if (!$product) continue;
             $subtotal += $product->price * $item['quantity'];
         }
 
         $tax = 0;
-        $code = null;
         $discount = 0;
+        $code = null;
+        $coupon = null;
 
         if (session()->has('applied_coupon') && is_array(session('applied_coupon'))) {
-            $coupon = session('applied_coupon');
-            $code = $coupon['code'];
-            $discount = $coupon['discount'];
+            $applied = session('applied_coupon');
+            $code = $applied['code'];
+            $discount = $applied['discount'];
+            $coupon = Coupon::where('code', $code)->first();
+
+            if (!$coupon || !$coupon->isValid()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('الكوبون غير صالح أو منتهي.'),
+                ], 422);
+            }
+
+            if ($coupon->min_order_amount && $subtotal < $coupon->min_order_amount) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('يجب أن يكون المجموع أكبر من :amount ₪ لاستخدام هذا الكوبون.', ['amount' => $coupon->min_order_amount]),
+                ], 422);
+            }
+
+            if ($coupon->per_user_limit) {
+                $userId = auth('client')->id();
+                $usageCount = CouponUsage::where('coupon_id', $coupon->id)
+                    ->where('client_id', $userId)
+                    ->count();
+
+                if ($usageCount >= $coupon->per_user_limit) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => __('لقد تجاوزت الحد الأقصى لاستخدام هذا الكوبون.'),
+                    ], 422);
+                }
+            }
         }
 
         $total = $subtotal + $tax - $discount;
@@ -48,9 +84,8 @@ class CheckoutController extends Controller
         try {
             DB::beginTransaction();
 
-            // إنشاء الطلب
             $order = Order::create([
-                'code' => 'ORD-' . uniqid(),
+                'code' => 'ORD-' . strtoupper(uniqid()),
                 'client_id' => auth('client')->id(),
                 'fname' => $validated['fname'],
                 'lname' => $validated['lname'],
@@ -67,15 +102,8 @@ class CheckoutController extends Controller
                 'discount' => $discount,
                 'status' => 'pending',
             ]);
-            if ($code != null) {
-                $coupon = Coupon::where('code', $code)->first();
 
-                if (!$coupon || !$coupon->isValid()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => __('الكوبون غير صالح أو منتهي.'),
-                    ], 500);
-                }
+            if ($coupon) {
                 CouponUsage::create([
                     'client_id' => auth('client')->id(),
                     'coupon_id' => $coupon->id,
@@ -84,12 +112,11 @@ class CheckoutController extends Controller
                     'discount' => $discount,
                 ]);
                 $coupon->increment('used_count');
-                $coupon->save();
             }
 
-            // عناصر الطلب
             foreach ($cart as $item) {
                 $product = Product::find($item['product_id']);
+                if (!$product) continue;
 
                 $order->items()->create([
                     'product_id' => $product->id,
@@ -101,31 +128,29 @@ class CheckoutController extends Controller
                     'price' => $product->price,
                     'total' => $product->price * $item['quantity'],
                 ]);
+
                 $product->variations()
                     ->where('color_id', $item['color_id'] ?? null)
                     ->where('size_id', $item['size_id'] ?? null)
                     ->decrement('stock', $item['quantity']);
             }
 
-            // نجاح العملية
             DB::commit();
 
-
-            // تفريغ السلة
             session()->forget(['cart', 'applied_coupon']);
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم إرسال الطلب بنجاح!',
-                'order_id' => $order->id,
-                'order_code'=>$order->code
+                'message' => __('تم تنفيذ الطلب بنجاح.'),
+                'order_code' => $order->code,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            report($e);
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء معالجة الطلب: ' . $e,
+                'message' => __('حدث خطأ أثناء معالجة الطلب. يرجى المحاولة لاحقًا.'),
             ], 500);
         }
     }
