@@ -6,6 +6,7 @@
             <th>{{ __('الاسم') }}</th>
             <th>{{ __('السعر') }}</th>
             <th>{{ __('التصنيف') }}</th>
+            <th>{{ __('التقييمات') }}</th>
             <th>{{ __('الحالة') }}</th>
             <th>{{ __('مميز؟') }}</th>
             <th>{{ __('خيارات') }}</th>
@@ -19,6 +20,7 @@
                 <td>{{ $product->getTranslation('name', app()->getLocale()) }}</td>
                 <td>{{ $product->price }}</td>
                 <td>{{ $product->category->name ?? '-' }}</td>
+                <td>{{ $product->reviews->count() }} @if($product->reviews->count() > 0 ) <a class="btn btn-info"  href="{{route('product_rating',$product->id)}}">{{__('مشاهدة التقييمات')}}</a>@endif</td>
                 <td>
                     <input type="checkbox" data-id="{{ $product->id }}" name="status" class="js-switch status"
                         {{ $product->status == 1 ? 'checked' : '' }}>
