@@ -66,6 +66,8 @@ Route::middleware(['client.active','auth.client'])->group(function () {
     Route::post('/checkout-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::put('/profile', [FrontController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/submit-review', [FrontController::class, 'reviewstore'])->name('review.submit');
+
     Route::post('/client/logout', function () {
         Auth::guard('client')->logout();
         return redirect()->route('home'); // أو أي صفحة رئيسية

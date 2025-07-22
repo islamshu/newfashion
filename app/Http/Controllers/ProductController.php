@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Product, Category, ProductVariation, ProductAttribute};
+use App\Models\{Product, Category, ProductVariation, ProductAttribute, Rating};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -23,6 +23,7 @@ class ProductController extends Controller
             $locale = app()->getLocale();
             $query->where("name->{$locale}", 'like', '%' . $request->name . '%');
         }
+        
         if ($request->filled('price_min')) {
             $query->where('price', '>=', $request->price_min);
         }
@@ -76,7 +77,15 @@ class ProductController extends Controller
         return redirect()->route('products.trashed')->with('success', 'تم حذف المنتج نهائيًا.');
     }
 
-
+    public function product_rating($id){
+        $product = Product::with('reviews')->findOrFail($id);
+        return view('dashboard.products.rating')->with('product',$product);
+    }
+    public function delete_product_rating($id){
+        $review = Rating::find($id);
+        $review->delete();
+        return redirect()->back()->with('success',__('تم الحذف بنجاح'));
+    }
     public function create()
     {
         $categories = Category::where('status', true)->get();
@@ -114,6 +123,8 @@ class ProductController extends Controller
             'variations.*.stock' => 'required|integer|min:0',
             'images.*' => 'nullable|image|max:2048',
             'thumbnails.*' => 'nullable|image|max:2048',
+            'fake_rating_enabled' => 'nullable|boolean',
+            'fake_rating_value' => 'nullable|numeric|between:1,5',
         ]);
 
         $product = new Product();
@@ -129,7 +140,8 @@ class ProductController extends Controller
         $product->is_featured = $request->has('is_featured');
         $product->status = $request->has('status');
         $product->tags = $this->add_tage($request->input('short_description', []));
-
+        $product->fake_rating_enabled = $request->has('fake_rating_enabled');
+        $product->fake_rating_value  = $request->input('fake_rating_value');
         // تعيين أول صورة من الثامب كـ صورة رئيسية للمنتج
         if ($request->hasFile('thumbnails') && count($request->file('thumbnails')) > 0) {
             $firstThumb = $request->file('thumbnails')[0];
@@ -201,6 +213,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'variations' => 'required|array|min:1',
             'variations.*.stock' => 'required|integer|min:0',
+            'fake_rating_enabled' => 'nullable|boolean',
+            'fake_rating_value' => 'nullable|numeric|between:1,5',
         ]);
 
         // تحديث البيانات الأساسية
@@ -213,6 +227,8 @@ class ProductController extends Controller
         $product->is_featured = $request->has('is_featured');
         $product->status = $request->has('status');
         $product->tags = $this->add_tage($request->input('short_description', []));
+        $product->fake_rating_enabled = $request->has('fake_rating_enabled');
+        $product->fake_rating_value  = $request->input('fake_rating_value');
         $product->save();
 
         // إدارة الصور المحذوفة (القديمة)

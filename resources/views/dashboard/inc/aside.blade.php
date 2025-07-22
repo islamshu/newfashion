@@ -155,7 +155,7 @@
                 </ul>
             </li>
             <li class="dropdown nav-item 
-    {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') || request()->routeIs('banners.index') || request()->routeIs('popup_model') || request()->routeIs('trake_page') || request()->routeIs('reviews.index') ? 'active' : '' }}"
+                      {{ request()->routeIs('sliders.index') || request()->routeIs('features.index') || request()->routeIs('banners.index') || request()->routeIs('popup_model') || request()->routeIs('trake_page') || request()->routeIs('reviews.index') ? 'active' : '' }}"
                 data-menu="dropdown">
                 <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
                     <i class="la la-image"></i>
@@ -201,6 +201,24 @@
                     </li>
                 </ul>
             </li>
+            <!-- الصفحات -->
+<li class="dropdown nav-item {{ request()->routeIs('pages.index') || request()->routeIs('pages.create') ? 'active' : '' }}"
+    data-menu="dropdown">
+    <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
+        <i class="la la-file-text"></i>
+        <span>{{ __('الصفحات') }}</span>
+    </a>
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item {{ request()->routeIs('pages.index') ? 'active' : '' }}"
+                href="{{ route('pages.index') }}">
+                <i class="la la-list"></i> {{ __('كل الصفحات') }}
+            </a>
+        </li>
+        
+    </ul>
+</li>
+
 
 
 

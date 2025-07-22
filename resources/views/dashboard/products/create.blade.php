@@ -321,7 +321,7 @@
                                                 </div>
                                             </div>
 
-                                          
+
 
                                             <!-- الخيارات -->
                                             <div class="form-section mb-4">
@@ -402,10 +402,46 @@
                                                     </div>
                                                 </div>
 
+
                                                 <button type="button" class="btn btn-primary mt-2" id="add-variation">
                                                     <i class="ft-plus"></i> {{ __('إضافة متغير جديد') }}
                                                 </button>
                                             </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3">
+                                                        <label
+                                                            for="fake_rating_status">{{ __('حالة التقييم الوهمي') }}</label>
+                                                        <select name="fake_rating_enabled" id="fake_rating_status"
+                                                            class="form-control">
+                                                            <option value="0"
+                                                                {{ old('fake_rating_enabled', isset($product) ? ($product->fake_rating_enabled ? '1' : '0') : '0') == '0' ? 'selected' : '' }}>
+                                                                {{ __('إيقاف') }}
+                                                            </option>
+                                                            <option value="1"
+                                                                {{ old('fake_rating_enabled', isset($product) ? ($product->fake_rating_enabled ? '1' : '0') : '0') == '1' ? 'selected' : '' }}>
+                                                                {{ __('تفعيل') }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3" id="fake_rating_value_container"
+                                                        style="display: none;">
+                                                        <label
+                                                            for="fake_rating_value">{{ __('قيمة التقييم الوهمي (من 1 إلى 5)') }}</label>
+                                                        <input type="number" step="0.1" min="1"
+                                                            max="5" id="fake_rating_value"
+                                                            name="fake_rating_value"
+                                                            value="{{ old('fake_rating_value', isset($product) ? $product->fake_rating_value : '') }}"
+                                                            class="form-control" placeholder="مثلاً 4.5">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
 
                                             <!-- زر الحفظ -->
                                             <div class="form-actions text-center mt-4">
@@ -509,4 +545,27 @@
         });
         // معاينة صور متعددة
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectStatus = document.getElementById('fake_rating_status');
+            const valueContainer = document.getElementById('fake_rating_value_container');
+
+            function toggleFakeRatingInput() {
+                if (selectStatus.value === '1') {
+                    valueContainer.style.display = 'block';
+                } else {
+                    valueContainer.style.display = 'none';
+                    // يمكنك مسح القيمة عند الإخفاء إذا تريد
+                    // document.getElementById('fake_rating_value').value = '';
+                }
+            }
+
+            // استدعاء الوظيفة عند تحميل الصفحة للتأكد من الحالة الصحيحة
+            toggleFakeRatingInput();
+
+            // استمع لتغيير select
+            selectStatus.addEventListener('change', toggleFakeRatingInput);
+        });
+    </script>
+
 @endsection

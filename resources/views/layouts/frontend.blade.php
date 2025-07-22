@@ -565,7 +565,7 @@
             function initializeProductModalScripts() {
 
                 const productId = $('#product_id').val();
-                let currentStock = 1;
+                let currentStock = 0;
 
                 const $colorInputs = $('input[name="color_id"]');
                 const $sizeContainer = $('.size-list');
@@ -618,7 +618,7 @@
                         color_id: colorId,
                         size_id: sizeId
                     }, function(response) {
-                        currentStock = response.stock || 1;
+                        currentStock = response.stock || 0;
 
                         let label = $stockLabel.data('stock-label');
                         $stockLabel.text(label + ': ' + currentStock);

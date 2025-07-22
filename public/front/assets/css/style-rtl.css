@@ -471,6 +471,39 @@
     opacity: 0.7;
 }
 
+
+/* Rating Stars */
+
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-input input {
+    display: none;
+}
+
+.rating-input label {
+    font-size: 24px;
+    color: #ddd;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.rating-input input:checked~label,
+.rating-input label:hover,
+.rating-input label:hover~label {
+    color: #ffc107;
+}
+
+.rating-input input:checked+label:hover,
+.rating-input input:checked~label:hover,
+.rating-input label:hover~input:checked~label,
+.rating-input input:checked~label:hover~label {
+    color: #ffc107;
+}
+
 .lang-switcher-float.active .lang-he {
     transform: translate(12px, -100px);
     opacity: 1;

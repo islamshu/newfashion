@@ -47,15 +47,50 @@
                     <div class="rating-review">
                         <div class="rating">
                             <div class="star">
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
+                                @php
+                                    // جلب القيمة الوهمية (مثلاً من المنتج)
+                                    $fakeRatingEnabled = $product->fake_rating_enabled ?? false;
+                                    $fakeRatingValue = $product->fake_rating_value ?? 0;
+                                    // قيمة التقييم الحقيقية (مثال - يمكن تغييره حسب بياناتك)
+                                    $realRatingValue = $product->reviews()->avg('rating') ?? 0;
+                                    $ratingCount = $product->reviews()->count() ?? 0;
+
+                                    // التقييم الذي سيتم عرضه (وهمي أو حقيقي)
+                                    $displayRating = $fakeRatingEnabled ? $fakeRatingValue : $realRatingValue;
+
+                                    // تحويل الرقم إلى نجوم كاملة/نصف/فارغة
+                                    $fullStars = floor($displayRating);
+                                    $halfStar = $displayRating - $fullStars >= 0.5;
+                                    $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+                                @endphp
+
+                                {{-- عرض النجوم كاملة --}}
+                                @for ($i = 0; $i < $fullStars; $i++)
+                                    <i class="bi bi-star-fill"></i>
+                                @endfor
+
+                                {{-- عرض نصف نجمة إذا وجدت --}}
+                                @if ($halfStar)
+                                    <i class="bi bi-star-half"></i>
+                                @endif
+
+                                {{-- عرض النجوم الفارغة --}}
+                                @for ($i = 0; $i < $emptyStars; $i++)
+                                    <i class="bi bi-star"></i>
+                                @endfor
                             </div>
-                            <p>(50 customer review)</p>
+
+                            {{-- عرض عدد التقييمات --}}
+                            <p>
+                                @if ($fakeRatingEnabled)
+                                     ({{ number_format($fakeRatingValue, 1)}})
+                                @else
+                                    ({{ $ratingCount }})
+                                @endif
+                            </p>
                         </div>
                     </div>
+
                     <p>{!! $product->short_description !!}</p>
                     <div class="price-area">
                         <p class="price">{{ $product->price }} ₪</p>
@@ -122,7 +157,7 @@
                     <div class="shop-details-btn">
                         @if ($variations->isEmpty())
                             <div class="out-of-stock">
-                                <span>{{__('نفذ من المخزون')}}</span>
+                                <span>{{ __('نفذ من المخزون') }}</span>
                             </div>
                         @else
                             <a id="add-to-cart-btn-checkout" class="primary-btn1 hover-btn3">{{ __('اشتري الآن') }}</a>
@@ -151,8 +186,7 @@
                             </li>
                             <li><img src="{{ asset('front/assets/img/inner-page/payment-img5.svg') }}" alt="">
                             </li>
-                            <li><img src="{{ asset('front/assets/img/inner-page/payment-img6.svg') }}"
-                                    alt="">
+                            <li><img src="{{ asset('front/assets/img/inner-page/payment-img6.svg') }}" alt="">
                             </li>
                             <li><img src="{{ asset('front/assets/img/inner-page/payment-img7.svg') }}"
                                     alt="">

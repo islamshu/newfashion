@@ -11,6 +11,7 @@ use App\Models\Slider;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductVariation;
+use App\Models\Rating;
 use App\Models\Review;
 use App\Models\Service;
 use Inertia\Inertia;
@@ -237,6 +238,22 @@ class FrontController extends Controller
             'status' => 'success',
             'message' => 'تم تأكيد رقم الهاتف وتحديثه بنجاح.'
         ]);
+    }
+    public function reviewstore(Request $request){
+          $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'rating' => 'required|integer|min:1|max:5',
+        'comment' => 'required|string|max:1000',
+    ]);
+
+    Rating::create([
+        'client_id' => auth('client')->id(),
+        'product_id' => $request->product_id,
+        'rating' => $request->rating,
+        'review' => $request->comment,
+    ]);
+
+    return response()->json(['success' => true]);
     }
 
     public function contactUs()

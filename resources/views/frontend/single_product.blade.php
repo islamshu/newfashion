@@ -58,15 +58,51 @@
                         <div class="rating-review">
                             <div class="rating">
                                 <div class="star">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
+                                    @php
+                                        // جلب القيمة الوهمية (مثلاً من المنتج)
+                                        $fakeRatingEnabled = $product->fake_rating_enabled ?? false;
+                                        $fakeRatingValue = $product->fake_rating_value ?? 0;
+                                        // قيمة التقييم الحقيقية (مثال - يمكن تغييره حسب بياناتك)
+                                        $realRatingValue = $product->reviews()->avg('rating') ?? 0;
+                                        $ratingCount = $product->reviews()->count() ?? 0;
+
+                                        // التقييم الذي سيتم عرضه (وهمي أو حقيقي)
+                                        $displayRating = $fakeRatingEnabled ? $fakeRatingValue : $realRatingValue;
+
+                                        // تحويل الرقم إلى نجوم كاملة/نصف/فارغة
+                                        $fullStars = floor($displayRating);
+                                        $halfStar = $displayRating - $fullStars >= 0.5;
+                                        $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+
+                                    @endphp
+
+                                    {{-- عرض النجوم كاملة --}}
+                                    @for ($i = 0; $i < $fullStars; $i++)
+                                        <i class="bi bi-star-fill"></i>
+                                    @endfor
+
+                                    {{-- عرض نصف نجمة إذا وجدت --}}
+                                    @if ($halfStar)
+                                        <i class="bi bi-star-half"></i>
+                                    @endif
+
+                                    {{-- عرض النجوم الفارغة --}}
+                                    @for ($i = 0; $i < $emptyStars; $i++)
+                                        <i class="bi bi-star"></i>
+                                    @endfor
                                 </div>
-                                <p><a href="#reviews">(50 customer review)</a></p>
+
+                                {{-- عرض عدد التقييمات --}}
+                                <p>
+                                    @if ($fakeRatingEnabled)
+                                        ({{ number_format($fakeRatingValue, 1) }})
+                                    @else
+                                        ({{ $ratingCount }})
+                                    @endif
+                                </p>
                             </div>
                         </div>
+
                         <p>{!! $product->short_description !!}</p>
                         <div class="price-area">
                             <p class="price">{{ $product->price }} ₪</p>
@@ -133,17 +169,18 @@
                         <div class="shop-details-btn">
                             @if ($variations->isEmpty())
                                 <div class="out-of-stock">
-                                    <span>{{__('نفذ من المخزون')}}</span>
+                                    <span>{{ __('نفذ من المخزون') }}</span>
                                 </div>
                             @else
-                                <a href="{{route('checkout')}}" class="primary-btn1 hover-btn3">{{ __('اشتري الآن') }}</a>
+                                <a href="{{ route('checkout') }}"
+                                    class="primary-btn1 hover-btn3">{{ __('اشتري الآن') }}</a>
                                 <a id="add-to-cart-btn"
                                     class="primary-btn1 style-3 hover-btn4">{{ __('أضف الى السلة') }}</a>
                             @endif
                         </div>
 
                         <div class="payment-method">
-                        <h6>{{ __('عملية دفع آمنة مضمونة') }}</h6>
+                            <h6>{{ __('عملية دفع آمنة مضمونة') }}</h6>
                             <ul class="payment-card-list">
                                 <li><img src="{{ asset('front/assets/img/inner-page/payment-img1.svg') }}"
                                         alt=""></li>
@@ -163,16 +200,16 @@
                         </div>
 
                         <ul class="product-shipping-delivers">
-                        <li class="product-shipping">
-                            <i class="fas fa-shipping-fast"></i>
-                            {{ __('شحن مجاني لجميع أنحاء العالم للطلبات فوق 100 دولار') }}
-                        </li>
-                        <li class="product-delivers">
-                            <i class="fas fa-truck"></i>
-                            <p>{{ __('مدة التوصيل: من 3 إلى 7 أيام عمل ') }}<a
-                                    href="#">{{ __('شحن وإرجاع') }}</a></p>
-                        </li>
-                    </ul>
+                            <li class="product-shipping">
+                                <i class="fas fa-shipping-fast"></i>
+                                {{ __('شحن مجاني لجميع أنحاء العالم للطلبات فوق 100 دولار') }}
+                            </li>
+                            <li class="product-delivers">
+                                <i class="fas fa-truck"></i>
+                                <p>{{ __('مدة التوصيل: من 3 إلى 7 أيام عمل ') }}<a
+                                        href="#">{{ __('شحن وإرجاع') }}</a></p>
+                            </li>
+                        </ul>
                         <div class="compare-wishlist-area">
                             <ul>
 
@@ -188,7 +225,7 @@
                                                 </g>
                                             </svg>
                                         </span>
-                                        {{__('اضف الى المفضلة')}}
+                                        {{ __('اضف الى المفضلة') }}
                                     </button>
                                 </li>
                             </ul>
@@ -198,34 +235,156 @@
             </div>
         </div>
     </div>
-   <div class="newest-product-section mb-110">
-    <div class="container">
-        <div class="section-title2 style-2">
-            <h3>{{ __('منتجات ذات صلة') }}</h3>
-            <div class="slider-btn">
-                <div class="prev-btn" tabindex="0" role="button" aria-label="Previous slide" aria-controls="swiper-wrapper-4dc9910387c72ca0">
-                    <i class="bi bi-chevron-left"></i>
-                </div>
-                <div class="next-btn" tabindex="0" role="button" aria-label="Next slide" aria-controls="swiper-wrapper-4dc9910387c72ca0">
-                    <i class="bi bi-chevron-right"></i>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="swiper newest-slider swiper-initialized swiper-horizontal swiper-pointer-events swiper-rtl">
-                    <div class="swiper-wrapper">
-                        @foreach($relatedProducts as $relatedProduct)
-                        <div class="swiper-slide">
-                                @include('frontend.partials.product-card', ['product' => $relatedProduct])
+    <!-- Start Product Reviews Section -->
+    <div class="product-reviews-section mb-110">
+        <div class="container">
+            <div class="review-area">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="comment-section style-2 p-4 border rounded shadow-sm bg-white">
+
+                            <!-- عنوان التقييم وزر الإضافة -->
+                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                                <h4 class="mb-0">
+                                    {{ __('تقييمات العملاء') }} ({{ $product->reviews->count() }})
+                                </h4>
+
+                                @auth('client')
+                                    @if (auth('client')->user()->hasPurchasedProduct($product->id))
+                                        @if (!auth('client')->user()->hasReviewedProduct($product->id))
+                                            <button class="btn btn-dark btn-sm" data-bs-toggle="modal"
+                                                data-bs-target="#addReviewModal">
+                                                {{ __('أضف تقييمك') }}
+                                            </button>
+                                        @else
+                                            <small class="text-success">{{ __('لقد قمت بتقييم هذا المنتج بالفعل') }}</small>
+                                        @endif
+                                    @else
+                                        <small class="text-muted">{{ __('يمكنك إضافة تقييم بعد شراء هذا المنتج') }}</small>
+                                    @endif
+                                @else
+                                    <a href="{{ route('login') }}" class="btn btn-outline-dark btn-sm">
+                                        {{ __('سجل الدخول لإضافة تقييم') }}
+                                    </a>
+                                @endauth
+                            </div>
+
+                            <!-- التقييمات أو رسالة لا توجد تقييمات -->
+                            @if ($product->reviews->isEmpty())
+                                <div class="alert alert-info">
+                                    {{ __('لا توجد تقييمات لهذا المنتج بعد. كن أول من يقيم!') }}
+                                </div>
+                            @else
+                                <ul class="list-unstyled">
+                                    @foreach ($product->reviews as $review)
+                                        <li class="mb-4 border-bottom pb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-1">
+                                                    {{ $review->client->name }}
+                                                    <small class="text-muted ms-2">
+                                                        {{ $review->created_at->format('Y-m-d') }}
+                                                    </small>
+                                                </h6>
+                                                <ul class="list-inline m-0 small text-warning">
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <li class="list-inline-item">
+                                                            <i
+                                                                class="bi bi-star{{ $i <= $review->rating ? '-fill' : '' }}"></i>
+                                                        </li>
+                                                    @endfor
+                                                </ul>
+                                            </div>
+                                            <p class="mt-2 mb-0 text-muted">{{ $review->review }}</p>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
                         </div>
-                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- End Product Reviews Section -->
+
+    <!-- Review Modal -->
+    <div class="modal fade" id="addReviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ __('أضف تقييمك') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="reviewForm" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ __('التقييم') }}</label>
+                            <div class="rating-input">
+                                @for ($i = 5; $i >= 1; $i--)
+                                    <input type="radio" id="star{{ $i }}" name="rating"
+                                        value="{{ $i }}" {{ $i == 5 ? 'checked' : '' }}>
+                                    <label for="star{{ $i }}" title="{{ $i }} نجوم"><i
+                                            class="bi bi-star-fill"></i></label>
+                                @endfor
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">{{ __('التعليق') }}</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="primary-btn1 style-2"
+                            data-bs-dismiss="modal">{{ __('إغلاق') }}</button>
+                        <button type="submit" id="submitReview" class="primary-btn1">
+                            <span class="btn-text">{{ __('إرسال التقييم') }}</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"
+                                aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="newest-product-section mb-110">
+        <div class="container">
+            <div class="section-title2 style-2">
+                <h3>{{ __('منتجات ذات صلة') }}</h3>
+                <div class="slider-btn">
+                    <div class="prev-btn" tabindex="0" role="button" aria-label="Previous slide"
+                        aria-controls="swiper-wrapper-4dc9910387c72ca0">
+                        <i class="bi bi-chevron-left"></i>
+                    </div>
+                    <div class="next-btn" tabindex="0" role="button" aria-label="Next slide"
+                        aria-controls="swiper-wrapper-4dc9910387c72ca0">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div
+                        class="swiper newest-slider swiper-initialized swiper-horizontal swiper-pointer-events swiper-rtl">
+                        <div class="swiper-wrapper">
+                            @foreach ($relatedProducts as $relatedProduct)
+                                <div class="swiper-slide">
+                                    @include('frontend.partials.product-card', [
+                                        'product' => $relatedProduct,
+                                    ])
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 @endsection
@@ -468,6 +627,67 @@
                 updateButtonStates(this);
             });
         });
+       $('#reviewForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const form = $(this);
+    const submitBtn = $('#submitReview');
+    const spinner = submitBtn.find('.spinner-border');
+    const btnText = submitBtn.find('.btn-text');
+
+    // إظهار اللودر
+    spinner.removeClass('d-none');
+    btnText.text('{{ __("جارٍ الإرسال...") }}');
+
+    $.ajax({
+        type: 'POST',
+        url: '{{ route('review.submit') }}',
+        data: form.serialize(),
+        success: function(response) {
+            // إخفاء اللودر
+            spinner.addClass('d-none');
+            btnText.text('{{ __("إرسال التقييم") }}');
+
+            // عرض رسالة نجاح
+            Swal.fire({
+        icon: 'success',
+        title: '{{ __("تم إرسال التقييم بنجاح") }}',
+        showConfirmButton: false,
+    }).then(() => {
+        location.reload(); // 🔁 إعادة تحميل الصفحة بعد إغلاق التنبيه
+    });
+
+            // إعادة ضبط النموذج وإغلاق المودال
+            $('#reviewForm')[0].reset();
+            $('#reviewModal').modal('hide');
+        },
+        error: function(xhr) {
+            spinner.addClass('d-none');
+            btnText.text('{{ __("إرسال التقييم") }}');
+
+            let errors = xhr.responseJSON?.errors;
+            if (errors) {
+                let errorMsg = '';
+                for (let key in errors) {
+                    errorMsg += errors[key][0] + "<br>";
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: '{{ __("حدثت أخطاء في النموذج") }}',
+                    html: errorMsg,
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '{{ __("حدث خطأ أثناء الإرسال") }}',
+                    text: '{{ __("يرجى المحاولة مرة أخرى لاحقاً.") }}',
+                });
+            }
+        }
+    });
+});
+
     </script>
-   
+
 @endsection

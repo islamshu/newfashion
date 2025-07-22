@@ -83,7 +83,9 @@
                 <li class="{{ request()->routeIs('products.all') ? 'active' : '' }}">
                     <a href="{{ route('products.all') }}">{{ __('المنتجات') }}</a>
                 </li>
-
+                <li class="{{ request()->routeIs('orders.get_track') ? 'active' : '' }}">
+                    <a href="{{ route('orders.get_track') }}">{{ __('تتبع الطلب') }}</a>
+                </li>
                 <!-- تواصل معنا -->
                 <li class="{{ request()->routeIs('contactUs') ? 'active' : '' }}">
                     <a href="{{ route('contactUs') }}">{{ __('تواصل معنا') }}</a>

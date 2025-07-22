@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasTranslations,SoftDeletes;
+    use HasTranslations, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -23,9 +23,14 @@ class Product extends Model
         'category_id',
         'is_featured',
         'status',
-        'tags'
+        'tags',
+        'fake_rating_enabled',
+        'fake_rating_value',
     ];
-
+    protected $casts = [
+        'fake_rating_enabled' => 'boolean',
+        'fake_rating_value' => 'float',
+    ];
     public $translatable = ['name', 'short_description'];
 
     public function category()
@@ -70,5 +75,29 @@ class Product extends Model
         if (!auth('client')->check()) return false;
 
         return auth('client')->user()->wishlist()->where('product_id', $this->id)->exists();
+    }
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    // لحساب متوسط تقييم المنتج (الحقيقي فقط)
+    public function averageRating()
+    {
+        return $this->ratings()->avg('rating');
+    }
+
+    // لحساب متوسط التقييم الظاهري (إما وهمي أو حقيقي)
+    public function displayedRating()
+    {
+        if ($this->fake_rating_enabled && $this->fake_rating_value !== null) {
+            return $this->fake_rating_value;
+        }
+
+        return $this->averageRating() ?: 0;
+    }
+      public function reviews()
+    {
+        return $this->hasMany(Rating::class);
     }
 }

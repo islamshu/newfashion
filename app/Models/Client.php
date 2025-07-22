@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Authenticatable
 {
-    use HasFactory, Notifiable,SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -38,4 +38,21 @@ class Client extends Authenticatable
     {
         return $this->hasMany(CouponUsage::class);
     }
+    public function hasPurchasedProduct($productId)
+    {
+        return $this->orders()
+            ->where('status', 'completed')
+            ->whereHas('items', function ($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->exists();
+    }
+    public function hasReviewedProduct($productId)
+    {
+        return $this->ratings()->where('product_id', $productId)->exists();
+    }
+    public function ratings()
+{
+    return $this->hasMany(Rating::class, 'client_id');
+}
 }
