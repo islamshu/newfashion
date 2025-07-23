@@ -5,7 +5,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\Schema;
 
 class Order extends Model
 {
@@ -46,15 +45,5 @@ class Order extends Model
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
-    public function scopeOrdered($query)
-{
-    // تأكد وجود العمود 'order' قبل تنفيذ الفرز
-    if (Schema::hasColumn('products', 'order')) {
-        return $query->orderBy('order', 'asc');
-    }
-
-    // إذا ما موجود العمود رجع الاستعلام بدون فرز خاص
-    return $query;
-}
-
+    
 }

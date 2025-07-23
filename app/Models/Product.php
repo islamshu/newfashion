@@ -52,7 +52,7 @@ class Product extends Model
     }
     public function scopeActive($query)
     {
-        return $query->where('status', true)->orderBy('order', 'asc');
+        return $query->where('status', true);
     }
     public function scopeFeatured($query)
     {
