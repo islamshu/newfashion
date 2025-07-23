@@ -117,6 +117,15 @@
                     </li>
                 </ul>
             </li>
+            <!-- إدارة المدن -->
+            <li class="dropdown nav-item {{ request()->routeIs('cities.index') ? 'active' : '' }}"
+                data-menu="dropdown">
+                <a class="nav-link" href="{{ route('cities.index') }}">
+                    <i class="la la-map-marker"></i>
+                    <span>{{ __('إدارة المدن') }}</span>
+                </a>
+            </li>
+
             <!-- الطلبات -->
             <li class="dropdown nav-item {{ request()->routeIs('orders.index') || request()->routeIs('orders.show') ? 'active' : '' }}"
                 data-menu="dropdown">
@@ -133,7 +142,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="dropdown nav-item {{ request()->routeIs('clients.index') || request()->routeIs('clients.show') ||  request()->routeIs('clients.trashed') ? 'active' : '' }}"
+            <li class="dropdown nav-item {{ request()->routeIs('clients.index') || request()->routeIs('clients.show') || request()->routeIs('clients.trashed') ? 'active' : '' }}"
                 data-menu="dropdown">
                 <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
                     <i class="la la-users"></i>
@@ -202,22 +211,22 @@
                 </ul>
             </li>
             <!-- الصفحات -->
-<li class="dropdown nav-item {{ request()->routeIs('pages.index') || request()->routeIs('pages.create') ? 'active' : '' }}"
-    data-menu="dropdown">
-    <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
-        <i class="la la-file-text"></i>
-        <span>{{ __('الصفحات') }}</span>
-    </a>
-    <ul class="dropdown-menu">
-        <li>
-            <a class="dropdown-item {{ request()->routeIs('pages.index') ? 'active' : '' }}"
-                href="{{ route('pages.index') }}">
-                <i class="la la-list"></i> {{ __('كل الصفحات') }}
-            </a>
-        </li>
-        
-    </ul>
-</li>
+            <li class="dropdown nav-item {{ request()->routeIs('pages.index') || request()->routeIs('pages.create') ? 'active' : '' }}"
+                data-menu="dropdown">
+                <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
+                    <i class="la la-file-text"></i>
+                    <span>{{ __('الصفحات') }}</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item {{ request()->routeIs('pages.index') ? 'active' : '' }}"
+                            href="{{ route('pages.index') }}">
+                            <i class="la la-list"></i> {{ __('كل الصفحات') }}
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
 
 
 

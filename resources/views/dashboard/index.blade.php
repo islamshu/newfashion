@@ -87,10 +87,10 @@
                         <div class="card text-center">
                             <div class="card-body">
                                 <h4>{{ __('إجمالي الأرباح') }}</h4>
-                                <p>{{ __('هذا الشهر') }}:
+                                <p>{{ __('هذا الشهر') }}  ({{Carbon\Carbon::now()->format('m')}}):
                                     <strong>{{ number_format($totalEarningsCurrentMonth, 2) }} ₪</strong>
                                 </p>
-                                <p>{{ __('الشهر السابق') }}:
+                                <p>{{ __('الشهر السابق') }}  ({{Carbon\Carbon::now()->subMonth()->format('m')}}):
                                     <strong>{{ number_format($totalEarningsLastMonth, 2) }} ₪</strong>
                                 </p>
                             </div>

@@ -11,7 +11,9 @@ class Page extends Model
 
     protected $fillable = [
         'title',
-        'text'
+        'text',
+        'slug'
+        
     ];
 
     public $translatable = ['title', 'text'];

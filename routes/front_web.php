@@ -36,6 +36,8 @@ Route::get('/categories', [FrontController::class, 'categories'])->name('categor
 Route::get('/contactUs', [FrontController::class, 'contactUs'])->name('contactUs');
 Route::post('/contact/send', [FrontController::class, 'sendContactUs'])->name('contact.send');
 Route::get('/about', [FrontController::class, 'about'])->name('about');
+Route::get('/page/{slug}', [FrontController::class, 'page'])->name('page');
+
 Route::post('/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.applyCoupon');
 Route::post('/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.removeCoupon');
 

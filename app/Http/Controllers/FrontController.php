@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Client;
 use App\Models\ContactMessage;
 use App\Models\Order;
+use App\Models\Page;
 use App\Models\Slider;
 use App\Models\Product;
 use App\Models\ProductAttribute;
@@ -273,6 +274,9 @@ class FrontController extends Controller
         ContactMessage::create($data);
 
         return response()->json(['status' => 'success']);
+    }
+    public function page($slug){
+        return view('frontend.page')->with('page',Page::where('slug',$slug)->first());
     }
     public function getSizes(Request $request)
     {

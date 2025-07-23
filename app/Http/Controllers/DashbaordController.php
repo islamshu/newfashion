@@ -27,8 +27,8 @@ class DashbaordController extends Controller
 
     public function dashboard()
     {
-        $startOfWeek = Carbon::now()->subWeek()->startOfWeek(Carbon::FRIDAY); // 2025-07-11
-        $endOfWeek = $startOfWeek->copy()->addDays(6)->endOfDay(); // 2025-07-17 23:59:59
+        $startOfWeek = Carbon::now()->subDays(7)->startOfDay(); // منذ 6 أيام ببداية اليوم
+        $endOfWeek = Carbon::now()->endOfDay(); // اليوم الحالي بنهاية اليوم
 
         $orders = Order::whereBetween('created_at', [$startOfWeek, $endOfWeek])->get();
 
