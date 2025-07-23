@@ -43,10 +43,8 @@
                                     <div class="col-md-6">
                                         <h5>{{ __('معلومات الطلب') }}</h5>
                                         <p><strong>{{ __('رقم الطلب') }}:</strong> {{ $order->code }}</p>
-                                        <p><strong>{{ __('تاريخ الطلب') }}:</strong>
-                                            {{ $order->created_at->format('Y-m-d') }}</p>
-                                        <p><strong>{{ __('حالة الطلب') }}:</strong> <span
-                                                class="{{ $statusClass }}">{{ $statusText }}</span></p>
+                                        <p><strong>{{ __('تاريخ الطلب') }}:</strong> {{ $order->created_at->format('Y-m-d') }}</p>
+                                        <p><strong>{{ __('حالة الطلب') }}:</strong> <span class="{{ $statusClass }}">{{ $statusText }}</span></p>
                                     </div>
                                     <div class="col-md-6">
                                         <h5>{{ __('معلومات الدفع') }}</h5>
@@ -60,14 +58,19 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <h5>{{ __('معلومات العميل') }}</h5>
-                                        <p><strong>{{ __('الاسم') }}:</strong> {{ $order->fname }} {{ $order->lname }}
-                                        </p>
+                                        <p><strong>{{ __('الاسم') }}:</strong> {{ $order->fname }} {{ $order->lname }}</p>
                                         <p><strong>{{ __('البريد الإلكتروني') }}:</strong> {{ $order->email }}</p>
                                         <p><strong>{{ __('الهاتف') }}:</strong> {{ $order->phone }}</p>
                                     </div>
                                     <div class="col-md-6">
                                         <h5>{{ __('عنوان الشحن') }}</h5>
-                                        <p>{{ $order->address }}, {{ $order->city }}, {{ $order->postcode }}</p>
+                                        <p>
+                                            {{ $order->address }},
+                                            {{ $order->city_data['name'][app()->getLocale()] ?? '' }},
+                                            {{ $order->postcode }}
+                                            <br>
+                                            <strong>{{ __('رسوم التوصيل') }}:</strong> {{ $order->city_data['delivery_fee'] ?? 0 }} ₪
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -97,24 +100,29 @@
                                         <tfoot class="table-light">
                                             <tr>
                                                 <td colspan="3" class="text-end">
-                                                    <strong>{{ __('المجموع الفرعي') }}:</strong></td>
+                                                    <strong>{{ __('المجموع الفرعي') }}:</strong>
+                                                </td>
                                                 <td dir="ltr">{{ $order->subtotal }} ₪</td>
                                             </tr>
                                             @if ($order->discount > 0)
                                                 <tr>
-                                                    <td colspan="3" class="text-end"><strong>{{ __('الخصم') }}
-                                                            ({{ $order->coupon_code }}):</strong></td>
+                                                    <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} ({{ $order->coupon_code }}):</strong></td>
                                                     <td dir="ltr">- {{ $order->discount }} ₪</td>
                                                 </tr>
                                             @endif
-                                            <tr>
-                                                <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong>
-                                                </td>
+                                            {{-- إزالة الضريبة --}}
+                                            {{-- <tr>
+                                                <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
                                                 <td dir="ltr">{{ $order->tax }} ₪</td>
+                                            </tr> --}}
+                                            <tr>
+                                                <td colspan="3" class="text-end"><strong>{{ __('رسوم التوصيل') }}:</strong></td>
+                                                <td dir="ltr">{{ $order->city_data['delivery_fee'] ?? 0 }} ₪</td>
                                             </tr>
                                             <tr>
                                                 <td colspan="3" class="text-end">
-                                                    <strong>{{ __('المجموع الكلي') }}:</strong></td>
+                                                    <strong>{{ __('المجموع الكلي') }}:</strong>
+                                                </td>
                                                 <td dir="ltr">{{ $order->total }} ₪</td>
                                             </tr>
                                         </tfoot>
@@ -171,14 +179,15 @@
         }
     </style>
 @endsection
-@section('scripts')
-<script>
-    function printInvoice() {
-        // استهداف صندوق تفاصيل الطلب فقط
-        const printContents = document.querySelector('.order-details-box').innerHTML;
-        const originalContents = document.body.innerHTML;
 
-        document.body.innerHTML = `
+@section('scripts')
+    <script>
+        function printInvoice() {
+            // استهداف صندوق تفاصيل الطلب فقط
+            const printContents = document.querySelector('.order-details-box').innerHTML;
+            const originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = `
             <html>
             <head>
                 <title>{{ __('فاتورة الطلب') }}</title>
@@ -196,9 +205,9 @@
             </html>
         `;
 
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload(); // لإعادة الصفحة كما كانت
-    }
-</script>
+            window.print();
+            document.body.innerHTML = originalContents;
+            window.location.reload(); // لإعادة الصفحة كما كانت
+        }
+    </script>
 @endsection

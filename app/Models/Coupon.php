@@ -39,11 +39,14 @@ class Coupon extends Model
     }
 
 
-    public function isValid()
-    {
-        return $this->is_active &&
-            ($this->usage_limit === null || $this->used_count < $this->usage_limit);
-    }
+    public function isValid(): bool
+{
+    return $this->is_active
+        && ($this->usage_limit === null || $this->used_count < $this->usage_limit)
+        && ($this->start_date === null || $this->start_date->startOfDay() <= now())
+        && ($this->end_date === null || $this->end_date->endOfDay() >= now());
+}
+
 
     public function calculateDiscount($subtotal)
     {

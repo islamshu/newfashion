@@ -48,34 +48,19 @@
                                 <div class="col-12">
                                     <div class="form-inner">
                                         <label>{{ __('المدينة') }}</label>
-                                        <select name="city" required>
-                                            <option value="">{{ __('اختر المدينة') }}</option>
-                                            <optgroup label="الداخل الفلسطيني">
-                                                <option value="الناصرة">الناصرة</option>
-                                                <option value="حيفا">حيفا</option>
-                                                <option value="عكا">عكا</option>
-                                                <option value="يافا">يافا</option>
-                                                <option value="اللد">اللد</option>
-                                                <option value="الرملة">الرملة</option>
-                                                <option value="سخنين">سخنين</option>
-                                                <option value="أم الفحم">أم الفحم</option>
-                                                <option value="رهط">رهط</option>
-                                                <option value="كفر قاسم">كفر قاسم</option>
-                                                <option value="الطيبة">الطيبة</option>
-                                            </optgroup>
-                                            <optgroup label="الضفة الغربية">
-                                                <option value="رام الله">رام الله</option>
-                                                <option value="نابلس">نابلس</option>
-                                                <option value="الخليل">الخليل</option>
-                                                <option value="بيت لحم">بيت لحم</option>
-                                                <option value="طولكرم">طولكرم</option>
-                                                <option value="قلقيلية">قلقيلية</option>
-                                                <option value="جنين">جنين</option>
-                                                <option value="أريحا">أريحا</option>
-                                                <option value="سلفيت">سلفيت</option>
-                                                <option value="طوباس">طوباس</option>
-                                            </optgroup>
+                                        <select  id="citySelect" >
+                                            <option value="" data-fee="0">{{ __('اختر المدينة') }}</option>
+                                            @foreach ($cities as $city)
+                                                <option value="{{ $city->id }}" data-fee="{{ $city->delivery_fee }}">
+                                                    {{ $city->getTranslation('name', 'ar') }} - رسوم التوصيل:
+                                                    ₪{{ number_format($city->delivery_fee, 2) }}
+                                                </option>
+                                            @endforeach
                                         </select>
+                                        <input type="hidden" name="city" id="hiddenCityInput" required>
+                                        <div class="invalid-feedback" style="display: none; color: red; font-size: 14px;">
+                                               {{__(' يرجى اختيار المدينة.')}}
+                                            </div>
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -133,17 +118,17 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="tax">{{ __('الضريبة') }}</td>
-                                    <td id="tax-price">₪{{ number_format($tax ?? 0, 2) }}</td>
+                                <tr id="coupon-row" style="display:none;">
+                                    <td id="coupon-label"></td>
+                                    <td class="text-danger" id="coupon-discount">-₪0.00</td>
                                 </tr>
-                                <tr>
-                                    <td>{{ __('المجموع (بدون ضريبة)') }}</td>
-                                    <td id="total-excl-tax">₪{{ number_format($subtotal ?? 0, 2) }}</td>
+                                <tr id="delivery-row" style="display:none;">
+                                    <td>{{ __('رسوم التوصيل') }}</td>
+                                    <td id="delivery-fee">₪0.00</td>
                                 </tr>
-                                <tr>
-                                    <td>{{ __('المجموع (مع الضريبة)') }}</td>
-                                    <td id="total-incl-tax">₪{{ number_format($totalInclTax ?? 0, 2) }}</td>
+                                <tr class="total">
+                                    <th>{{ __('الإجمالي النهائي') }}</th>
+                                    <th id="total-price">₪{{ number_format($subtotal ?? 0, 2) }}</th>
                                 </tr>
                             </tbody>
                         </table>
@@ -163,13 +148,20 @@
                         <label for="coupon">{{ __('أدخل كوبون الخصم') }}</label>
                         <div class="input-group">
                             <input type="text" id="coupon" name="coupon" class="form-control"
-                                placeholder="{{ __('رمز الكوبون') }}">
-                            <button type="button" id="applyCouponBtn"
-                                class="btn btn-primary">{{ __('تطبيق') }}</button>
+                                placeholder="{{ __('رمز الكوبون') }}" {{ session('applied_coupon') ? 'readonly' : '' }}>
+                            <button type="button" id="applyCouponBtn" class="btn btn-primary"
+                                {{ session('applied_coupon') ? 'disabled' : '' }}>
+                                {{ __('تطبيق') }}
+                            </button>
                             <button type="button" id="removeCouponBtn"
-                                class="btn btn-danger d-none">{{ __('إلغاء') }}</button>
+                                class="btn btn-danger {{ session('applied_coupon') ? '' : 'd-none' }}">
+                                {{ __('إلغاء') }}
+                            </button>
                         </div>
-                        <div id="coupon-feedback" class="mt-2 small text-danger"></div>
+                        <div id="coupon-feedback" class="mt-2 small"></div>
+                        <div id="city-required-alert" class="alert alert-warning mt-2 d-none">
+                            <i class="fas fa-exclamation-circle"></i> يجب اختيار المدينة أولاً قبل تطبيق الكوبون
+                        </div>
                     </div>
 
 
@@ -183,175 +175,178 @@
 
 @endsection
 @section('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('cart-summary-wrapper').addEventListener('click', function(e) {
-                if (e.target.closest('.remove-item-checkout')) {
-                    e.preventDefault();
-                    let button = e.target.closest('.remove-item-checkout');
-                    let index = button.getAttribute('data-index');
-                    if (!index) return;
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const csrfToken = '{{ csrf_token() }}';
+    const citySelect = $('#citySelect');
+    const couponInput = $('#coupon');
+    const applyBtn = $('#applyCouponBtn');
+    const removeBtn = $('#removeCouponBtn');
+    const feedback = $('#coupon-feedback');
+    const subtotalRaw = parseFloat({{ $subtotal ?? 0 }});
+    const discountRaw = parseFloat('{{ session('applied_coupon.discount', 0) }}') || 0;
 
-                    fetch("{{ route('cart.removeItem') }}", {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                index: index
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            // تحديث قائمة المنتجات
-                            document.getElementById('cart-summary-wrapper').innerHTML = data.html;
+    // تحديث السعر النهائي والواجهة
+    function updatePriceSummary(deliveryFee = 0, discount = 0, subtotal = null) {
+    const sub = subtotal !== null ? parseFloat(subtotal) : subtotalRaw;
+    const disc = parseFloat(discount ?? discountRaw ?? 0);
+    const total = sub + deliveryFee - disc;
 
-                            // تحديث الأسعار
-                            document.getElementById('subtotal-price').textContent = '$' + data.subtotal;
-                            document.getElementById('tax-price').textContent = '$' + data.tax;
-                            document.getElementById('total-excl-tax').textContent = '$' + data
-                                .totalExclTax;
-                            document.getElementById('total-incl-tax').textContent = '$' + data
-                                .totalInclTax;
-                            document.getElementById('total-price').textContent = '$' + data.total;
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
+    $('#subtotal-price').text('₪' + sub.toFixed(2));
+    $('#coupon-discount').text('-₪' + disc.toFixed(2));
+    $('#delivery-fee').text('₪' + deliveryFee.toFixed(2));
+    $('#total-price').text('₪' + total.toFixed(2));
+
+    if (disc > 0) $('#coupon-row').show();
+    else $('#coupon-row').hide();
+
+    if (deliveryFee > 0) $('#delivery-row').show();
+    else $('#delivery-row').hide();
+}
+
+
+    // عند تغيير المدينة
+    citySelect.on('change', function () {
+        const fee = parseFloat($(this).find(':selected').data('fee')) || 0;
+        const hasCity = $(this).val() !== '';
+          const selectedVal = $(this).val();
+        $('#hiddenCityInput').val(selectedVal);
+
+        if (selectedVal) {
+            $('.invalid-feedback').hide();
+            $('#citySelect').removeClass('is-invalid');
+        }
+
+        applyBtn.prop('disabled', !hasCity);
+        if (!hasCity) {
+            feedback.text('يجب اختيار المدينة أولاً قبل تطبيق الكوبون').removeClass('text-success').addClass('text-danger');
+        } else {
+            feedback.text('');
+        }
+
+        updatePriceSummary(fee);
+    });
+
+    // تطبيق الكوبون
+    applyBtn.on('click', function () {
+        const code = couponInput.val().trim();
+        const cityId = citySelect.val();
+
+        if (!cityId) {
+            feedback.text('يجب اختيار المدينة أولاً قبل تطبيق الكوبون').removeClass('text-success').addClass('text-danger');
+            return;
+        }
+
+        if (!code) return;
+
+        $.ajax({
+            url: "{{ route('cart.applyCoupon') }}",
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken },
+            data: { code, city_id: cityId },
+            success: function (data) {
+                if (data.error) {
+                    feedback.text(data.error).removeClass('text-success').addClass('text-danger');
+                } else {
+                    feedback.text('تم تطبيق الكوبون بنجاح').removeClass('text-danger').addClass('text-success');
+                    couponInput.prop('readonly', true);
+                    applyBtn.addClass('d-none');
+                    removeBtn.removeClass('d-none');
+
+                    const fee = parseFloat(citySelect.find(':selected').data('fee')) || 0;
+                    updatePriceSummary(fee, data.discount, data.subtotal);
                 }
-            });
+            },
+            error: () => feedback.text('حدث خطأ ما').removeClass('text-success').addClass('text-danger')
         });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const applyBtn = document.getElementById('applyCouponBtn');
-            const removeBtn = document.getElementById('removeCouponBtn');
-            const couponInput = document.getElementById('coupon');
-            const feedback = document.getElementById('coupon-feedback');
+    });
 
-            applyBtn.addEventListener('click', function() {
-                const code = couponInput.value.trim();
-                if (!code) return;
+    // إزالة الكوبون
+    removeBtn.on('click', function () {
+        $.ajax({
+            url: "{{ route('cart.removeCoupon') }}",
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken },
+            success: function (data) {
+                couponInput.prop('readonly', false).val('');
+                applyBtn.removeClass('d-none').prop('disabled', !citySelect.val());
+                removeBtn.addClass('d-none');
+                feedback.text('');
 
-                fetch("{{ route('cart.applyCoupon') }}", {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            code: code
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.error) {
-                            feedback.textContent = data.error;
-                        } else {
-                            feedback.textContent = '';
-                            updatePrices(data);
-                            showCouponRow(data.discountLabel, data.discount);
-                            applyBtn.classList.add('d-none');
-                            removeBtn.classList.remove('d-none');
-                            couponInput.setAttribute('readonly', true);
-                        }
-                    })
-                    .catch(() => feedback.textContent = '{{ __('حدث خطأ ما') }}');
-            });
-
-            removeBtn.addEventListener('click', function() {
-                fetch("{{ route('cart.removeCoupon') }}", {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        feedback.textContent = '';
-                        updatePrices(data);
-                        removeCouponRow();
-                        applyBtn.classList.remove('d-none');
-                        removeBtn.classList.add('d-none');
-                        couponInput.removeAttribute('readonly');
-                        couponInput.value = '';
-                    });
-            });
-
-            function updatePrices(data) {
-                document.getElementById('subtotal-price').textContent = '₪' + data.subtotal;
-                document.getElementById('tax-price').textContent = '₪' + data.tax;
-                document.getElementById('total-excl-tax').textContent = '₪' + data.totalInclTax;
-                document.getElementById('total-incl-tax').textContent = '₪' + data.totalInclTax;
-                document.getElementById('total-price').textContent = '₪' + data.total;
-            }
-
-            function showCouponRow(label, discount) {
-                let row = document.getElementById('coupon-row');
-                if (!row) {
-                    row = document.createElement('tr');
-                    row.id = 'coupon-row';
-                    document.querySelector('.cost-summary-table tbody').appendChild(row);
-                }
-                row.innerHTML = `<td>${label}</td><td class="text-danger">-₪${discount}</td>`;
-            }
-
-            function removeCouponRow() {
-                let row = document.getElementById('coupon-row');
-                if (row) row.remove();
+                const fee = parseFloat(citySelect.find(':selected').data('fee')) || 0;
+                updatePriceSummary(fee, 0, data.subtotal);
             }
         });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkoutForm = document.getElementById('checkoutForm');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const submitBtn = document.getElementById('submitOrderBtn');
+    });
 
-            checkoutForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+    // عند إرسال الطلب
+    const checkoutForm = document.getElementById('checkoutForm');
+    checkoutForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+           const selectedVal = $('#citySelect').val();
+        if (!selectedVal) {
+            e.preventDefault();
 
-                // إظهار اللودر وتعطيل الزر
-                loadingSpinner.style.display = 'block';
-                submitBtn.disabled = true;
+            // إظهار رسالة الخطأ
+            $('.invalid-feedback').show();
 
-                const formData = new FormData(this);
+            // إضافة كلاس خطأ على العنصر
+            $('#citySelect').addClass('is-invalid');
 
-                fetch("{{ route('checkout.placeOrder') }}", {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: formData
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        // إخفاء اللودر وتفعيل الزر
-                        loadingSpinner.style.display = 'none';
-                        submitBtn.disabled = false;
+            // فتح القائمة niceSelect
+            $('#citySelect').niceSelect('update');
+            $('#citySelect').niceSelect('open');
+        }
+   
 
-                        if (data.success) {
-                            Swal.fire({
-                                title: 'تم الطلب!',
-                                text: data.message,
-                                icon: 'success'
-                            }).then(() => {
-                                const orderCode = data.order_code;
-                                window.location.href = "/order/" + orderCode;
-                            });
-                        } else {
-                            Swal.fire('خطأ!', data.message || 'حدث خطأ ما', 'error');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        loadingSpinner.style.display = 'none';
-                        submitBtn.disabled = false;
-                        Swal.fire('خطأ!', 'فشل إرسال الطلب.', 'error');
-                    });
-            });
+        const loading = $('#loadingSpinner');
+        const submitBtn = $('#submitOrderBtn');
+        loading.show();
+        submitBtn.prop('disabled', true);
+
+        const formData = new FormData(this);
+        const selectedOption = citySelect.find(':selected');
+        const deliveryFee = parseFloat(selectedOption.data('fee')) || 0;
+        const cityId = citySelect.val();
+
+        formData.append('delivery_fee', deliveryFee);
+        formData.append('city_id', cityId);
+
+        fetch("{{ route('checkout.placeOrder') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            loading.hide();
+            submitBtn.prop('disabled', false);
+            if (data.success) {
+                Swal.fire({
+                    title: 'تم الطلب!',
+                    text: data.message,
+                    icon: 'success'
+                }).then(() => window.location.href = "/order/" + data.order_code);
+            } else {
+                Swal.fire('خطأ!', data.message || 'حدث خطأ ما', 'error');
+            }
+        })
+        .catch(() => {
+            loading.hide();
+            submitBtn.prop('disabled', false);
+            Swal.fire('خطأ!', 'فشل إرسال الطلب.', 'error');
         });
-    </script>
+    });
+
+    // تهيئة أولية (إذا كانت المدينة مختارة مسبقاً)
+    const selected = citySelect.find(':selected');
+    if (selected.val() !== '') {
+        applyBtn.prop('disabled', false);
+        updatePriceSummary(parseFloat(selected.data('fee')) || 0);
+    }
+});
+</script>
 @endsection
+

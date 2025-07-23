@@ -95,208 +95,218 @@
 @endsection
 
 @section('scripts')
-    <script>
-        $(document).ready(function() {
-            // عند تحميل الصفحة إذا كان هناك رقم طلب في الرابط
-            const urlParams = new URLSearchParams(window.location.search);
-            const orderCode = urlParams.get('order_code');
-            if (orderCode) {
-                $('#orderTrackingForm input[name="tracking_number"]').val(orderCode.replace('ORD-', ''));
-                trackOrder(orderCode);
+<script>
+    $(document).ready(function() {
+        const appLocale = '{{ app()->getLocale() }}';
+
+        // عند تحميل الصفحة إذا كان هناك رقم طلب في الرابط
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderCode = urlParams.get('order_code');
+        if (orderCode) {
+            $('#orderTrackingForm input[name="tracking_number"]').val(orderCode.replace('ORD-', ''));
+            trackOrder(orderCode);
+        }
+
+        // تعامل مع نموذج التتبع
+        $('#orderTrackingForm').on('submit', function(e) {
+            e.preventDefault();
+            const trackingNumber = $('input[name="tracking_number"]').val().trim();
+            const fullOrderCode = 'ORD-' + trackingNumber;
+
+            if (!trackingNumber) {
+                $('#tracking-error').text('{{ __('الرجاء إدخال رقم الطلب') }}');
+                $('#orderTrackingResult').hide();
+                return;
             }
 
-            // تعامل مع نموذج التتبع
-            $('#orderTrackingForm').on('submit', function(e) {
-                e.preventDefault();
-                const trackingNumber = $('input[name="tracking_number"]').val().trim();
-                const fullOrderCode = 'ORD-' + trackingNumber;
+            $('#tracking-error').text('');
+            // تحديث URL بدون إعادة تحميل الصفحة
+            history.pushState(null, null, '?order_code=' + fullOrderCode);
+            trackOrder(fullOrderCode);
+        });
 
-                if (!trackingNumber) {
-                    $('#tracking-error').text('{{ __('الرجاء إدخال رقم الطلب') }}');
-                    $('#orderTrackingResult').hide();
-                    return;
-                }
-
-                $('#tracking-error').text('');
-                // تحديث URL بدون إعادة تحميل الصفحة
-                history.pushState(null, null, '?order_code=' + fullOrderCode);
-                trackOrder(fullOrderCode);
-            });
-
-            function trackOrder(orderCode) {
-                // عرض مؤشر تحميل
-                $('#orderTrackingResult').show();
-                $('#orderTrackingResult .order-details-box').html(`
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-dark" role="status">
-                            <span class="visually-hidden">{{ __('جاري التحميل...') }}</span>
-                        </div>
+        function trackOrder(orderCode) {
+            $('#orderTrackingResult').show();
+            $('#orderTrackingResult .order-details-box').html(`
+                <div class="text-center py-5">
+                    <div class="spinner-border text-dark" role="status">
+                        <span class="visually-hidden">{{ __('جاري التحميل...') }}</span>
                     </div>
-                `);
+                </div>
+            `);
 
-                $.ajax({
-                    url: "{{ route('order.track') }}",
-                    method: 'POST',
-                    data: {
-                        order_code: orderCode,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            displayOrderDetails(response.order);
-                        } else {
-                            $('#orderTrackingResult .order-details-box').html(`
-                                <div class="alert alert-danger text-center py-4">
-                                    ${response.message}
-                                </div>
-                            `);
-                        }
-                    },
-                    error: function() {
+            $.ajax({
+                url: "{{ route('order.track') }}",
+                method: 'POST',
+                data: {
+                    order_code: orderCode,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        displayOrderDetails(response.order);
+                    } else {
                         $('#orderTrackingResult .order-details-box').html(`
                             <div class="alert alert-danger text-center py-4">
-                                {{ __('حدث خطأ أثناء محاولة تتبع الطلب') }}
+                                ${response.message}
                             </div>
                         `);
                     }
-                });
-            }
-
-            function displayOrderDetails(order) {
-                if (!order || !order.items || !Array.isArray(order.items)) {
+                },
+                error: function() {
                     $('#orderTrackingResult .order-details-box').html(`
                         <div class="alert alert-danger text-center py-4">
-                            {{ __('بيانات الطلب غير متوفرة أو غير صالحة') }}
+                            {{ __('حدث خطأ أثناء محاولة تتبع الطلب') }}
                         </div>
                     `);
-                    return;
                 }
+            });
+        }
 
-                const orderDate = new Date(order.created_at).toLocaleDateString('ar-EG', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-
-                let statusClass = '';
-                let statusText = '';
-                switch (order.status) {
-                    case 'pending':
-                        statusClass = 'text-warning';
-                        statusText = '{{ __('قيد المعالجة') }}';
-                        break;
-                    case 'processing':
-                        statusClass = 'text-info';
-                        statusText = ' {{ __('قيد التنفيذ') }}';
-                        break;
-                    case 'completed':
-                        statusClass = 'text-success';
-                        statusText = '{{ __('مكتمل') }}';
-                        break;
-                    case 'cancelled':
-                        statusClass = 'text-danger';
-                        statusText = '{{ __('ملغى') }}';
-                        break;
-                    default:
-                        statusClass = 'text-secondary';
-                        statusText = order.status || '{{ __('غير معروف') }}';
-                }
-
-                let itemsHtml = '';
-                order.items.forEach(item => {
-                    itemsHtml += `
-                        <tr>
-                            <td>${item.product_name || '{{ __('غير معروف') }}'}</td>
-                            <td class="text-center">${item.quantity || 0}</td>
-                            <td dir="ltr">${item.price || 0} ₪</td>
-                            <td dir="ltr">${(item.quantity * item.price) || 0} ₪</td>
-                        </tr>
-                    `;
-                });
-
-                const discountRow = order.discount > 0 ? `
-                    <tr>
-                        <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
-                        <td dir="ltr">- ${order.discount} ₪</td>
-                    </tr>` : '';
-
-                const notesSection = order.notes ? `
-                    <div class="order-notes mt-4">
-                        <h5 class="fw-bold mb-2">{{ __('ملاحظات الطلب') }}</h5>
-                        <p>${order.notes}</p>
-                    </div>` : '';
-
-                const html = `
-                    <div class="order-header mb-5">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>{{ __('معلومات الطلب') }}</h5>
-                                <p><strong>{{ __('رقم الطلب') }}:</strong> ${order.code}</p>
-                                <p><strong>{{ __('تاريخ الطلب') }}:</strong> ${orderDate}</p>
-                                <p><strong>{{ __('حالة الطلب') }}:</strong> <span class="${statusClass}">${statusText}</span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <h5>{{ __('معلومات الدفع') }}</h5>
-                                <p><strong>{{ __('طريقة الدفع') }}:</strong> {{ __('الدفع عند الاستلام') }}</p>
-                                <p><strong>{{ __('المجموع') }}:</strong> ${order.total} ₪</p>
-                            </div>
-                        </div>
+        function displayOrderDetails(order) {
+            if (!order || !order.items || !Array.isArray(order.items)) {
+                $('#orderTrackingResult .order-details-box').html(`
+                    <div class="alert alert-danger text-center py-4">
+                        {{ __('بيانات الطلب غير متوفرة أو غير صالحة') }}
                     </div>
-
-                    <div class="order-customer mb-5">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>{{ __('معلومات العميل') }}</h5>
-                                <p><strong>{{ __('الاسم') }}:</strong> ${order.fname} ${order.lname}</p>
-                                <p><strong>{{ __('البريد الإلكتروني') }}:</strong> ${order.email}</p>
-                                <p><strong>{{ __('الهاتف') }}:</strong> ${order.phone}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h5>{{ __('عنوان الشحن') }}</h5>
-                                <p>${order.address}, ${order.city}, ${order.postcode}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="order-items mb-5">
-                        <h5>{{ __('تفاصيل الطلب') }}</h5>
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>{{ __('المنتج') }}</th>
-                                        <th class="text-center">{{ __('الكمية') }}</th>
-                                        <th>{{ __('السعر') }}</th>
-                                        <th>{{ __('المجموع') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${itemsHtml}
-                                </tbody>
-                                <tfoot class="table-light">
-                                    <tr>
-                                        <td colspan="3" class="text-end"><strong>{{ __('المجموع الفرعي') }}:</strong></td>
-                                        <td dir="ltr">${order.subtotal} ₪</td>
-                                    </tr>
-                                    ${discountRow}
-                                    <tr>
-                                        <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
-                                        <td dir="ltr">${order.tax} ₪</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="text-end"><strong>{{ __('المجموع الكلي') }}:</strong></td>
-                                        <td dir="ltr">${order.total} ₪</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-
-                    ${notesSection}
-                `;
-
-                $('#orderTrackingResult .order-details-box').html(html);
+                `);
+                return;
             }
-        });
-    </script>
+
+            const orderDate = new Date(order.created_at).toLocaleDateString('ar-EG', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            let statusClass = '';
+            let statusText = '';
+            switch (order.status) {
+                case 'pending':
+                    statusClass = 'text-warning';
+                    statusText = '{{ __('قيد المعالجة') }}';
+                    break;
+                case 'processing':
+                    statusClass = 'text-info';
+                    statusText = ' {{ __('قيد التنفيذ') }}';
+                    break;
+                case 'completed':
+                    statusClass = 'text-success';
+                    statusText = '{{ __('مكتمل') }}';
+                    break;
+                case 'cancelled':
+                    statusClass = 'text-danger';
+                    statusText = '{{ __('ملغى') }}';
+                    break;
+                default:
+                    statusClass = 'text-secondary';
+                    statusText = order.status || '{{ __('غير معروف') }}';
+            }
+
+            let itemsHtml = '';
+            order.items.forEach(item => {
+                itemsHtml += `
+                    <tr>
+                        <td>${item.product_name || '{{ __('غير معروف') }}'}</td>
+                        <td class="text-center">${item.quantity || 0}</td>
+                        <td dir="ltr">${item.price || 0} ₪</td>
+                        <td dir="ltr">${(item.quantity * item.price) || 0} ₪</td>
+                    </tr>
+                `;
+            });
+
+            const discountRow = order.discount > 0 ? `
+                <tr>
+                    <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
+                    <td dir="ltr">- ${order.discount} ₪</td>
+                </tr>` : '';
+
+            const notesSection = order.notes ? `
+                <div class="order-notes mt-4">
+                    <h5 class="fw-bold mb-2">{{ __('ملاحظات الطلب') }}</h5>
+                    <p>${order.notes}</p>
+                </div>` : '';
+
+            // عرض اسم المدينة حسب اللغة الحالية (appLocale)
+            const cityName = order.city_data?.name?.[appLocale] || order.city || '';
+
+            const html = `
+                <div class="order-header mb-5">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{{ __('معلومات الطلب') }}</h5>
+                            <p><strong>{{ __('رقم الطلب') }}:</strong> ${order.code}</p>
+                            <p><strong>{{ __('تاريخ الطلب') }}:</strong> ${orderDate}</p>
+                            <p><strong>{{ __('حالة الطلب') }}:</strong> <span class="${statusClass}">${statusText}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{{ __('معلومات الدفع') }}</h5>
+                            <p><strong>{{ __('طريقة الدفع') }}:</strong> {{ __('الدفع عند الاستلام') }}</p>
+                            <p><strong>{{ __('المجموع') }}:</strong> ${order.total} ₪</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-customer mb-5">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{{ __('معلومات العميل') }}</h5>
+                            <p><strong>{{ __('الاسم') }}:</strong> ${order.fname} ${order.lname}</p>
+                            <p><strong>{{ __('البريد الإلكتروني') }}:</strong> ${order.email}</p>
+                            <p><strong>{{ __('الهاتف') }}:</strong> ${order.phone}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{{ __('عنوان الشحن') }}</h5>
+                            <p>${order.address}, ${cityName}, ${order.postcode}<br>
+                            رسوم التوصيل: ₪${order.city_data?.delivery_fee ?? 0}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-items mb-5">
+                    <h5>{{ __('تفاصيل الطلب') }}</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{ __('المنتج') }}</th>
+                                    <th class="text-center">{{ __('الكمية') }}</th>
+                                    <th>{{ __('السعر') }}</th>
+                                    <th>{{ __('المجموع') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsHtml}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{{ __('المجموع الفرعي') }}:</strong></td>
+                                    <td dir="ltr">${order.subtotal} ₪</td>
+                                </tr>
+                                ${discountRow}
+                                <!-- <tr>
+                                <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
+                                <td>${order.tax} ₪</td>
+                                </tr> -->
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{{ __('سعر التوصيل') }}:</strong></td>
+                                    <td dir="ltr">${order.city_data?.delivery_fee ?? 0} ₪</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{{ __('المجموع الكلي') }}:</strong></td>
+                                    <td dir="ltr">${order.total} ₪</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                ${notesSection}
+            `;
+
+            $('#orderTrackingResult .order-details-box').html(html);
+        }
+    });
+</script>
 @endsection
+

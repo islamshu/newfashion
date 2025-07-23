@@ -41,7 +41,7 @@
                                         <li><strong>{{ __('البريد الإلكتروني:') }}</strong> {{ $order->email }}</li>
                                         <li><strong>{{ __('الهاتف:') }}</strong> {{ $order->phone }}</li>
                                         <li><strong>{{ __('العنوان:') }}</strong> {{ $order->address }},
-                                            {{ $order->city }}</li>
+                                            {{ $order->city_data['name'][app()->getLocale()] }}</li>
                                         <li><strong>{{ __('ملاحظات:') }}</strong> {{ $order->notes ?? __('لا يوجد') }}
                                         </li>
                                     </ul>
@@ -55,9 +55,12 @@
                                     <ul class="list-unstyled mb-0">
                                         <li><strong>{{ __('الإجمالي قبل الخصم:') }}</strong>
                                             {{ number_format($order->subtotal, 2) }} ₪</li>
-                                       
+                                        @if($order->city_data && isset($order->city_data['delivery_fee']))
+                                            <li><strong>{{ __('سعر التوصيل:') }}</strong> {{ number_format($order->city_data['delivery_fee'], 2) }} ₪</li>
+                                        @endif
                                         <li><strong>{{ __('الخصم:') }}</strong> {{ number_format($order->discount, 2) }}
                                             ₪</li>
+                                            
                                         <li><strong>{{ __('كود الكوبون:') }}</strong>
                                             {{ $order->coupon_code ?? __('لا يوجد') }}</li>
                                         <li><strong>{{ __('الإجمالي النهائي:') }}</strong> <span

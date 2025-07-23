@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\City;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Product;
@@ -60,6 +61,7 @@ class CartController extends Controller
     public function checkout()
     {
         $cart = session()->get('cart', []);
+        $cities = City::orderBy('id', 'desc')->get();
 
         $subtotal = 0;
         foreach ($cart as $item) {
@@ -72,63 +74,70 @@ class CartController extends Controller
         $totalInclTax = $subtotal + $tax;
         $total = $totalInclTax; // لو في تكاليف أخرى ممكن تضيفها
 
-        return view('frontend.checkout', compact('cart', 'subtotal', 'tax', 'totalInclTax', 'total'));
+        return view('frontend.checkout', compact('cart', 'subtotal', 'tax', 'totalInclTax', 'total', 'cities'));
     }
     public function applyCoupon(Request $request)
-    {
-        $code = trim($request->input('code'));
-        $cart = session('cart', []);
-        $subtotal = 0;
+{
+    $request->validate([
+        'code' => 'required|string',
+        'city_id' => 'required|exists:cities,id'
+    ]);
 
-        foreach ($cart as $item) {
-            $product = \App\Models\Product::find($item['product_id']);
-            $subtotal += $product->price * $item['quantity'];
-        }
+    $code = trim($request->input('code'));
+    $cityId = $request->input('city_id');
+    $cart = session('cart', []);
+    $subtotal = 0;
 
-        $coupon = Coupon::where('code', $code)->first();
-
-        if (!$coupon || !$coupon->isValid()) {
-            return response()->json(['error' => __('الكوبون غير صالح أو منتهي.')], 422);
-        }
-        if ($coupon->per_user_limit) {
-            $userId = auth('client')->id();
-
-            $usageCount = CouponUsage::where('coupon_id', $coupon->id)
-                ->where('client_id', $userId)
-                ->count();
-
-            if ($usageCount >= $coupon->per_user_limit) {
-                return response()->json(['error' => __('لقد تجاوزت الحد المسموح لهذا الكوبون.')], 422);
-            }
-        }
-      
-        if ($coupon->min_order_amount != null && $coupon->min_order_amount > $subtotal) {
-            return response()->json(['error' => __('يجب ان يتجاوز حد الشراء اكثر من ' . $coupon->min_order_amount . '₪')], 422);
-        }
-
-
-
-
-        $discount = $coupon->calculateDiscount($subtotal);
-        $tax = 0; // أو حسب إعداداتك
-        $total = $subtotal + $tax - $discount;
-
-        Session::put('applied_coupon', [
-            'code' => $coupon->code,
-            'discount' => $discount,
-            'label' => __('خصم الكوبون') . ': ' . $coupon->code,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'discount' => number_format($discount, 2),
-            'discountLabel' => __('خصم الكوبون') . ': ' . $coupon->code,
-            'subtotal' => number_format($subtotal, 2),
-            'tax' => number_format($tax, 2),
-            'totalInclTax' => number_format($subtotal + $tax, 2),
-            'total' => number_format($total, 2),
-        ]);
+    foreach ($cart as $item) {
+        $product = Product::find($item['product_id']);
+        $subtotal += $product->price * $item['quantity'];
     }
+
+    $coupon = Coupon::where('code', $code)->first();
+
+    if (!$coupon || !$coupon->isValid()) {
+        return response()->json(['error' => __('الكوبون غير صالح أو منتهي.')], 422);
+    }
+
+
+    if ($coupon->per_user_limit) {
+        $userId = auth('client')->id();
+        $usageCount = CouponUsage::where('coupon_id', $coupon->id)
+                                ->where('client_id', $userId)
+                                ->count();
+
+        if ($usageCount >= $coupon->per_user_limit) {
+            return response()->json(['error' => __('لقد تجاوزت الحد المسموح لهذا الكوبون.')], 422);
+        }
+    }
+
+    if ($coupon->min_order_amount != null && $coupon->min_order_amount > $subtotal) {
+        return response()->json([
+            'error' => __('يجب ان يتجاوز حد الشراء اكثر من ' . $coupon->min_order_amount . '₪')
+        ], 422);
+    }
+
+    $discount = $coupon->calculateDiscount($subtotal);
+    $deliveryFee = City::find($cityId)->delivery_fee ?? 0;
+    $total = $subtotal - $discount + $deliveryFee;
+
+    Session::put('applied_coupon', [
+        'code' => $coupon->code,
+        'discount' => $discount,
+        'label' => __('خصم الكوبون') . ': ' . $coupon->code,
+        'city_id' => $cityId
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'discount' => number_format($discount, 2),
+        'discountLabel' => __('خصم الكوبون') . ': ' . $coupon->code,
+        'subtotal' => number_format($subtotal, 2),
+        'deliveryFee' => number_format($deliveryFee, 2),
+        'total' => number_format($total, 2),
+    ]);
+}
+
     public function removeCoupon()
     {
         session()->forget('applied_coupon');

@@ -26,8 +26,13 @@ class Order extends Model
         'discount',
         'status',
         'code',
-        'client_id'
+        'client_id',
+        'city_data'
     ];
+    protected $casts = [
+        'city_data' => 'array',
+    ];
+
 
     /**
      * علاقة الطلب مع العناصر (المنتجات داخل الطلب)

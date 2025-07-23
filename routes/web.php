@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashbaordController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\OrderController;
@@ -78,8 +79,7 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
   Route::get('/coupons/{coupon}/usages', [CouponController::class, 'usages'])->name('coupons.usages');
   Route::resource('reviews', ReviewController::class);
   Route::resource('pages', PageController::class);
-
-
+  Route::resource('cities', CityController::class);
   Route::post('/orders/{order}/change-status', [OrderController::class, 'changeStatus'])
     ->name('orders.change_status');
   Route::get('client/trashed', [ClientController::class, 'trashed'])->name('clients.trashed');

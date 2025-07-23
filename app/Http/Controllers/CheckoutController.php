@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\City;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Order;
@@ -21,6 +22,7 @@ class CheckoutController extends Controller
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
+            'city_id' => 'required|exists:cities,id', // إضافة city_id للتحقق من المدينة
             'message' => 'nullable|string',
         ]);
 
@@ -39,10 +41,10 @@ class CheckoutController extends Controller
             $subtotal += $product->price * $item['quantity'];
         }
 
-        $tax = 0;
         $discount = 0;
         $code = null;
         $coupon = null;
+        $deliveryFee = City::find($validated['city_id'])->delivery_fee ?? 0;
 
         if (session()->has('applied_coupon') && is_array(session('applied_coupon'))) {
             $applied = session('applied_coupon');
@@ -79,8 +81,8 @@ class CheckoutController extends Controller
             }
         }
 
-        $total = $subtotal + $tax - $discount;
-
+        $total = $subtotal - $discount + $deliveryFee;
+        $city = City::find($request->city_id);
         try {
             DB::beginTransaction();
 
@@ -93,11 +95,13 @@ class CheckoutController extends Controller
                 'phone' => $validated['phone'],
                 'address' => $validated['address'],
                 'city' => $validated['city'],
+                'city_id' => $validated['city_id'],
                 'postcode' => '00972',
                 'notes' => $validated['message'] ?? null,
                 'subtotal' => $subtotal,
-                'tax' => $tax,
+                'delivery_fee' => $deliveryFee,
                 'total' => $total,
+                'city_data'=> $city,
                 'coupon_code' => $code,
                 'discount' => $discount,
                 'status' => 'pending',
@@ -137,7 +141,7 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            session()->forget(['cart', 'applied_coupon']);
+            session()->forget(['cart', 'applied_coupon', 'delivery_fee']);
 
             return response()->json([
                 'success' => true,

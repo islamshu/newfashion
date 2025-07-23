@@ -324,36 +324,36 @@
                             </div>
 
                             <!-- table -->
-                           <div class="table-wrapper" style="overflow-x: auto;">
-    <table id="ordersTable" class="eg-table order-table table mb-0 text-center align-middle">
-        <thead>
-            <tr>
-                <th>{{ __('رقم الطلب') }}</th>
-                <th>{{ __('البريد الإلكتروني') }}</th>
-                <th>{{ __('رقم الهاتف') }}</th>
-                <th>{{ __('الإجمالي') }}</th>
-                <th>{{ __('حالة الطلب') }}</th>
-                <th>{{ __('تاريخ الإنشاء') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- بيانات الطلبات ستُعبأ هنا بواسطة JavaScript -->
-        </tbody>
-    </table>
-</div>
+                            <div class="table-wrapper" style="overflow-x: auto;">
+                                <table id="ordersTable" class="eg-table order-table table mb-0 text-center align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ __('رقم الطلب') }}</th>
+                                            <th>{{ __('البريد الإلكتروني') }}</th>
+                                            <th>{{ __('رقم الهاتف') }}</th>
+                                            <th>{{ __('الإجمالي') }}</th>
+                                            <th>{{ __('حالة الطلب') }}</th>
+                                            <th>{{ __('تاريخ الإنشاء') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- بيانات الطلبات ستُعبأ هنا بواسطة JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
 
-@php
-    function getStatusText($status)
-    {
-        return match ($status) {
-            'pending' => __('قيد الانتظار'),
-            'processing' => __('قيد التنفيذ'),
-            'completed' => __('مكتمل'),
-            'cancelled' => __('ملغى'),
-            default => __('غير معروف'),
-        };
-    }
-@endphp
+                            @php
+                                function getStatusText($status)
+                                {
+                                    return match ($status) {
+                                        'pending' => __('قيد الانتظار'),
+                                        'processing' => __('قيد التنفيذ'),
+                                        'completed' => __('مكتمل'),
+                                        'cancelled' => __('ملغى'),
+                                        default => __('غير معروف'),
+                                    };
+                                }
+                            @endphp
 
 
                             <!-- pagination area (يمكنك تعديلها لاحقاً لتصبح تفاعلية) -->
@@ -525,6 +525,9 @@
         });
     </script>
     <script>
+        const appLocale = '{{ app()->getLocale() }}';
+    </script>
+    <script>
         $(document).ready(function() {
             // تتبع الطلب
             $('#trackOrderForm').on('submit', function(e) {
@@ -604,25 +607,25 @@
                 }
 
                 let html = `
-                <div class="order-summary box--shadow p-4">
-                    <h4 class="mb-3">{{ __('ملخص الطلب') }}</h4>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>{{ __('رقم الطلب') }}:</strong> ${order.code}</p>
-                            <p><strong>{{ __('تاريخ الطلب') }}:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>{{ __('الحالة') }}:</strong> <span class="${statusClass}">${getStatusText(order.status)}</span></p>
-                            <p><strong>{{ __('المجموع') }}:</strong> ${order.total} ₪</p>
-                        </div>
+            <div class="order-summary box--shadow p-4">
+                <h4 class="mb-3">{{ __('ملخص الطلب') }}</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>{{ __('رقم الطلب') }}:</strong> ${order.code}</p>
+                        <p><strong>{{ __('تاريخ الطلب') }}:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
                     </div>
-                    <div class="text-center mt-3">
-                        <button class="primary-btn3 black-bg hover-btn5 hover-white view-details-btn" 
-                                data-order-id="${order.id}">
-                            {{ __('عرض التفاصيل') }}
-                        </button>
+                    <div class="col-md-6">
+                        <p><strong>{{ __('الحالة') }}:</strong> <span class="${statusClass}">${getStatusText(order.status)}</span></p>
+                        <p><strong>{{ __('المجموع') }}:</strong> ${order.total} ₪</p>
                     </div>
                 </div>
+                <div class="text-center mt-3">
+                    <button class="primary-btn3 black-bg hover-btn5 hover-white view-details-btn" 
+                            data-order-id="${order.id}">
+                        {{ __('عرض التفاصيل') }}
+                    </button>
+                </div>
+            </div>
             `;
 
                 $('#orderResults').html(html).show();
@@ -654,12 +657,12 @@
                 let itemsHtml = '';
                 order.items.forEach(item => {
                     itemsHtml += `
-                    <tr>
-                        <td>${item.product_name}</td>
-                        <td>${item.quantity}</td>
-                        <td>${item.price} ₪</td>
-                        <td>${item.quantity * item.price} ₪</td>
-                    </tr>
+                <tr>
+                    <td>${item.product_name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price} ₪</td>
+                    <td>${item.quantity * item.price} ₪</td>
+                </tr>
                 `;
                 });
 
@@ -682,78 +685,84 @@
                 }
 
                 let html = `
-                <div class="order-details">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h5>{{ __('معلومات الطلب') }}</h5>
-                            <p><strong>{{ __('رقم الطلب') }}:</strong> ${order.code}</p>
-                            <p><strong>{{ __('تاريخ الطلب') }}:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
-                            <p><strong>{{ __('الحالة') }}:</strong> <span class="${statusClass}">${getStatusText(order.status)}</span></p>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>{{ __('معلومات الدفع') }}</h5>
-                            <p><strong>{{ __('طريقة الدفع') }}:</strong> {{ __('الدفع عند الاستلام') }}</p>
-                            <p><strong>{{ __('المجموع') }}:</strong> ${order.total} ₪</p>
-                        </div>
+            <div class="order-details">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>{{ __('معلومات الطلب') }}</h5>
+                        <p><strong>{{ __('رقم الطلب') }}:</strong> ${order.code}</p>
+                        <p><strong>{{ __('تاريخ الطلب') }}:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
+                        <p><strong>{{ __('الحالة') }}:</strong> <span class="${statusClass}">${getStatusText(order.status)}</span></p>
                     </div>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h5>{{ __('معلومات العميل') }}</h5>
-                            <p><strong>{{ __('الاسم') }}:</strong> ${order.fname} ${order.lname}</p>
-                            <p><strong>{{ __('البريد الإلكتروني') }}:</strong> ${order.email}</p>
-                            <p><strong>{{ __('الهاتف') }}:</strong> ${order.phone}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>{{ __('عنوان الشحن') }}</h5>
-                            <p>${order.address}, ${order.city}, ${order.postcode}</p>
-                        </div>
+                    <div class="col-md-6">
+                        <h5>{{ __('معلومات الدفع') }}</h5>
+                        <p><strong>{{ __('طريقة الدفع') }}:</strong> {{ __('الدفع عند الاستلام') }}</p>
+                        <p><strong>{{ __('المجموع') }}:</strong> ${order.total} ₪</p>
                     </div>
-                    
-                    <h5>{{ __('تفاصيل الطلب') }}</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>{{ __('المنتج') }}</th>
-                                    <th>{{ __('الكمية') }}</th>
-                                    <th>{{ __('السعر') }}</th>
-                                    <th>{{ __('المجموع') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${itemsHtml}
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="3" class="text-end"><strong>{{ __('المجموع الفرعي') }}:</strong></td>
-                                    <td>${order.subtotal} ₪</td>
-                                </tr>
-                                ${order.discount > 0 ? `
-                                                                            <tr>
-                                                                                <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
-                                                                                <td>-${order.discount} ₪</td>
-                                                                            </tr>
-                                                                            ` : ''}
-                                <tr>
-                                    <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
-                                    <td>${order.tax} ₪</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="text-end"><strong>{{ __('المجموع الكلي') }}:</strong></td>
-                                    <td>${order.total} ₪</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                    
-                    ${order.notes ? `
-                                                                <div class="order-notes mt-3">
-                                                                    <h5>{{ __('ملاحظات الطلب') }}</h5>
-                                                                    <p>${order.notes}</p>
-                                                                </div>
-                                                                ` : ''}
                 </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>{{ __('معلومات العميل') }}</h5>
+                        <p><strong>{{ __('الاسم') }}:</strong> ${order.fname} ${order.lname}</p>
+                        <p><strong>{{ __('البريد الإلكتروني') }}:</strong> ${order.email}</p>
+                        <p><strong>{{ __('الهاتف') }}:</strong> ${order.phone}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>{{ __('عنوان الشحن') }}</h5>
+                        ${order.address}, ${order.city_data?.name?.[appLocale] || order.city}, ${order.postcode}<br>
+                        {{ __('رسوم التوصيل') }}: ₪${order.city_data?.delivery_fee ?? 0}</p>
+                    </div>
+                </div>
+                
+                <h5>{{ __('تفاصيل الطلب') }}</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>{{ __('المنتج') }}</th>
+                                <th>{{ __('الكمية') }}</th>
+                                <th>{{ __('السعر') }}</th>
+                                <th>{{ __('المجموع') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>{{ __('المجموع الفرعي') }}:</strong></td>
+                                <td>${order.subtotal} ₪</td>
+                            </tr>
+                            ${order.discount > 0 ? `
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{{ __('الخصم') }} (${order.coupon_code}):</strong></td>
+                                    <td>-${order.discount} ₪</td>
+                                </tr>
+                                ` : ''}
+                            <!-- إزالة الضريبة -->
+                            <!-- <tr>
+                                <td colspan="3" class="text-end"><strong>{{ __('الضريبة') }}:</strong></td>
+                                <td>${order.tax} ₪</td>
+                            </tr> -->
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>{{ __('رسوم التوصيل') }}:</strong></td>
+                                <td>₪${order.city_data?.delivery_fee ?? 0}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>{{ __('المجموع الكلي') }}:</strong></td>
+                                <td>${order.total} ₪</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                ${order.notes ? `
+                    <div class="order-notes mt-3">
+                        <h5>{{ __('ملاحظات الطلب') }}</h5>
+                        <p>${order.notes}</p>
+                    </div>
+                    ` : ''}
+            </div>
             `;
 
                 $('#orderDetailsContent').html(html);
@@ -772,6 +781,7 @@
             }
         });
     </script>
+
     <script>
         const translations = {
             pending: @json(__('قيد المعالجة')),
