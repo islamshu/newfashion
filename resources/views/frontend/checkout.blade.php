@@ -204,7 +204,6 @@ document.addEventListener('DOMContentLoaded', function () {
     else $('#delivery-row').hide();
 }
 
-
     // عند تغيير المدينة
     citySelect.on('change', function () {
         const fee = parseFloat($(this).find(':selected').data('fee')) || 0;
@@ -219,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         applyBtn.prop('disabled', !hasCity);
         if (!hasCity) {
-            feedback.text('يجب اختيار المدينة أولاً قبل تطبيق الكوبون').removeClass('text-success').addClass('text-danger');
+            feedback.text({{__('يجب اختيار المدينة أولاً قبل تطبيق الكوبون')}}).removeClass('text-success').addClass('text-danger');
         } else {
             feedback.text('');
         }
@@ -233,32 +232,37 @@ document.addEventListener('DOMContentLoaded', function () {
         const cityId = citySelect.val();
 
         if (!cityId) {
-            feedback.text('يجب اختيار المدينة أولاً قبل تطبيق الكوبون').removeClass('text-success').addClass('text-danger');
+            feedback.text({{__('يجب اختيار المدينة أولاً قبل تطبيق الكوبون')}}).removeClass('text-success').addClass('text-danger');
             return;
         }
 
         if (!code) return;
 
         $.ajax({
-            url: "{{ route('cart.applyCoupon') }}",
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken },
-            data: { code, city_id: cityId },
-            success: function (data) {
-                if (data.error) {
-                    feedback.text(data.error).removeClass('text-success').addClass('text-danger');
-                } else {
-                    feedback.text('تم تطبيق الكوبون بنجاح').removeClass('text-danger').addClass('text-success');
-                    couponInput.prop('readonly', true);
-                    applyBtn.addClass('d-none');
-                    removeBtn.removeClass('d-none');
+    url: "{{ route('cart.applyCoupon') }}",
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': csrfToken },
+    data: { code, city_id: cityId },
+    success: function (data) {
+        if (data.error) {
+            feedback.text(data.error).removeClass('text-success').addClass('text-danger');
+        } else {
+            feedback.text("{{ __('تم تطبيق الكوبون بنجاح') }}")
+                .removeClass('text-danger').addClass('text-success');
+            couponInput.prop('readonly', true);
+            applyBtn.addClass('d-none');
+            removeBtn.removeClass('d-none');
 
-                    const fee = parseFloat(citySelect.find(':selected').data('fee')) || 0;
-                    updatePriceSummary(fee, data.discount, data.subtotal);
-                }
-            },
-            error: () => feedback.text('حدث خطأ ما').removeClass('text-success').addClass('text-danger')
-        });
+            const fee = parseFloat(citySelect.find(':selected').data('fee')) || 0;
+            updatePriceSummary(fee, data.discount, data.subtotal);
+        }
+    },
+    error: function (xhr) {
+        const msg = xhr.responseJSON?.error ?? "{{ __('حدث خطأ غير متوقع') }}";
+        feedback.text(msg).removeClass('text-success').addClass('text-danger');
+    }
+});
+
     });
 
     // إزالة الكوبون
@@ -325,18 +329,18 @@ document.addEventListener('DOMContentLoaded', function () {
             submitBtn.prop('disabled', false);
             if (data.success) {
                 Swal.fire({
-                    title: 'تم الطلب!',
+                    title: {{__('تم الطلب!')}},
                     text: data.message,
                     icon: 'success'
                 }).then(() => window.location.href = "/order/" + data.order_code);
             } else {
-                Swal.fire('خطأ!', data.message || 'حدث خطأ ما', 'error');
+                Swal.fire({{__('خطأ!')}}, data.message || {{__('حدث خطأ ما')}}, 'error');
             }
         })
         .catch(() => {
             loading.hide();
             submitBtn.prop('disabled', false);
-            Swal.fire('خطأ!', 'فشل إرسال الطلب.', 'error');
+            Swal.fire({{__('خطأ!')}}, {{__('فشل إرسال الطلب.')}}, 'error');
         });
     });
 
