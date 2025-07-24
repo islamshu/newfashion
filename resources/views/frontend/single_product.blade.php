@@ -172,7 +172,7 @@
                                     <span>{{ __('نفذ من المخزون') }}</span>
                                 </div>
                             @else
-                                <a href="{{ route('checkout') }}"
+                                <a  id="add-to-cart-btn-checkout"
                                     class="primary-btn1 hover-btn3">{{ __('اشتري الآن') }}</a>
                                 <a id="add-to-cart-btn"
                                     class="primary-btn1 style-3 hover-btn4">{{ __('أضف الى السلة') }}</a>
@@ -555,6 +555,72 @@
                 }
             });
         });
+         $(document).on('click', '#add-to-cart-btn-checkout', function(e) {
+            e.preventDefault();
+
+            const productId = $('input[name="product_id"]').val();
+            const quantity = $('.quantity-input').val();
+            const colorId = $('input[name="color_id"]:checked').val();
+            const sizeId = $('input[name="size_id"]:checked').val();
+
+            console.log({
+                productId,
+                quantity,
+                colorId,
+                sizeId
+            }); // تحقق من القيم
+
+            if (!productId || !quantity) {
+                alert("يجب تحديد المنتج والكمية.");
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route('cart.add') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    product_id: productId,
+                    quantity: quantity,
+                    color_id: colorId,
+                    size_id: sizeId,
+                },
+                beforeSend: function() {
+                    $('#add-to-cart-btn-checkout').html(
+                        '<span class="spinner-border spinner-border-sm"></span> {{ __('جاري الإضافة...') }}'
+                    ).prop('disabled', true);
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تمت الإضافة',
+                        text: response.message || 'تم إضافة المنتج إلى السلة بنجاح!',
+                    });
+
+                    if (response.cart_count !== undefined) {
+                        $('#cart-count').text(response.cart_count);
+                    }
+
+                    $.get('/cart/mini', function(html) {
+                        $('.cart-menu').html(html);
+                    });
+
+                    $('#add-to-cart-btn-checkout').html('{{ __('أضف إلى السلة') }}').prop('disabled', false);
+                        window.location.href = '{{ route('checkout') }}';
+
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ',
+                        text: xhr.responseJSON?.message || 'فشل في إضافة المنتج إلى السلة!',
+                    });
+
+                    $('#add-to-cart-btn-checkout').html('{{ __('أضف إلى السلة') }}').prop('disabled', false);
+                }
+            });
+        });
+        
     </script>
     <script>
         $(document).ready(function() {
