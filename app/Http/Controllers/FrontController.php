@@ -11,6 +11,8 @@ use App\Models\Page;
 use App\Models\Slider;
 use App\Models\Product;
 use App\Models\ProductAttribute;
+use App\Models\ProductImage;
+use App\Models\ProductThumbnail;
 use App\Models\ProductVariation;
 use App\Models\Rating;
 use App\Models\Review;
@@ -28,6 +30,7 @@ class FrontController extends Controller
 {
     public function index()
     {
+      
         $products = Product::with('category')->take(8)->get();
         $bestProduct = Product::Active()->Featured()->take(9)->get();
         $featchersCategories = Category::Featcher()->get();
