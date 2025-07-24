@@ -42,7 +42,7 @@
             <i class="fas fa-globe"></i> {{-- أيقونة العالم --}}
         </button>
 
-        <a href="{{ url('lang/ar') }}" class="lang-option lang-ar" title="العربية">🇸🇦</a>
+        <a href="{{ url('lang/ar') }}" class="lang-option lang-ar" title="العربية">🇵🇸</a>
         <a href="{{ url('lang/he') }}" class="lang-option lang-he" title="עברית">🇮🇱</a>
     </div>
 
