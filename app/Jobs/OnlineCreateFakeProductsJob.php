@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Faker\Factory as Faker;
 
-class CreateFakeProductsJob implements ShouldQueue
+class OnlineCreateFakeProductsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
