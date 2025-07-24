@@ -177,6 +177,17 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Pass translations from PHP to JS
+            const translations = {
+                select_city_first: @json(__('يجب اختيار المدينة أولاً قبل تطبيق الكوبون')),
+                coupon_applied: @json(__('تم تطبيق الكوبون بنجاح')),
+                unexpected_error: @json(__('حدث خطأ غير متوقع')),
+                order_success: @json(__('تم الطلب!')),
+                error: @json(__('خطأ!')),
+                something_wrong: @json(__('حدث خطأ ما')),
+                order_failed: @json(__('فشل إرسال الطلب.'))
+            };
+
             const csrfToken = '{{ csrf_token() }}';
             const citySelect = $('#citySelect');
             const couponInput = $('#coupon');
@@ -218,8 +229,9 @@
 
                 applyBtn.prop('disabled', !hasCity);
                 if (!hasCity) {
-                    feedback.text({{ __('يجب اختيار المدينة أولاً قبل تطبيق الكوبون') }}).removeClass(
-                        'text-success').addClass('text-danger');
+                    feedback.text(translations.select_city_first)
+                           .removeClass('text-success')
+                           .addClass('text-danger');
                 } else {
                     feedback.text('');
                 }
@@ -233,8 +245,9 @@
                 const cityId = citySelect.val();
 
                 if (!cityId) {
-                    feedback.text({{ __('يجب اختيار المدينة أولاً قبل تطبيق الكوبون') }}).removeClass(
-                        'text-success').addClass('text-danger');
+                    feedback.text(translations.select_city_first)
+                           .removeClass('text-success')
+                           .addClass('text-danger');
                     return;
                 }
 
@@ -252,26 +265,28 @@
                     },
                     success: function(data) {
                         if (data.error) {
-                            feedback.text(data.error).removeClass('text-success').addClass(
-                                'text-danger');
+                            feedback.text(data.error)
+                                   .removeClass('text-success')
+                                   .addClass('text-danger');
                         } else {
-                            feedback.text("{{ __('تم تطبيق الكوبون بنجاح') }}")
-                                .removeClass('text-danger').addClass('text-success');
+                            feedback.text(translations.coupon_applied)
+                                   .removeClass('text-danger')
+                                   .addClass('text-success');
                             couponInput.prop('readonly', true);
                             applyBtn.addClass('d-none');
                             removeBtn.removeClass('d-none');
 
-                            const fee = parseFloat(citySelect.find(':selected').data('fee')) ||
-                                0;
+                            const fee = parseFloat(citySelect.find(':selected').data('fee')) || 0;
                             updatePriceSummary(fee, data.discount, data.subtotal);
                         }
                     },
                     error: function(xhr) {
-                        const msg = xhr.responseJSON?.error ?? "{{ __('حدث خطأ غير متوقع') }}";
-                        feedback.text(msg).removeClass('text-success').addClass('text-danger');
+                        const msg = xhr.responseJSON?.error ?? translations.unexpected_error;
+                        feedback.text(msg)
+                               .removeClass('text-success')
+                               .addClass('text-danger');
                     }
                 });
-
             });
 
             // إزالة الكوبون
@@ -301,18 +316,12 @@
                 const selectedVal = $('#citySelect').val();
                 if (!selectedVal) {
                     e.preventDefault();
-
-                    // إظهار رسالة الخطأ
                     $('.invalid-feedback').show();
-
-                    // إضافة كلاس خطأ على العنصر
                     $('#citySelect').addClass('is-invalid');
-
-                    // فتح القائمة niceSelect
                     $('#citySelect').niceSelect('update');
                     $('#citySelect').niceSelect('open');
+                    return;
                 }
-
 
                 const loading = $('#loadingSpinner');
                 const submitBtn = $('#submitOrderBtn');
@@ -328,32 +337,39 @@
                 formData.append('city_id', cityId);
 
                 fetch("{{ route('checkout.placeOrder') }}", {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        body: formData
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        loading.hide();
-                        submitBtn.prop('disabled', false);
-                        if (data.success) {
-                            Swal.fire({
-                                title: {{ __('تم الطلب!') }},
-                                text: data.message,
-                                icon: 'success'
-                            }).then(() => window.location.href = "/order/" + data.order_code);
-                        } else {
-                            Swal.fire({{ __('خطأ!') }}, data.message || {{ __('حدث خطأ ما') }},
-                                'error');
-                        }
-                    })
-                    .catch(() => {
-                        loading.hide();
-                        submitBtn.prop('disabled', false);
-                        Swal.fire({{ __('خطأ!') }}, {{ __('فشل إرسال الطلب.') }}, 'error');
-                    });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    loading.hide();
+                    submitBtn.prop('disabled', false);
+                    if (data.success) {
+                        Swal.fire({
+                            title: translations.order_success,
+                            text: data.message,
+                            icon: 'success'
+                        }).then(() => window.location.href = "/order/" + data.order_code);
+                    } else {
+                        Swal.fire(
+                            translations.error, 
+                            data.message || translations.something_wrong,
+                            'error'
+                        );
+                    }
+                })
+                .catch(() => {
+                    loading.hide();
+                    submitBtn.prop('disabled', false);
+                    Swal.fire(
+                        translations.error,
+                        translations.order_failed,
+                        'error'
+                    );
+                });
             });
 
             // تهيئة أولية (إذا كانت المدينة مختارة مسبقاً)
