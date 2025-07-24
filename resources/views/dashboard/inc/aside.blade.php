@@ -12,7 +12,7 @@
             </li>
 
             <!-- الإعدادات -->
-            <li class="dropdown nav-item {{ request()->routeIs('setting') ? 'active' : '' }}" data-menu="dropdown">
+            <li class="dropdown nav-item {{ request()->routeIs('setting') || request()->routeIs('about_page') ? 'active' : '' }}" data-menu="dropdown">
                 <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">
                     <i class="la la-cogs"></i>
                     <span>{{ __('الإعدادات') }}</span>
@@ -22,6 +22,12 @@
                         <a class="dropdown-item {{ request()->routeIs('setting') ? 'active' : '' }}"
                             href="{{ route('setting') }}">
                             <i class="la la-sliders"></i> {{ __('الإعدادات الاساسية للنظام') }}
+                        </a>
+                    </li>
+                     <li>
+                        <a class="dropdown-item {{ request()->routeIs('about_page') ? 'active' : '' }}"
+                            href="{{ route('about_page') }}">
+                            <i class="la la-file"></i> {{ __('إعدادات صفحة من نحن') }}
                         </a>
                     </li>
 
