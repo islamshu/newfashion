@@ -48,7 +48,7 @@
                                 <div class="col-12">
                                     <div class="form-inner">
                                         <label>{{ __('المدينة') }}</label>
-                                        <select  id="citySelect" >
+                                        <select id="citySelect">
                                             <option value="" data-fee="0">{{ __('اختر المدينة') }}</option>
                                             @foreach ($cities as $city)
                                                 <option value="{{ $city->id }}" data-fee="{{ $city->delivery_fee }}">
@@ -59,8 +59,8 @@
                                         </select>
                                         <input type="hidden" name="city" id="hiddenCityInput" required>
                                         <div class="invalid-feedback" style="display: none; color: red; font-size: 14px;">
-                                               {{__(' يرجى اختيار المدينة.')}}
-                                            </div>
+                                            {{ __(' يرجى اختيار المدينة.') }}
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -175,182 +175,193 @@
 
 @endsection
 @section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const csrfToken = '{{ csrf_token() }}';
-    const citySelect = $('#citySelect');
-    const couponInput = $('#coupon');
-    const applyBtn = $('#applyCouponBtn');
-    const removeBtn = $('#removeCouponBtn');
-    const feedback = $('#coupon-feedback');
-    const subtotalRaw = parseFloat({{ $subtotal ?? 0 }});
-    const discountRaw = parseFloat('{{ session('applied_coupon.discount', 0) }}') || 0;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = '{{ csrf_token() }}';
+            const citySelect = $('#citySelect');
+            const couponInput = $('#coupon');
+            const applyBtn = $('#applyCouponBtn');
+            const removeBtn = $('#removeCouponBtn');
+            const feedback = $('#coupon-feedback');
+            const subtotalRaw = parseFloat({{ $subtotal ?? 0 }});
+            const discountRaw = parseFloat('{{ session('applied_coupon.discount', 0) }}') || 0;
 
-    // تحديث السعر النهائي والواجهة
-    function updatePriceSummary(deliveryFee = 0, discount = 0, subtotal = null) {
-    const sub = subtotal !== null ? parseFloat(subtotal) : subtotalRaw;
-    const disc = parseFloat(discount ?? discountRaw ?? 0);
-    const total = sub + deliveryFee - disc;
+            // تحديث السعر النهائي والواجهة
+            function updatePriceSummary(deliveryFee = 0, discount = 0, subtotal = null) {
+                const sub = subtotal !== null ? parseFloat(subtotal) : subtotalRaw;
+                const disc = parseFloat(discount ?? discountRaw ?? 0);
+                const total = sub + deliveryFee - disc;
 
-    $('#subtotal-price').text('₪' + sub.toFixed(2));
-    $('#coupon-discount').text('-₪' + disc.toFixed(2));
-    $('#delivery-fee').text('₪' + deliveryFee.toFixed(2));
-    $('#total-price').text('₪' + total.toFixed(2));
+                $('#subtotal-price').text('₪' + sub.toFixed(2));
+                $('#coupon-discount').text('-₪' + disc.toFixed(2));
+                $('#delivery-fee').text('₪' + deliveryFee.toFixed(2));
+                $('#total-price').text('₪' + total.toFixed(2));
 
-    if (disc > 0) $('#coupon-row').show();
-    else $('#coupon-row').hide();
+                if (disc > 0) $('#coupon-row').show();
+                else $('#coupon-row').hide();
 
-    if (deliveryFee > 0) $('#delivery-row').show();
-    else $('#delivery-row').hide();
-}
+                if (deliveryFee > 0) $('#delivery-row').show();
+                else $('#delivery-row').hide();
+            }
 
-    // عند تغيير المدينة
-    citySelect.on('change', function () {
-        const fee = parseFloat($(this).find(':selected').data('fee')) || 0;
-        const hasCity = $(this).val() !== '';
-          const selectedVal = $(this).val();
-        $('#hiddenCityInput').val(selectedVal);
+            // عند تغيير المدينة
+            citySelect.on('change', function() {
+                const fee = parseFloat($(this).find(':selected').data('fee')) || 0;
+                const hasCity = $(this).val() !== '';
+                const selectedVal = $(this).val();
+                $('#hiddenCityInput').val(selectedVal);
 
-        if (selectedVal) {
-            $('.invalid-feedback').hide();
-            $('#citySelect').removeClass('is-invalid');
-        }
+                if (selectedVal) {
+                    $('.invalid-feedback').hide();
+                    $('#citySelect').removeClass('is-invalid');
+                }
 
-        applyBtn.prop('disabled', !hasCity);
-        if (!hasCity) {
-            feedback.text({{__('يجب اختيار المدينة أولاً قبل تطبيق الكوبون')}}).removeClass('text-success').addClass('text-danger');
-        } else {
-            feedback.text('');
-        }
+                applyBtn.prop('disabled', !hasCity);
+                if (!hasCity) {
+                    feedback.text({{ __('يجب اختيار المدينة أولاً قبل تطبيق الكوبون') }}).removeClass(
+                        'text-success').addClass('text-danger');
+                } else {
+                    feedback.text('');
+                }
 
-        updatePriceSummary(fee);
-    });
+                updatePriceSummary(fee);
+            });
 
-    // تطبيق الكوبون
-    applyBtn.on('click', function () {
-        const code = couponInput.val().trim();
-        const cityId = citySelect.val();
+            // تطبيق الكوبون
+            applyBtn.on('click', function() {
+                const code = couponInput.val().trim();
+                const cityId = citySelect.val();
 
-        if (!cityId) {
-            feedback.text({{__('يجب اختيار المدينة أولاً قبل تطبيق الكوبون')}}).removeClass('text-success').addClass('text-danger');
-            return;
-        }
+                if (!cityId) {
+                    feedback.text({{ __('يجب اختيار المدينة أولاً قبل تطبيق الكوبون') }}).removeClass(
+                        'text-success').addClass('text-danger');
+                    return;
+                }
 
-        if (!code) return;
+                if (!code) return;
 
-        $.ajax({
-    url: "{{ route('cart.applyCoupon') }}",
-    method: 'POST',
-    headers: { 'X-CSRF-TOKEN': csrfToken },
-    data: { code, city_id: cityId },
-    success: function (data) {
-        if (data.error) {
-            feedback.text(data.error).removeClass('text-success').addClass('text-danger');
-        } else {
-            feedback.text("{{ __('تم تطبيق الكوبون بنجاح') }}")
-                .removeClass('text-danger').addClass('text-success');
-            couponInput.prop('readonly', true);
-            applyBtn.addClass('d-none');
-            removeBtn.removeClass('d-none');
+                $.ajax({
+                    url: "{{ route('cart.applyCoupon') }}",
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    data: {
+                        code,
+                        city_id: cityId
+                    },
+                    success: function(data) {
+                        if (data.error) {
+                            feedback.text(data.error).removeClass('text-success').addClass(
+                                'text-danger');
+                        } else {
+                            feedback.text("{{ __('تم تطبيق الكوبون بنجاح') }}")
+                                .removeClass('text-danger').addClass('text-success');
+                            couponInput.prop('readonly', true);
+                            applyBtn.addClass('d-none');
+                            removeBtn.removeClass('d-none');
 
-            const fee = parseFloat(citySelect.find(':selected').data('fee')) || 0;
-            updatePriceSummary(fee, data.discount, data.subtotal);
-        }
-    },
-    error: function (xhr) {
-        const msg = xhr.responseJSON?.error ?? "{{ __('حدث خطأ غير متوقع') }}";
-        feedback.text(msg).removeClass('text-success').addClass('text-danger');
-    }
-});
+                            const fee = parseFloat(citySelect.find(':selected').data('fee')) ||
+                                0;
+                            updatePriceSummary(fee, data.discount, data.subtotal);
+                        }
+                    },
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON?.error ?? "{{ __('حدث خطأ غير متوقع') }}";
+                        feedback.text(msg).removeClass('text-success').addClass('text-danger');
+                    }
+                });
 
-    });
+            });
 
-    // إزالة الكوبون
-    removeBtn.on('click', function () {
-        $.ajax({
-            url: "{{ route('cart.removeCoupon') }}",
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken },
-            success: function (data) {
-                couponInput.prop('readonly', false).val('');
-                applyBtn.removeClass('d-none').prop('disabled', !citySelect.val());
-                removeBtn.addClass('d-none');
-                feedback.text('');
+            // إزالة الكوبون
+            removeBtn.on('click', function() {
+                $.ajax({
+                    url: "{{ route('cart.removeCoupon') }}",
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    success: function(data) {
+                        couponInput.prop('readonly', false).val('');
+                        applyBtn.removeClass('d-none').prop('disabled', !citySelect.val());
+                        removeBtn.addClass('d-none');
+                        feedback.text('');
 
-                const fee = parseFloat(citySelect.find(':selected').data('fee')) || 0;
-                updatePriceSummary(fee, 0, data.subtotal);
+                        const fee = parseFloat(citySelect.find(':selected').data('fee')) || 0;
+                        updatePriceSummary(fee, 0, data.subtotal);
+                    }
+                });
+            });
+
+            // عند إرسال الطلب
+            const checkoutForm = document.getElementById('checkoutForm');
+            checkoutForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const selectedVal = $('#citySelect').val();
+                if (!selectedVal) {
+                    e.preventDefault();
+
+                    // إظهار رسالة الخطأ
+                    $('.invalid-feedback').show();
+
+                    // إضافة كلاس خطأ على العنصر
+                    $('#citySelect').addClass('is-invalid');
+
+                    // فتح القائمة niceSelect
+                    $('#citySelect').niceSelect('update');
+                    $('#citySelect').niceSelect('open');
+                }
+
+
+                const loading = $('#loadingSpinner');
+                const submitBtn = $('#submitOrderBtn');
+                loading.show();
+                submitBtn.prop('disabled', true);
+
+                const formData = new FormData(this);
+                const selectedOption = citySelect.find(':selected');
+                const deliveryFee = parseFloat(selectedOption.data('fee')) || 0;
+                const cityId = citySelect.val();
+
+                formData.append('delivery_fee', deliveryFee);
+                formData.append('city_id', cityId);
+
+                fetch("{{ route('checkout.placeOrder') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        loading.hide();
+                        submitBtn.prop('disabled', false);
+                        if (data.success) {
+                            Swal.fire({
+                                title: {{ __('تم الطلب!') }},
+                                text: data.message,
+                                icon: 'success'
+                            }).then(() => window.location.href = "/order/" + data.order_code);
+                        } else {
+                            Swal.fire({{ __('خطأ!') }}, data.message || {{ __('حدث خطأ ما') }},
+                                'error');
+                        }
+                    })
+                    .catch(() => {
+                        loading.hide();
+                        submitBtn.prop('disabled', false);
+                        Swal.fire({{ __('خطأ!') }}, {{ __('فشل إرسال الطلب.') }}, 'error');
+                    });
+            });
+
+            // تهيئة أولية (إذا كانت المدينة مختارة مسبقاً)
+            const selected = citySelect.find(':selected');
+            if (selected.val() !== '') {
+                applyBtn.prop('disabled', false);
+                updatePriceSummary(parseFloat(selected.data('fee')) || 0);
             }
         });
-    });
-
-    // عند إرسال الطلب
-    const checkoutForm = document.getElementById('checkoutForm');
-    checkoutForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-           const selectedVal = $('#citySelect').val();
-        if (!selectedVal) {
-            e.preventDefault();
-
-            // إظهار رسالة الخطأ
-            $('.invalid-feedback').show();
-
-            // إضافة كلاس خطأ على العنصر
-            $('#citySelect').addClass('is-invalid');
-
-            // فتح القائمة niceSelect
-            $('#citySelect').niceSelect('update');
-            $('#citySelect').niceSelect('open');
-        }
-   
-
-        const loading = $('#loadingSpinner');
-        const submitBtn = $('#submitOrderBtn');
-        loading.show();
-        submitBtn.prop('disabled', true);
-
-        const formData = new FormData(this);
-        const selectedOption = citySelect.find(':selected');
-        const deliveryFee = parseFloat(selectedOption.data('fee')) || 0;
-        const cityId = citySelect.val();
-
-        formData.append('delivery_fee', deliveryFee);
-        formData.append('city_id', cityId);
-
-        fetch("{{ route('checkout.placeOrder') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            loading.hide();
-            submitBtn.prop('disabled', false);
-            if (data.success) {
-                Swal.fire({
-                    title: {{__('تم الطلب!')}},
-                    text: data.message,
-                    icon: 'success'
-                }).then(() => window.location.href = "/order/" + data.order_code);
-            } else {
-                Swal.fire({{__('خطأ!')}}, data.message || {{__('حدث خطأ ما')}}, 'error');
-            }
-        })
-        .catch(() => {
-            loading.hide();
-            submitBtn.prop('disabled', false);
-            Swal.fire({{__('خطأ!')}}, {{__('فشل إرسال الطلب.')}}, 'error');
-        });
-    });
-
-    // تهيئة أولية (إذا كانت المدينة مختارة مسبقاً)
-    const selected = citySelect.find(':selected');
-    if (selected.val() !== '') {
-        applyBtn.prop('disabled', false);
-        updatePriceSummary(parseFloat(selected.data('fee')) || 0);
-    }
-});
-</script>
+    </script>
 @endsection
-
