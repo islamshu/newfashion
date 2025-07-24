@@ -90,10 +90,7 @@ class OnlineCreateFakeProductsJob implements ShouldQueue
                     'ar' => $productNameAr,
                     'he' => $productNameHe,
                 ],
-                'description' => [
-                    'ar' => $descAr,
-                    'he' => $descHe,
-                ],
+                
                 'short_description' => [
                     'ar' => $shortDescAr,
                     'he' => $shortDescHe,
