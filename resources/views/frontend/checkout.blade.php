@@ -160,7 +160,7 @@
                         </div>
                         <div id="coupon-feedback" class="mt-2 small"></div>
                         <div id="city-required-alert" class="alert alert-warning mt-2 d-none">
-                            <i class="fas fa-exclamation-circle"></i> يجب اختيار المدينة أولاً قبل تطبيق الكوبون
+                            <i class="fas fa-exclamation-circle"></i>{{__(' يجب اختيار المدينة أولاً قبل تطبيق الكوبون')}}
                         </div>
                     </div>
 
