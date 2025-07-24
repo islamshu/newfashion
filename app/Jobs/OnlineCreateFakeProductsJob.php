@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Faker\Factory as Faker;
 
-class OnlineCreateFakeProductsJob implements ShouldQueue
+class CreateFakeProductsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -28,15 +28,14 @@ class OnlineCreateFakeProductsJob implements ShouldQueue
 
         // ربط slug التصنيف مع مجلد الصور
         $categoryMap = [
-            'mlabs-2VTaF'     => 'cloth',
-            'ahthy-6YMih'     => 'shose',
-            'shnt-nyAk9'      => 'bags',
-            'akssoarat-vo1H8' => 'perfumes',
-            'mkyag-QjJUZ'     => 'makeup',
+            'mlabs-LMQGC' => 'cloth',
+            'ahthy-VIMrw' => 'shose',
+            'shnt-3ThGm'  => 'bags',
+            'mkyag-BzgXX' => 'makeup'
         ];
 
         // تصنيفات لا تحتوي على ألوان أو مقاسات
-        $noVariationCategories = ['akssoarat-vo1H8', 'mkyag-QjJUZ'];
+        $noVariationCategories = ['mkyag-BzgXX'];
 
         $colors = ProductAttribute::where('type', 'color')->pluck('id')->toArray();
         $sizes = ProductAttribute::where('type', 'size')->pluck('id')->toArray();
@@ -91,7 +90,10 @@ class OnlineCreateFakeProductsJob implements ShouldQueue
                     'ar' => $productNameAr,
                     'he' => $productNameHe,
                 ],
-               
+                'description' => [
+                    'ar' => $descAr,
+                    'he' => $descHe,
+                ],
                 'short_description' => [
                     'ar' => $shortDescAr,
                     'he' => $shortDescHe,
@@ -180,7 +182,7 @@ class OnlineCreateFakeProductsJob implements ShouldQueue
             return collect();
         }
 
-        $files = glob($path . '/*.jpeg');
+        $files = glob($path . '/*.{jpg,jpeg,png}', GLOB_BRACE);
         return collect($files)->shuffle()->values();
     }
 }
