@@ -201,7 +201,7 @@
                         <li class="product-delivers">
                             <i class="fas fa-truck"></i>
                             <p>{{ __('مدة التوصيل: من 3 إلى 7 أيام عمل ') }}<a
-                                    href="#">{{ __('شحن وإرجاع') }}</a></p>
+                                    href="{{route('page','syas-alshhn-oalastragaa')}}">{{ __('شحن وإرجاع') }}</a></p>
                         </li>
                     </ul>
                     <div class="compare-wishlist-area">
