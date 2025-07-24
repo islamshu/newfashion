@@ -72,7 +72,7 @@
                 <div
                     class="col-lg-12 d-flex flex-md-row flex-column align-items-center justify-content-md-between justify-content-center flex-wrap gap-3">
                     <div class="footer-left">
-                        <p>© {{ __('حقوق النشر') }} {{ Carbon\Carbon::now()->format('Y') }} {{ config('app.name') }}
+                        <p>© {{ __('حقوق النشر') }} {{ Carbon\Carbon::now()->format('Y') }}\
                             | {{ __('تصميم بواسطة') }} <a href="https://www.bombastic.ps/">{{ __('Bombastic') }}</a>
                         </p>
                     </div>
