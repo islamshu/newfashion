@@ -342,7 +342,7 @@
     <script>
         document.getElementById('otp-form-register').addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('button[type="submit"]');
-            toggleLoader(submitBtn, true);
+            
             e.preventDefault();
             let form = this;
             let formData = new FormData(form);
@@ -474,7 +474,7 @@
             // إرسال نموذج التحقق من OTP
             document.getElementById('otp-form-login').addEventListener('submit', function(e) {
                 const submitBtn = this.querySelector('button[type="submit"]');
-                toggleLoader(submitBtn, true);
+                
                 e.preventDefault();
 
                 let form = this;
