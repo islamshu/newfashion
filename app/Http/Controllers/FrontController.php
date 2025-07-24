@@ -30,7 +30,7 @@ class FrontController extends Controller
 {
     public function index()
     {
-      
+       
         $products = Product::with('category')->take(8)->get();
         $bestProduct = Product::Active()->Featured()->take(9)->get();
         $featchersCategories = Category::Featcher()->get();
