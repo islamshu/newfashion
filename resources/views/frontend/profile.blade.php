@@ -324,23 +324,24 @@
                             </div>
 
                             <!-- table -->
-                            <div class="table-wrapper" style="overflow-x: auto;">
-                                <table id="ordersTable" class="eg-table order-table table mb-0 text-center align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>{{ __('رقم الطلب') }}</th>
-                                            <th>{{ __('البريد الإلكتروني') }}</th>
-                                            <th>{{ __('رقم الهاتف') }}</th>
-                                            <th>{{ __('الإجمالي') }}</th>
-                                            <th>{{ __('حالة الطلب') }}</th>
-                                            <th>{{ __('تاريخ الإنشاء') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- بيانات الطلبات ستُعبأ هنا بواسطة JavaScript -->
-                                    </tbody>
-                                </table>
-                            </div>
+                            <div class="table-responsive">
+    <table id="ordersTable" class="table table-bordered text-center align-middle mb-0">
+        <thead class="thead-light">
+            <tr>
+                <th>{{ __('رقم الطلب') }}</th>
+                <th>{{ __('البريد الإلكتروني') }}</th>
+                <th>{{ __('رقم الهاتف') }}</th>
+                <th>{{ __('الإجمالي') }}</th>
+                <th>{{ __('حالة الطلب') }}</th>
+                <th>{{ __('تاريخ الإنشاء') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- بيانات الطلبات ستُعبأ هنا بواسطة JavaScript -->
+        </tbody>
+    </table>
+</div>
+
 
                             @php
                                 function getStatusText($status)
